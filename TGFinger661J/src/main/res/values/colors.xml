@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+
+    <color name="red">#FE311F</color>
+    <color name="red_01">#FF0000</color>
+    <color name="pink">#FE0057</color>
+    <color name="sao_pink">#FF8080</color>
+    <color name="sao_pink_purple">#FF80C0</color>
+    <color name="black">#374247</color>
+    <color name="purple">#AB21AC</color>
+    <color name="deep_purple">#6D3BB5</color>
+    <color name="indigo">#3752B3</color>
+    <color name="blue">#0097F3</color>
+    <color name="light_blue">#00ABF5</color>
+    <color name="cyan">#00BED5</color>
+    <color name="teal">#00978A</color>
+    <color name="green_cyan">#80FF80</color>
+    <color name="green">#00B058</color>
+    <color name="white">#FFFFFF</color>
+    <color name="white_grey">#EDEDED</color>
+    <color name="light_green">#77C353</color>
+    <color name="lime">#C9DB43</color>
+    <color name="yellow">#FEEA40</color>
+    <color name="amber">#FEBD00</color>
+    <color name="orange">#FE9100</color>
+    <color name="deep_orange">#FE4800</color>
+    <color name="brown">#805448</color>
+    <color name="grey">#9D9D9D</color>
+    <color name="blue_grey">#567D8B</color>
+</resources>

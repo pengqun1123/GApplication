@@ -1,0 +1,13 @@
+package com.TG.library.CallBack;
+
+/**
+ * Created By pq
+ * on 2019/3/22
+ */
+public interface CommitCallBack {
+
+    void commiteInfo(String info, int flag);
+
+    void showTip(String tip);
+
+}
