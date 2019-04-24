@@ -10,11 +10,23 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/devStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/green_cyan"
+        android:gravity="center"
+        android:padding="6dp"
+        android:textColor="@color/amber"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="5dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -30,7 +42,8 @@
                 android:ellipsize="end"
                 android:gravity="start"
                 android:lines="1"
-                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textColor="@color/red"
                 android:textSize="13sp" />
 
             <TextView
@@ -120,6 +133,35 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/closeDevBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/gray_white_btn_shape"
+            android:padding="3dp"
+            android:text="关闭指静脉设备"
+            android:textColor="@color/black"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/openDevBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/gray_white_btn_shape"
+            android:padding="3dp"
+            android:text="打开指静脉设备"
+            android:textColor="@color/black"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -177,6 +219,7 @@
             android:text="清除设备中所有模板"
             android:textColor="@color/black"
             android:textSize="13sp" />
+
         <Button
             android:id="@+id/clearAllHostBtn"
             android:layout_width="0dp"
@@ -196,35 +239,37 @@
         android:layout_marginTop="3dp"
         android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/UserNameEt"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="3dp"
-            android:layout_weight="1"
-            android:background="@drawable/user_name_et_shape"
-            android:ellipsize="end"
-            android:gravity="start|center_vertical"
-            android:hint="请填用户名"
-            android:inputType="text"
-            android:lines="1"
-            android:padding="3dp"
-            android:textColor="@color/blue"
-            android:textColorHint="@color/blue_grey"
-            android:textSize="13sp" />
-
-        <CheckBox
-            android:id="@+id/openContinueVerifyCb"
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="2dp"
-            android:layout_weight="0.3"
-            android:checked="false"
-            android:text="连续验证"
-            android:textColor="@color/blue"
-            android:textSize="13sp"
-            android:visibility="visible" />
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/UserNameEt"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="3dp"
+                android:background="@drawable/user_name_et_shape"
+                android:ellipsize="end"
+                android:gravity="start|center_vertical"
+                android:hint="请填用户名"
+                android:inputType="text"
+                android:lines="1"
+                android:padding="3dp"
+                android:textColor="@color/blue"
+                android:textColorHint="@color/blue_grey"
+                android:textSize="13sp" />
+
+            <ImageView
+                android:id="@+id/clearEt"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:padding="6dp"
+                android:src="@drawable/del_icon"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <Button
             android:id="@+id/registerBtn"
@@ -249,7 +294,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1.8"
+            android:layout_weight="1"
             android:gravity="center"
             android:orientation="horizontal"
             android:visibility="visible">
@@ -273,12 +318,24 @@
                 android:textSize="13sp" />
         </RadioGroup>
 
+        <CheckBox
+            android:id="@+id/openContinueVerifyCb"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="2dp"
+            android:layout_weight="0.6"
+            android:checked="false"
+            android:text="连续验证"
+            android:textColor="@color/blue"
+            android:textSize="13sp"
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/cancelVerifyBtn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0.8"
             android:background="@drawable/gray_white_btn_shape"
             android:text="取消验证/注册"
             android:textColor="@color/black"

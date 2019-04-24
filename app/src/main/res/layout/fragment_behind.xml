@@ -7,6 +7,18 @@
     tools:context="com.example.administrator.fragments.BehindFrag">
 
     <TextView
+        android:id="@+id/devStatus"
+        android:background="@color/green_cyan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="6dp"
+        android:textColor="@color/amber"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
         android:id="@+id/tipTv"
         android:layout_width="match_parent"
         android:layout_height="55dp"
@@ -19,6 +31,35 @@
         android:textColorHint="@color/teal"
         android:textSize="20sp"
         android:textStyle="bold|italic" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/closeDevBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/gray_white_btn_shape"
+            android:padding="3dp"
+            android:text="关闭指静脉设备"
+            android:textColor="@color/black"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/openDevBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/gray_white_btn_shape"
+            android:padding="3dp"
+            android:text="打开指静脉设备"
+            android:textColor="@color/black"
+            android:textSize="13sp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -77,12 +118,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
 
         <EditText
             android:id="@+id/templIDBehind"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_weight="1"
             android:background="@drawable/user_name_et_shape"
             android:gravity="start|center_vertical"
             android:hint="填写模板名称"
@@ -90,6 +134,17 @@
             android:padding="3dp"
             android:textColor="@color/blue"
             android:textSize="13sp" />
+            <ImageView
+                android:id="@+id/clearEt"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:padding="6dp"
+                android:src="@drawable/del_icon"
+                android:visibility="gone" />
+
+        </RelativeLayout>
 
         <Button
             android:id="@+id/registerBtnBehind"

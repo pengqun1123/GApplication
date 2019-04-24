@@ -6,10 +6,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +28,11 @@ import android.widget.TextView;
 
 import com.TG.library.CallBack.CommitCallBack;
 import com.TG.library.api.TG661JAPI;
+import com.TG.library.utils.AlertDialogUtil;
 import com.TG.library.utils.RegularUtil;
 import com.TG.library.utils.ToastUtil;
 import com.bumptech.glide.Glide;
+import com.example.administrator.gapplication.Main2Activity;
 import com.example.administrator.gapplication.R;
 import com.example.administrator.gapplication.TemplAdapter;
 
@@ -61,6 +67,8 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
     private Button get1_1;
     private Button get1_N;
     private ImageView iv;
+    private ImageView clearEt;
+    private boolean devStatu;
 
     public BehindFrag() {
         // Required empty public constructor
@@ -107,13 +115,21 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                      *  -1：已断开,连接中...
                      */
                     int devStatusArg = msg.arg1;
-//                    Log.d("===TTT","   设备的状态:"+devStatusArg);
-                    if (devStatusArg == 1) {
-                        if (tipTv.getText().toString().contains("断开")) {
-                            tipTv.setText("设备状态：已连接");
-                        }
-                    } else if (devStatusArg < 0) {
-                        tipTv.setText("设备状态：已断开,连接中...");
+                    if (devStatusArg >= 0) {
+//                        if (tipTv.getText().toString().contains("断开")) {
+//                            tipTv.setText("设备状态：已连接");
+                            devStatus.setText("设备状态:已连接");
+//                        }
+                    } else if (devStatusArg == -1) {
+                        tipTv.setText("设备状态：未连接");
+                        devStatus.setText("设备状态:未连接");
+                        registerBtnBehind.setText("注册");
+                        isGetImg = false;
+                    } else if (devStatusArg == -2) {
+                        tipTv.setText("设备状态：未连接/已断开");
+                        devStatus.setText("设备状态:已断开,重新连接中...");
+                        registerBtnBehind.setText("注册");
+                        isGetImg = false;
                     }
                     break;
                 case TG661JAPI.DEV_IMG_REGISTER:
@@ -143,61 +159,61 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
 //                        getTemplList();
                         tipTv.setText("设备获取图像成功");
 
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == -1) {
                         tipTv.setText("抓图超时");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == -2) {
                         tipTv.setText("设备断开");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == -3) {
                         tipTv.setText("操作取消");
                     } else if (imgArg == -4) {
                         tipTv.setText("入参错误");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == -5) {
                         tipTv.setText("该指静脉已经注册或模板名字已存在");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 3) {
                         tipTv.setText("特征融合失败，因参数不合法,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 4) {
                         tipTv.setText("特征提取失败,因证书路径错误,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 5) {
                         tipTv.setText("特征提取失败,因证书内容无效,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 6) {
                         tipTv.setText("特征提取失败,因证书内容过期,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 7) {
                         tipTv.setText("特征提取失败,因\"图像\"数据无效,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 8) {
                         tipTv.setText("特征提取失败,因\"图像\"质量较差,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (imgArg == 9) {
                         tipTv.setText("特征提取失败,因参数不合法,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     }
                     break;
-                case TG661JAPI.CANCEL_DEV_IMG:
-                    /**
-                     * 取消设备抓图
-                     * 返回值 cancelImgArg
-                     * 1:取消抓取图像成功
-                     * -1:取消抓取图像失败
-                     */
-                    int cancelImgArg = msg.arg1;
-                    if (cancelImgArg == 1) {
-                        tipTv.setText("取消抓取图像成功");
-                    } else if (cancelImgArg == -1) {
-                        tipTv.setText("取消抓取图像失败");
-                    }
-                    break;
+//                case TG661JAPI.CANCEL_DEV_IMG:
+//                    /**
+//                     * 取消设备抓图
+//                     * 返回值 cancelImgArg
+//                     * 1:取消抓取图像成功
+//                     * -1:取消抓取图像失败
+//                     */
+//                    int cancelImgArg = msg.arg1;
+//                    if (cancelImgArg == 1) {
+//                        tipTv.setText("取消注册成功");
+//                    } else if (cancelImgArg == -1) {
+//                        tipTv.setText("取消注册失败");
+//                    }
+//                    break;
                 case TG661JAPI.FEATURE_FUSION:
                     int fusionArg = msg.arg1;
                     if (fusionArg == 1) {
@@ -260,46 +276,46 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                         tipTv.setText("登记成功");
                         //显示图片
 //                        getImgData(msg);
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 3) {
                         tipTv.setText("特征融合失败，因参数不合法,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 4) {
                         tipTv.setText("特征提取失败,因证书路径错误,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 5) {
                         tipTv.setText("特征提取失败,因证书内容无效,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 6) {
                         tipTv.setText("特征提取失败,因证书内容过期,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 7) {
                         tipTv.setText("特征提取失败,因\"图像\"数据无效,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 8) {
                         tipTv.setText("特征提取失败,因\"图像\"质量较差,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 9) {
                         tipTv.setText("特征提取失败,因参数不合法,Output数据无效");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == -1) {
                         tipTv.setText("抓图超时");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == -2) {
                         tipTv.setText("设备断开");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == -3) {
                         tipTv.setText("操作取消");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == -4) {
                         tipTv.setText("入参错误");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == -5) {
                         tipTv.setText("该指静脉已经注册或模板名字已存在");
-                        registerBtnBehind.setClickable(true);
+//                        registerBtnBehind.setClickable(true);
                     }
                     break;
                 case TG661JAPI.EXTRACT_FEATURE_VERIFY:
@@ -377,12 +393,12 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                         int templScore = data.getInt(TG661JAPI.COMPARE_N_SCORE);
                         //显示图片
                         int imgLength = data.getInt("imgLength");
-                        byte[] imgData = data.getByteArray("imgData");
-                        if (imgData != null) {
-                            byte[] jpegData = new byte[imgLength];
-                            System.arraycopy(imgData, 1024 * 256, jpegData, 0, imgLength);
-                            Glide.with(getActivity()).load(jpegData).into(iv);
-                        }
+//                        byte[] imgData = data.getByteArray("imgData");
+//                        if (imgData != null) {
+//                            byte[] jpegData = new byte[imgLength];
+//                            System.arraycopy(imgData, 1024 * 256, jpegData, 0, imgLength);
+//                            Glide.with(getActivity()).load(jpegData).into(iv);
+//                        }
                         if (autoUpdateStatus) {
                             TG661JAPI.getTG661JAPI().updateHostTempl(updateTemplData,
                                     handler, templName);
@@ -390,7 +406,8 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                         tipTv.setText(MessageFormat.format("验证成功,验证分数：{0}", templScore));
                     } else if (match1Arg1 == 2) {
                         Integer match1Score = (Integer) msg.obj;
-                        tipTv.setText("特征比对（1:1）失败，因比对失败,仅Output的matchScore数据有效,分数：" + match1Score);
+                        tipTv.setText("特征比对（1:1）失败，因比对失败,仅Output的matchScore数据有效,分数："
+                                + match1Score);
                         //显示图片
 //                        getImgData(msg);
                     } else if (match1Arg1 == 3) {
@@ -566,13 +583,8 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 case TG661JAPI.TEMPL_SN:
                     int templSnArg = msg.arg1;
                     if (templSnArg == 1) {
-                        byte[] snData = (byte[]) msg.obj;
-                        try {
-                            String snStr = new String(snData, "UTF-8");
-                            tipTv.setText(MessageFormat.format("模板的序列号:{0}", snStr));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+                        String sn = (String) msg.obj;
+                        tipTv.setText(MessageFormat.format("模板的序列号:{0}", sn));
                     } else if (templSnArg == -1) {
                         tipTv.setText("获取失败，参数错误，Output数据无效");
                     } else if (templSnArg == -2) {
@@ -583,13 +595,8 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 case TG661JAPI.TEMPL_FW:
                     int fwArg = msg.arg1;
                     if (fwArg == 1) {
-                        byte[] fwData = (byte[]) msg.obj;
-                        try {
-                            String fwStr = new String(fwData, "UTF-8");
-                            tipTv.setText(MessageFormat.format("模板的固件号:{0}", fwStr));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+                        String fw = (String) msg.obj;
+                        tipTv.setText(MessageFormat.format("模板的固件号:{0}", fw));
                     } else if (fwArg == -1) {
                         tipTv.setText("获取失败，参数错误，Output数据无效");
                     } else if (fwArg == -2) {
@@ -600,13 +607,8 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 case TG661JAPI.TEMPL_TIME:
                     int templTimeArg = msg.arg1;
                     if (templTimeArg == 1) {
-                        byte[] timeData = (byte[]) msg.obj;
-                        try {
-                            String timeStr = new String(timeData, "UTF-8");
-                            tipTv.setText(MessageFormat.format("模板的注册时间:{0}", timeStr));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+                        String time = (String) msg.obj;
+                        tipTv.setText(MessageFormat.format("模板的注册时间:{0}", time));
                     } else if (templTimeArg == -1) {
                         tipTv.setText("获取失败，参数错误");
                     } else if (templTimeArg == -2) {
@@ -617,13 +619,8 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 case TG661JAPI.TEMPL_FV_VERSION:
                     int templVersionArg = msg.arg1;
                     if (templVersionArg == 1) {
-                        byte[] versionData = (byte[]) msg.obj;
-                        try {
-                            String versionStr = new String(versionData, "UTF-8");
-                            tipTv.setText(MessageFormat.format("模板的算法版本号:{0}", versionStr));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+                        String snVersion = (String) msg.obj;
+                        tipTv.setText(MessageFormat.format("模板的算法版本号:{0}", snVersion));
                     } else if (templVersionArg == -1) {
                         tipTv.setText("获取失败，参数错误");
                     } else if (templVersionArg == -2) {
@@ -631,23 +628,65 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                     }
                     getTemplAlgorVersionBtn.setClickable(true);
                     break;
+                case TG661JAPI.WAIT_DIALOG:
+                    int typeDialog = msg.arg1;
+                    if (typeDialog == 1) {
+                        String tipStr = (String) msg.obj;
+                        waitDialog = AlertDialogUtil.Instance()
+                                .showWaitDialog(getActivity(), tipStr);
+                    } else if (typeDialog == -1) {
+                        if (waitDialog != null && waitDialog.isShowing()) {
+                            waitDialog.dismiss();
+                        }
+                    }
+                    break;
+                case TG661JAPI.OPEN_DEV:
+                    int openDevArg = msg.arg1;
+                    if (openDevArg == 1) {
+                        //初始化获取主机模板列表
+                        getTemplList();
+                        tipTv.setText("设备打开成功,工作模式设置成功");
+                    } else if (openDevArg == -1) {
+                        tipTv.setText("设备打开失败");
+                    }
+                    break;
+                case TG661JAPI.CLOSE_DEV:
+                    int closeDevArg = msg.arg1;
+                    if (closeDevArg == -1) {
+                        tipTv.setText("设备状态:设备关闭失败");
+                    } else if (closeDevArg == 1) {
+                        tipTv.setText("设备状态:设备关闭成功");
+                    } else if (closeDevArg == 2) {
+                        tipTv.setText("设备状态:设备已关闭");
+                    }
+                    break;
             }
         }
     };
 
+    private AlertDialog waitDialog;
     private EditText templIDBehind;
-    private TextView volumeTt, tipTv;
+    private TextView volumeTt, tipTv, devStatus;
 
     private int templModelType = TG661JAPI.TEMPL_MODEL_6;//默认为6模板模式
     private boolean autoUpdateStatus = false;//自动更新模板
+
+    public void setDevStatus(String status) {
+        devStatus.setText(status);
+        tipTv.setText(status);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_behind, container, false);
         //后比
+        Button closeDevBtn = view.findViewById(R.id.closeDevBtn);
+        Button openDevBtn = view.findViewById(R.id.openDevBtn);
+
         templIDBehind = view.findViewById(R.id.templIDBehind);
         tipTv = view.findViewById(R.id.tipTv);
+        devStatus = view.findViewById(R.id.devStatus);
         registerBtnBehind = view.findViewById(R.id.registerBtnBehind);
         RadioGroup templSumModel = view.findViewById(R.id.templSumModel);
         final RadioButton templ3Rb = view.findViewById(R.id.templ3Rb);
@@ -670,6 +709,7 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
         getMatchTempl = view.findViewById(R.id.getMatchTempl);
         get1_1 = view.findViewById(R.id.get1_1);
         get1_N = view.findViewById(R.id.get1_N);
+        clearEt = view.findViewById(R.id.clearEt);
 
         getTemplAlgorVersionBtn = view.findViewById(R.id.getTemplAlgorVersionBtn);
         CheckBox autoUpdateTempl = view.findViewById(R.id.autoUpdateTempl);
@@ -686,6 +726,9 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
         volumeTt.setText(currentVolume);
         //初始化获取当前特征模式下的模板列表
         getTemplList();
+
+        openDevBtn.setOnClickListener(this);
+        closeDevBtn.setOnClickListener(this);
 
         registerBtnBehind.setOnClickListener(this);
         ver1_1Btn.setOnClickListener(this);
@@ -705,20 +748,45 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
         getMatchTempl.setOnClickListener(this);
         get1_1.setOnClickListener(this);
         get1_N.setOnClickListener(this);
+        clearEt.setOnClickListener(this);
+
+        templIDBehind.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (templIDBehind.getText().toString().trim().length() > 0) {
+                    clearEt.setVisibility(View.VISIBLE);
+                } else {
+                    clearEt.setVisibility(View.GONE);
+                }
+            }
+        });
 
         //3特征模板和6特征模板切换
         templSumModel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                templIDBehind.getText().clear();
-                if (i == templ3Rb.getId()) {
-                    templModelType = TG661JAPI.TEMPL_MODEL_3;
-                    TG661JAPI.getTG661JAPI().setTemplModelType(TG661JAPI.TEMPL_MODEL_3);
-                } else if (i == templ6Rb.getId()) {
-                    templModelType = TG661JAPI.TEMPL_MODEL_6;
-                    TG661JAPI.getTG661JAPI().setTemplModelType(TG661JAPI.TEMPL_MODEL_6);
+                devStatu = checkDevStatus();
+                if (devStatu) {
+                    templIDBehind.getText().clear();
+                    if (i == templ3Rb.getId()) {
+                        templModelType = TG661JAPI.TEMPL_MODEL_3;
+                        TG661JAPI.getTG661JAPI().setTemplModelType(TG661JAPI.TEMPL_MODEL_3);
+                    } else if (i == templ6Rb.getId()) {
+                        templModelType = TG661JAPI.TEMPL_MODEL_6;
+                        TG661JAPI.getTG661JAPI().setTemplModelType(TG661JAPI.TEMPL_MODEL_6);
+                    }
+                    getTemplList();
                 }
-                getTemplList();
             }
         });
         autoUpdateStatus = autoUpdateTempl.isChecked();
@@ -739,11 +807,40 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
         templAdapter.addData(aimFileList);
     }
 
+    private boolean checkDevStatus() {
+        boolean devOpen = TG661JAPI.getTG661JAPI().isDevOpen();
+        if (!devOpen) {
+            ToastUtil.toast(getActivity(), "请先开启设备");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     boolean isGetImg = false;
+    private TG661JAPI tg661JAPI = TG661JAPI.getTG661JAPI();
+    private int workType = TG661JAPI.WORK_BEHIND;//设备工作模式--》前比
+    private boolean devOpen;
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case R.id.openDevBtn:
+                devOpen = tg661JAPI.isDevOpen();
+                if (!devOpen) {
+                    tg661JAPI.openDev(handler, getActivity(), workType, templModelType);
+                } else {
+                    ToastUtil.toast(getActivity(), "设备已经开启");
+                }
+                break;
+            case R.id.closeDevBtn:
+                devOpen = tg661JAPI.isDevOpen();
+                if (devOpen) {
+                    tg661JAPI.closeDev(handler);
+                } else {
+                    ToastUtil.toast(getActivity(), "设备已经关闭");
+                }
+                break;
             ////后比
             case R.id.registerBtnBehind:
                 //注册
@@ -754,8 +851,20 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                     //检测注册名只包含字母或数字或中文
                     boolean b = RegularUtil.strContainsNumOrAlpOrChin(templID);
                     if (b) {
-                        TG661JAPI.getTG661JAPI().extractFeatureRegister(handler, templModelType, templID);
-                        registerBtnBehind.setClickable(false);
+                        devStatu = checkDevStatus();
+                        if (devStatu) {
+//                        if (!isGetImg) {
+                            TG661JAPI.getTG661JAPI().extractFeatureRegister(handler, templModelType, templID);
+//                            registerBtnBehind.setClickable(false);
+                            registerBtnBehind.setText("取消注册");
+                            isGetImg = true;
+//                        } else {
+//                            TG661JAPI.getTG661JAPI().behindCancelRegister(handler);
+//                            TG661JAPI.getTG661JAPI().cancelDevImg(handler);
+//                            registerBtnBehind.setText("注册");
+//                            isGetImg = false;
+//                        }
+                        }
                     } else {
                         ToastUtil.toast(getActivity(), "注册的模板名称不可包含数字/字母/中文以外的字符");
                     }
@@ -767,22 +876,31 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 if (TextUtils.isEmpty(templName)) {
                     ToastUtil.toast(getActivity(), "请选择要比对的模板文件");
                 } else {
-                    TG661JAPI.getTG661JAPI().featureCompare1_1(handler, templName);
-                    ver1_1Btn.setClickable(false);
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().featureCompare1_1(handler, templName);
+                        ver1_1Btn.setClickable(false);
+                    }
                 }
                 break;
             case R.id.ver1_NBtn:
                 //1:N验证
-                TG661JAPI.getTG661JAPI().featureCompare1_N(handler);
-                ver1_nBtn.setClickable(false);
+                devStatu = checkDevStatus();
+                if (devStatu) {
+                    TG661JAPI.getTG661JAPI().featureCompare1_N(handler);
+                    ver1_nBtn.setClickable(false);
+                }
                 break;
             case R.id.getTemplSN:
                 String snTemplName = templIDBehind.getText().toString().trim();
                 if (TextUtils.isEmpty(snTemplName)) {
                     ToastUtil.toast(getActivity(), "模板名字不能为空");
                 } else {
-                    TG661JAPI.getTG661JAPI().getTemplSN(handler, snTemplName);
-                    getTemplSN.setClickable(false);
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().getTemplSN(handler, snTemplName);
+                        getTemplSN.setClickable(false);
+                    }
                 }
                 break;
             case R.id.getTemplFW:
@@ -790,8 +908,11 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 if (TextUtils.isEmpty(fwTemplName)) {
                     ToastUtil.toast(getActivity(), "模板名字不能为空");
                 } else {
-                    TG661JAPI.getTG661JAPI().getTemplFW(handler, fwTemplName);
-                    getTemplFW.setClickable(false);
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().getTemplFW(handler, fwTemplName);
+                        getTemplFW.setClickable(false);
+                    }
                 }
                 break;
             case R.id.templTimeBtn:
@@ -799,8 +920,11 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 if (TextUtils.isEmpty(timeTemplName)) {
                     ToastUtil.toast(getActivity(), "模板名字不能为空");
                 } else {
-                    TG661JAPI.getTG661JAPI().getTemplTime(handler, timeTemplName);
-                    templTimeBtn.setClickable(false);
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().getTemplTime(handler, timeTemplName);
+                        templTimeBtn.setClickable(false);
+                    }
                 }
                 break;
             case R.id.getTemplAlgorVersionBtn:
@@ -808,8 +932,11 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 if (TextUtils.isEmpty(fvVersionTemplName)) {
                     ToastUtil.toast(getActivity(), "模板名字不能为空");
                 } else {
-                    TG661JAPI.getTG661JAPI().getTemplVersion(handler, fvVersionTemplName);
-                    getTemplAlgorVersionBtn.setClickable(false);
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().getTemplVersion(handler, fvVersionTemplName);
+                        getTemplAlgorVersionBtn.setClickable(false);
+                    }
                 }
                 break;
             case R.id.voiceIncreaceBtn:
@@ -844,26 +971,38 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                 if (TextUtils.isEmpty(templNameID)) {
                     ToastUtil.toast(getActivity(), "模板名字不能为空");
                 } else {
-                    TG661JAPI.getTG661JAPI().deleteHostIdTempl(handler, templNameID);
-                    delIDHostTemplBtn.setClickable(false);
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().deleteHostIdTempl(handler, templNameID);
+                        delIDHostTemplBtn.setClickable(false);
+                    }
                 }
                 break;
             case R.id.delAllHostTemplBtn:
                 //删除主机中的所有模板
-                TG661JAPI.getTG661JAPI().deleteHostAllTempl(handler);
-                delAllHostTemplBtn.setClickable(false);
+                devStatu = checkDevStatus();
+                if (devStatu) {
+                    TG661JAPI.getTG661JAPI().deleteHostAllTempl(handler);
+                    delAllHostTemplBtn.setClickable(false);
+                }
                 break;
 
             //测试
             case R.id.getImg://抓图
                 if (!isGetImg) {
-                    TG661JAPI.getTG661JAPI().getDevImg(handler);
-                    getImg.setText("取消抓图");
-                    isGetImg = true;
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().getDevImg(handler);
+                        getImg.setText("取消抓图");
+                        isGetImg = true;
+                    }
                 } else {
-                    TG661JAPI.getTG661JAPI().cancelDevImg(handler);
-                    getImg.setText("抓图");
-                    isGetImg = false;
+                    devStatu = checkDevStatus();
+                    if (devStatu) {
+                        TG661JAPI.getTG661JAPI().cancelDevImg(handler);
+                        getImg.setText("抓图");
+                        isGetImg = false;
+                    }
                 }
                 break;
             case R.id.getImgFeature://从图像提取特征
@@ -872,6 +1011,9 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                         TG661JAPI.getTG661JAPI().fusionFeature(handler, imgDatas);
                     }
                 }
+                break;
+            case R.id.clearEt:
+                templIDBehind.getText().clear();
                 break;
             case R.id.getFeatureTempl://特征融合成为模板
 

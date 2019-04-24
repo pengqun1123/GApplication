@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.TG.library.api.TGXG661API;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -102,6 +103,7 @@ public class DevService extends Service {
                 //设备已经连接
                 devServiceMessage.arg1 = 0;
             } else {
+                writeCMD();
                 //设备未连接
                 devServiceMessage.arg1 = -2;
             }
@@ -113,6 +115,18 @@ public class DevService extends Service {
                     Log.d("===TAG===", "  DevService 向客户端发送信息失败！");
                 }
             }
+        }
+    }
+
+    private void writeCMD(){
+        String command = "chmod -R 777 /dev/bus/usb";
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
+            int i = process.waitFor();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }

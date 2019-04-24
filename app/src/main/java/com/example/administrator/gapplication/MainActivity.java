@@ -714,7 +714,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if (TextUtils.isEmpty(templId)) {
                         ToastUtil.toast(MainActivity.this, "请填写模板名称");
                     } else {
-                        TG661JAPI.getTG661JAPI().registerDev(handler, templId.getBytes());
+                        TG661JAPI.getTG661JAPI().registerDev(handler, templId);
                     }
                 } else {
                     ToastUtil.toast(MainActivity.this, "请开启设备");
@@ -725,7 +725,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (TextUtils.isEmpty(templId)) {
                     ToastUtil.toast(MainActivity.this, "请填写模板名称");
                 } else {
-                    TG661JAPI.getTG661JAPI().verifyDev1_1(handler, templId.getBytes());
+                    TG661JAPI.getTG661JAPI().verifyDev1_1(handler, templId);
                 }
                 break;
             case R.id.verify1_NBtn:
@@ -788,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (TextUtils.isEmpty(templ_ID)) {
                     ToastUtil.toast(MainActivity.this, "请填写模板名称");
                 } else {
-                    TG661JAPI.getTG661JAPI().delIDTemplDev(handler, templ_ID.getBytes(), templModelType);
+                    TG661JAPI.getTG661JAPI().delIDTemplDev(handler, templ_ID, templModelType);
                 }
                 break;
             case R.id.delHostTmpBtn:
@@ -809,7 +809,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 TG661JAPI.getTG661JAPI().getDevTemplNum(handler, templType);
                 break;
             case R.id.getDevSaveTmpListBtn:
-                TG661JAPI.getTG661JAPI().getDevTemplList(handler,templType);
+                TG661JAPI.getTG661JAPI().getDevTemplList(handler);
                 break;
             case R.id.getDevWorkModel:
                 TG661JAPI.getTG661JAPI().getDevWorkModel(handler);

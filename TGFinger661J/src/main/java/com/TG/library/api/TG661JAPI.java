@@ -119,11 +119,13 @@ public class TG661JAPI {
     public static final int UPDATE_HOST_TEMPL = 0xf47;//更新主机中的模板
     public static final int SET_DEV_MODEL = 0xf48;//设置设备模式
     public static final int BEHIND_CANCEL_REGISTER = 0xf49;//后比取消注册
+    public static final int DEV_PLAY_VOICE = 0xf50;//设备播放声音资源
 
     public static final String COMPARE_N_TEMPL = "update_templ";//1:N验证的模板
     public static final String COMPARE_N_INDEX = "n_index";//模板的索引
     public static final String COMPARE_N_SCORE = "n_score";//1:N验证的分数
     public static final String COMPARE_NAME = "templ_name";//1:N验证的分数
+    public static final String TEMP_LIST = "templ_list";//模板列表
 
 
     //3模板
@@ -144,12 +146,14 @@ public class TG661JAPI {
     private static final int T_SIZE = 1024 * 500;
     //完整的特征大小
     private static final int PERFECT_FEATURE_17682 = 17682;
+    private static final int PERFECT_FEATURE_35058 = 35058;
     private static final int PERFECT_FEATURE_3 = 17632;//3特征
     private static final int PERFECT_FEATURE_6 = 35008;//6特征
     //可比对的特征大小
     private static final int WAIT_COMPARE_FEATURE_6 = 34784;//6特征
     private static final int WAIT_COMPARE_FEATURE_3 = 17408;//3特征
     private static final int GET_IMG_OUT_TIME = 15;//默认设置抓图超时的时间为15S
+    private static final int GET_IMG_OUT_TIME_5000 = 5000;//默认设置抓图超时的时间为5000
     //1:N验证的类型，1:注册时检查指静脉是否已经注册  2:验证指静脉
     private static final int VERIFY_N_REGISTER = 0xC1;
     private static final int VERIFY_N_VER = 0xC2;
@@ -237,10 +241,11 @@ public class TG661JAPI {
         if (rootSystem) {
             LogUtils.d("设备已经Root");
         } else {
-            ToastUtil.toast(context,"设备没有Root，无法使用");
+            ToastUtil.toast(context, "设备没有Root，无法使用");
             LogUtils.d("设备没有Root，无法使用");
             return;
         }
+        writeCMD();
         //检查设备的权限
         checkPermissions(2);
         createDirPath();
@@ -324,7 +329,7 @@ public class TG661JAPI {
     /**
      * 获取SDK的版本
      */
-    public String getSDKVersion(){
+    public String getSDKVersion() {
         return SDK_VERSION;
     }
 
@@ -348,9 +353,10 @@ public class TG661JAPI {
         if (devStatus == -1) {
             devStatus = getTG661().TGGetDevStatus();
             if (devStatus >= 0) {
-                LogUtils.d("=====>>>>> 打开设备接口调用成功 ");
                 return;
             }
+            writeCMD();
+            checkPermissions(2);
             work(mHandler, OPEN_DEV);
         }
     }
@@ -363,6 +369,7 @@ public class TG661JAPI {
      * 关闭设备
      */
     public void closeDev(Handler handler) {
+        this.handler = handler;
         if (!devOpen) {
             //设备处于关闭状态
             Message closeMsg = handler.obtainMessage();
@@ -379,6 +386,7 @@ public class TG661JAPI {
      * 设置设备得模式
      */
     public void setDevWorkModel(Handler handler, int workType, int templModelType) {
+        this.handler = handler;
         this.templModelType = templModelType;
         this.workType = workType;
         work(handler, SET_DEV_MODEL);
@@ -453,9 +461,8 @@ public class TG661JAPI {
     /**
      * 获取设备端模板信息列表
      */
-    public void getDevTemplList(Handler handler, int templType) {
+    public void getDevTemplList(Handler handler) {
         this.handler = handler;
-        this.templModelType = templType;
         work(handler, DEV_TEMPL_LIST);
     }
 
@@ -469,22 +476,28 @@ public class TG661JAPI {
 
     public void setDevVoice(Handler handler, int type) {
         this.handler = handler;
-        int setVoiceValue = VOICE_VOLUME4;
         if (type == 1) {
             if (CurrentDevVoiceValue == VOICE_VOLUME0) {
-                setVoiceValue = VOICE_VOLUME1;
+                this.devVoice = VOICE_VOLUME1;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME1) {
-                setVoiceValue = VOICE_VOLUME2;
+                this.devVoice = VOICE_VOLUME2;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME2) {
-                setVoiceValue = VOICE_VOLUME3;
+                this.devVoice = VOICE_VOLUME3;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME3) {
-                setVoiceValue = VOICE_VOLUME4;
+                this.devVoice = VOICE_VOLUME4;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME4) {
-                setVoiceValue = VOICE_VOLUME5;
+                this.devVoice = VOICE_VOLUME5;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME5) {
-                setVoiceValue = VOICE_VOLUME6;
+                this.devVoice = VOICE_VOLUME6;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME6) {
-                setVoiceValue = VOICE_VOLUME7;
+                this.devVoice = VOICE_VOLUME7;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME7) {
                 Message voiceMsg = handler.obtainMessage();
                 voiceMsg.what = DEV_VOICE;
@@ -493,19 +506,26 @@ public class TG661JAPI {
             }
         } else if (type == 2) {
             if (CurrentDevVoiceValue == VOICE_VOLUME7) {
-                setVoiceValue = VOICE_VOLUME6;
+                this.devVoice = VOICE_VOLUME6;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME6) {
-                setVoiceValue = VOICE_VOLUME5;
+                this.devVoice = VOICE_VOLUME5;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME5) {
-                setVoiceValue = VOICE_VOLUME4;
+                this.devVoice = VOICE_VOLUME4;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME4) {
-                setVoiceValue = VOICE_VOLUME3;
+                this.devVoice = VOICE_VOLUME3;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME3) {
-                setVoiceValue = VOICE_VOLUME2;
+                this.devVoice = VOICE_VOLUME2;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME2) {
-                setVoiceValue = VOICE_VOLUME1;
+                this.devVoice = VOICE_VOLUME1;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME1) {
-                setVoiceValue = VOICE_VOLUME0;
+                this.devVoice = VOICE_VOLUME0;
+                work(handler, DEV_VOICE);
             } else if (CurrentDevVoiceValue == VOICE_VOLUME0) {
                 Message voiceMsg = handler.obtainMessage();
                 voiceMsg.what = DEV_VOICE;
@@ -513,24 +533,31 @@ public class TG661JAPI {
                 handler.sendMessage(voiceMsg);
             }
         }
-        this.devVoice = setVoiceValue;
-        work(handler, DEV_VOICE);
+    }
+
+    /**
+     * 设备播放语音
+     */
+    private int voiceRes;
+
+    public void devPlayVoice(Handler handler, int res) {
+        this.handler = handler;
+        voiceRes = res;
+        work(handler, DEV_PLAY_VOICE);
     }
 
     /**
      * 注册模板
      */
-    private byte[] userID;
-
-    public void registerDev(Handler handler/*int typeReturn,*/, byte[] userID) {
+    public void registerDev(Handler handler, String userID) {
         this.handler = handler;
-        if (userID.length > 49 || userID == null) {
+        if (userID.getBytes().length > 49) {
             Message devRegisterMsg = handler.obtainMessage();
             devRegisterMsg.what = DEV_REGISTER;
             devRegisterMsg.arg1 = -9;
             handler.sendMessage(devRegisterMsg);
         } else {
-            this.userID = userID;
+            this.templNameID = userID;
             work(handler, DEV_REGISTER);
         }
     }
@@ -541,22 +568,23 @@ public class TG661JAPI {
      * @param handler
      * @param userNameID
      */
-    public void verifyDev1_1(Handler handler, /*int typeReturn,*/ byte[] userNameID) {
-        if (userNameID == null) {
+    public void verifyDev1_1(Handler handler,String userNameID) {
+        if (TextUtils.isEmpty(userNameID)) {
             Message verDev1_1Msg = handler.obtainMessage();
             verDev1_1Msg.what = DEV_VERIFY1_1;
             verDev1_1Msg.arg1 = -9;
             handler.sendMessage(verDev1_1Msg);
         }
-        this.userID = userNameID;
+        this.handler = handler;
+        this.templNameID = userNameID;
         work(handler, DEV_VERIFY1_1);
     }
 
     /**
      * 请求设备验证模板1：N
      */
-    public void devModelVerify(Handler handler/*int returnImgVerType*/) {
-//        this.retImgVerType = returnImgVerType;
+    public void devModelVerify(Handler handler) {
+        this.handler = handler;
         work(handler, DEV_VERIFY_TEMPL);
     }
 
@@ -566,6 +594,7 @@ public class TG661JAPI {
      * @param handler
      */
     public void cancelVerify(Handler handler) {
+        this.handler = handler;
         work(handler, CANCEL_VERIFY);
     }
 
@@ -578,6 +607,7 @@ public class TG661JAPI {
     private int retImgType;
 
     public void continueVerify(Handler handler, int retImgType) {
+        this.handler = handler;
         this.retImgType = retImgType;
         work(handler, CONTINUE_VERIFY);
     }
@@ -597,6 +627,7 @@ public class TG661JAPI {
             handler.sendMessage(writeDevInfoMsg);
             return;
         }
+        this.handler = handler;
         this.devInfo = info;
         work(handler, WRITE_DEV_INFO);
     }
@@ -607,6 +638,7 @@ public class TG661JAPI {
      * @param handler
      */
     public void readDevInfo(Handler handler) {
+        this.handler = handler;
         work(handler, READ_DEV_INFO);
     }
 
@@ -628,6 +660,7 @@ public class TG661JAPI {
             String fileName = datFileName.substring(0, datFileName.indexOf(".dat"));
             this.templId = fileName.getBytes();
         }
+        this.handler = handler;
         this.templateName = datFileName;
         this.templModelType = templModelType;
         work(handler, UP_TEMPL_HOST);
@@ -650,8 +683,10 @@ public class TG661JAPI {
             handler.sendMessage(downTemplMsg);
             return;
         }
+        this.handler = handler;
         this.templNameID = datFileName;
         this.templModelType = templModelType;
+        Log.d("===LOG", "   模板模式类型：" + templModelType);
         work(handler, DOWN_TEMPL_DEV);
     }
 
@@ -663,15 +698,18 @@ public class TG661JAPI {
      */
     private byte[] templId;
 
-    public void delIDTemplDev(Handler handler, byte[] templID, int templModelType) {
-        if (templID == null) {
+    public void delIDTemplDev(Handler handler, String datFileName, int templModelType) {
+        this.handler = handler;
+        if (TextUtils.isEmpty(datFileName)) {
             Message delIdTemplMsg = handler.obtainMessage();
             delIdTemplMsg.what = DEV_DEL_ID_TEMPL;
             delIdTemplMsg.arg1 = -9;
             handler.sendMessage(delIdTemplMsg);
             return;
+        } else {
+            String fileName = datFileName.substring(0, datFileName.indexOf(".dat"));
+            this.templId = fileName.getBytes();
         }
-        this.templId = templID;
         this.templModelType = templModelType;
         work(handler, DEV_DEL_ID_TEMPL);
     }
@@ -682,6 +720,7 @@ public class TG661JAPI {
      * @param handler
      */
     public void getDevImg(Handler handler) {
+        this.handler = handler;
         work(handler, DEV_IMG_REGISTER);
     }
 
@@ -691,6 +730,7 @@ public class TG661JAPI {
      * @param handler
      */
     public void cancelDevImg(Handler handler) {
+        this.handler = handler;
         work(handler, CANCEL_DEV_IMG);
     }
 
@@ -700,6 +740,7 @@ public class TG661JAPI {
      * @param handler
      */
     public void upTemplPacHost(Handler handler, int templModelType) {
+        this.handler = handler;
         this.templModelType = templModelType;
         work(handler, UP_TEMPL_PAC_HOST);
     }
@@ -710,6 +751,7 @@ public class TG661JAPI {
      * @param handler
      */
     public void downTemplPacDev(Handler handler, int templModelType) {
+        this.handler = handler;
         this.templModelType = templModelType;
         work(handler, DOWN_TEMPL_PAC_DEV);
     }
@@ -727,6 +769,7 @@ public class TG661JAPI {
     private int index;
 
     public void writeFileHost(Handler handler, byte[] templateData, String templateName, int index) {
+        this.handler = handler;
         if (TextUtils.isEmpty(templateName) || templateData == null) {
             Message writeFileMsg = handler.obtainMessage();
             writeFileMsg.what = WRITE_FILE;
@@ -753,6 +796,7 @@ public class TG661JAPI {
      * 初始化算法
      */
     public void initFV(Handler handler) {
+        this.handler = handler;
         work(handler, INIT_FV);
     }
 
@@ -778,7 +822,7 @@ public class TG661JAPI {
         this.templModelType = templModelType;
         this.hasTemplName = false;
         this.isCheck = false;
-        this.lastTemplName="";
+        this.lastTemplName = "";
     }
 
     /**
@@ -789,6 +833,7 @@ public class TG661JAPI {
      * @param templId
      */
     private String lastTemplName = "";
+//    private boolean isRegistering = false;
 
     public void extractFeatureRegister(Handler handler, int templModelType, String templId) {
         if (TextUtils.isEmpty(templId)) {
@@ -833,9 +878,10 @@ public class TG661JAPI {
     /**
      * 后比取消注册
      */
-//    public void behindCancelRegister(Handler handler){
-//        BEHIND_CANCEL_REGISTER
-//    }
+    public void behindCancelRegister(Handler handler) {
+        this.handler = handler;
+        work(handler, BEHIND_CANCEL_REGISTER);
+    }
 
     /**
      * 提取特征(验证使用)
@@ -1142,18 +1188,26 @@ public class TG661JAPI {
                 switch (flag) {
                     case OPEN_DEV:
                         showWaitDialog(1, "正在打开设备...");
-                        //打开设备
-                        // 1：后比工作模式  0：前比工作模式
+                        /**
+                         * 打开设备：默认前比3特征模板的工作模式,不支持连续验证
+                         * 1：后比工作模式  0：前比工作模式
+                         */
                         IntByReference mode = new IntByReference();
-                        mode.setValue(-1);
                         int openDevRes = getTG661().TGOpenDev(mode);
                         Message openDevMsg = handler.obtainMessage();
                         openDevMsg.what = OPEN_DEV;
                         if (openDevRes >= 0) {
                             //取消连续验证
                             cancelVerify(handler);
-                            // 1：后比工作模式  0：前比工作模式
+                            //设置工作模式
                             setDevWorkModel(handler, workType, templModelType);
+                            Log.d("===GGG","  workType:"+workType+"  templModelType:"+templModelType);
+                            //初始化设置设备的音量 4
+                            if (workType==WORK_FRONT){
+                                getTG661().TGPlayDevVoice(VOICE_VOLUME4);
+                                CurrentDevVoiceValue = VOICE_VOLUME4;
+                                currentVoice = "4";
+                            }
                             devOpen = true;
                             devClose = false;
                             //发送打开设备的结果:
@@ -1161,7 +1215,6 @@ public class TG661JAPI {
                             if (!licenseFlag) {
                                 //初始化证书
                                 licenseFlag = InitLicense(context);
-                                LogUtils.d("写入算法证书结果:" + licenseFlag);
                             }
                             //启动后台devService
                             if (!isStart) {
@@ -1211,6 +1264,8 @@ public class TG661JAPI {
                                 setDevModeRes1 = getTG661().TGSetDevMode(1);
                             }
                         }
+                        Log.d("===OOO","   workType:"+workType+
+                                " :: templModelType:"+templModelType+" :: setDevModeRes1:"+setDevModeRes1);
                         Message devModelMsg = handler.obtainMessage();
                         devModelMsg.what = SET_DEV_MODEL;
                         if (setDevModeRes1 == 0) {
@@ -1333,12 +1388,11 @@ public class TG661JAPI {
                             devWorkMsg.arg1 = -1;
                         } else {
                             type = 0;
-                            getDevTemplNum(handler, type);
-                            if (ibr.getValue()==0){
+                            if (ibr.getValue() == 0) {
                                 devWorkMsg.arg1 = 1;
-                            }else if (ibr.getValue()==1){
+                            } else if (ibr.getValue() == 1) {
                                 devWorkMsg.arg1 = 2;
-                            }else if (ibr.getValue()==2){
+                            } else if (ibr.getValue() == 2) {
                                 devWorkMsg.arg1 = 3;
                             }
                         }
@@ -1351,13 +1405,25 @@ public class TG661JAPI {
                         Message clearDevTmplMsg = handler.obtainMessage();
                         clearDevTmplMsg.what = DEV_TEMPL_CLEAR;
                         if (clearDevTemplRes == 0) {
-                            clearDevTmplMsg.arg1 = 0;
-                        } else if (clearDevTemplRes == 1) {
                             clearDevTmplMsg.arg1 = 1;
+                        } else if (clearDevTemplRes == 1) {
+                            clearDevTmplMsg.arg1 = 2;
                         } else if (clearDevTemplRes == -1) {
                             clearDevTmplMsg.arg1 = -1;
                         }
                         handler.sendMessage(clearDevTmplMsg);
+                        break;
+                    case DEV_PLAY_VOICE:
+                        //设备播放声音资源
+                        int devVoiceRes1 = getTG661().TGPlayDevVoice(voiceRes);
+                        Message devVoiceMsg1 = handler.obtainMessage();
+                        devVoiceMsg1.what = DEV_PLAY_VOICE;
+                        if (devVoiceRes1 == 0) {
+                            devVoiceMsg1.arg1 = 1;
+                        } else {
+                            devVoiceMsg1.arg1 = -1;
+                        }
+                        handler.sendMessage(devVoiceMsg1);
                         break;
                     case DEV_VOICE:
                         //调节设备音量
@@ -1383,7 +1449,7 @@ public class TG661JAPI {
                                 currentVoice = "7";
                             }
                             CurrentDevVoiceValue = TG661JAPI.this.devVoice;
-                            devVoiceMsg.arg1 = 0;
+                            devVoiceMsg.arg1 = 1;
                             devVoiceMsg.obj = currentVoice;
                         } else {
                             devVoiceMsg.arg1 = -1;
@@ -1392,18 +1458,26 @@ public class TG661JAPI {
                         break;
                     case DEV_REGISTER:
                         //用户注册
-                        int devRegFingerRes = getTG661().TGDevRegFinger(0, userID);
+                        byte[] userIDByte = new byte[49];
+                        System.arraycopy(templNameID.getBytes(), 0, userIDByte,
+                                0, templNameID.getBytes().length);
+                        int devRegFingerRes = getTG661().TGDevRegFinger(0, userIDByte);
                         Message registerMsg = handler.obtainMessage();
                         registerMsg.what = DEV_REGISTER;
                         boolean loopReg = true;
+                        byte[] userTempId=new byte[49];
                         if (devRegFingerRes >= 0) {
                             while (loopReg) {
-                                int identReturnRes = getTG661().TGGetDevRegIdentReturn(userID,
-                                        5000);
+                                int identReturnRes = getTG661().TGGetDevRegIdentReturn(userTempId,
+                                        GET_IMG_OUT_TIME_5000);
                                 if (identReturnRes == 2) {
                                     //登记成功 发送注册的结果
                                     loopReg = false;
-                                    registerMsg.arg1 = 0;
+                                    registerMsg.arg1 = 1;
+                                } else if (identReturnRes == 3) {
+                                    //登记成功 发送注册的结果
+                                    loopReg = false;
+                                    registerMsg.arg1 = 2;
                                 }
                             }
                         } else {
@@ -1418,7 +1492,7 @@ public class TG661JAPI {
                         Message continueVerifyMsg = handler.obtainMessage();
                         continueVerifyMsg.what = CONTINUE_VERIFY;
                         if (continueIdentFingerRes >= 0) {
-                            continueVerifyMsg.arg1 = 0;
+                            continueVerifyMsg.arg1 = 1;
                         } else {
                             continueVerifyMsg.arg1 = -1;
                         }
@@ -1433,15 +1507,23 @@ public class TG661JAPI {
                             devSingleVerifyMsg.arg1 = -1;
                         } else if (devIdentFingerRes == 0) {
                             boolean tgCjangeIdent = true;
+                            byte[] userId=new byte[49];
                             while (tgCjangeIdent) {
-                                int identReturnRes = getTG661().TGGetDevRegIdentReturn(userID,
-                                        5000);
+                                int identReturnRes = getTG661().TGGetDevRegIdentReturn(userId,
+                                        GET_IMG_OUT_TIME_5000);
+                                Log.d("===LOG","    1：N验证的结果："+identReturnRes);
                                 if (identReturnRes == VOICE_IDENT_SUCCESS) {
-                                    devSingleVerifyMsg.arg1 = 0;
-                                    tgCjangeIdent = false;
-                                } else if (identReturnRes == VOICE_IDENT_FAIL) {
                                     devSingleVerifyMsg.arg1 = 1;
                                     tgCjangeIdent = false;
+                                    break;
+                                } else if (identReturnRes == VOICE_IDENT_FAIL) {
+                                    devSingleVerifyMsg.arg1 = 2;
+                                    tgCjangeIdent = false;
+                                    break;
+                                }else if (identReturnRes == -2){
+                                    devSingleVerifyMsg.arg1 = -2;
+                                    tgCjangeIdent = false;
+                                    break;
                                 }
                             }
                         }
@@ -1449,24 +1531,36 @@ public class TG661JAPI {
                         break;
                     case DEV_VERIFY1_1:
                         //1：1验证
+                        byte[] userID = new byte[49];
+                        System.arraycopy(templNameID.getBytes(), 0, userID,
+                                0, templNameID.getBytes().length);
                         int tgChangeIdentModeRes = getTG661().TGChangeIdentMode(retImgType, userID);
+                        Log.d("===LOG","   调用1：1验证接口："+tgChangeIdentModeRes);
                         Message verifyMsg1_1 = handler.obtainMessage();
                         verifyMsg1_1.what = DEV_VERIFY1_1;
-                        if (tgChangeIdentModeRes == 1) {
+                        if (tgChangeIdentModeRes == 0) {
                             boolean tgCjangeIdent = true;
+                            byte[] userTempID=new byte[49];
                             while (tgCjangeIdent) {
-                                int identReturnRes = getTG661().TGGetDevRegIdentReturn(userID,
-                                        5000);
+                                int identReturnRes = getTG661().TGGetDevRegIdentReturn(userTempID,
+                                        GET_IMG_OUT_TIME_5000);
+                                Log.d("===LOG","    1：1验证的结果："+identReturnRes);
                                 if (identReturnRes == VOICE_IDENT_SUCCESS) {
-                                    verifyMsg1_1.arg1 = 0;
-                                    tgCjangeIdent = false;
-                                } else if (identReturnRes == VOICE_IDENT_FAIL) {
                                     verifyMsg1_1.arg1 = 1;
                                     tgCjangeIdent = false;
+                                    break;
+                                } else if (identReturnRes == VOICE_IDENT_FAIL) {
+                                    verifyMsg1_1.arg1 = 2;
+                                    tgCjangeIdent = false;
+                                    break;
+                                }else if (identReturnRes == -2){
+                                    verifyMsg1_1.arg1 = -2;
+                                    tgCjangeIdent = false;
+                                    break;
                                 }
                             }
-                        } else if (tgChangeIdentModeRes == 2) {
-                            verifyMsg1_1.arg1 = 2;
+                        } else if (tgChangeIdentModeRes == -2) {
+                            verifyMsg1_1.arg1 = 3;
                         } else {
                             verifyMsg1_1.arg1 = -1;
                         }
@@ -1478,7 +1572,7 @@ public class TG661JAPI {
                         Message cancelMsg = handler.obtainMessage();
                         cancelMsg.what = CANCEL_VERIFY;
                         if (cancelDevRegIdentRes == 0) {
-                            cancelMsg.arg1 = 0;
+                            cancelMsg.arg1 = 1;
                         } else {
                             cancelMsg.arg1 = -1;
                         }
@@ -1489,7 +1583,7 @@ public class TG661JAPI {
                         Message writeDevMsg = handler.obtainMessage();
                         writeDevMsg.what = WRITE_DEV_INFO;
                         if (tgWriteDevInfoRes == 0) {
-                            writeDevMsg.arg1 = 0;
+                            writeDevMsg.arg1 = 1;
                         } else if (tgWriteDevInfoRes == -1) {
                             writeDevMsg.arg1 = -1;
                         } else if (tgWriteDevInfoRes == -2) {
@@ -1500,13 +1594,14 @@ public class TG661JAPI {
                     case READ_DEV_INFO:
                         //获取设备信息
                         byte[] DevInfo = new byte[1024];
-                        int tgReadDevInfoRes = getTG661().TGReadDevInfo(devInfo, DevInfo.length);
+                        int DevInfoLength = 1024;
+                        int tgReadDevInfoRes = getTG661().TGReadDevInfo(DevInfo, DevInfoLength);
                         Message readMsg = handler.obtainMessage();
                         readMsg.what = READ_DEV_INFO;
                         if (tgReadDevInfoRes >= 0) {
                             try {
                                 String info = new String(DevInfo, "UTF-8");
-                                readMsg.arg1 = 0;
+                                readMsg.arg1 = 1;
                                 readMsg.obj = info;
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
@@ -1520,11 +1615,17 @@ public class TG661JAPI {
                         break;
                     case UP_TEMPL_HOST:
                         //上传单个模板到主机
-                        //显示
                         showWaitDialog(1, "正在上传模板到主机");
-                        byte[] templData = new byte[PERFECT_FEATURE_3];
+                        byte[] templData = null;
+                        if (templModelType == TEMPL_MODEL_3) {
+                            templData = new byte[PERFECT_FEATURE_3];
+                        } else if (templModelType == TEMPL_MODEL_6) {
+                            templData = new byte[PERFECT_FEATURE_6];
+                        }
                         IntByReference inBr = new IntByReference();
-                        int upDevTmplRes = getTG661().TGUpDevTmpl(templId, templData, inBr);
+                        byte[] templIdData = new byte[49];
+                        System.arraycopy(templId, 0, templIdData, 0, templId.length);
+                        int upDevTmplRes = getTG661().TGUpDevTmpl(templIdData, templData, inBr);
                         Message upTemplMsg = handler.obtainMessage();
                         upTemplMsg.what = UP_TEMPL_HOST;
                         if (upDevTmplRes < 0) {
@@ -1533,17 +1634,16 @@ public class TG661JAPI {
                             //成功之后，写入模板数据到主机文件
                             boolean writeTemplHost = writeTemplHost(templData, templateName);
                             if (writeTemplHost) {
-                                //扫描主机目标文件夹，更新UI
-                                scanHostAimDir();
                                 //上传主机成功，写入主机成功
-                                upTemplMsg.arg1 = 0;
+                                upTemplMsg.arg1 = 1;
                                 upTemplMsg.obj = true;
                             } else {
                                 //上传主机成功，写入失败
                                 upTemplMsg.arg1 = 2;
                             }
                         } else if (upDevTmplRes == 1) {
-                            upTemplMsg.arg1 = 1;
+                            //设备中不存在待上传的模板
+                            upTemplMsg.arg1 = 3;
                         }
                         handler.sendMessage(upTemplMsg);
                         showWaitDialog(-1, "");
@@ -1553,15 +1653,24 @@ public class TG661JAPI {
                         showWaitDialog(1, "正在下载模板到设备");
                         String aimPath = getAimPath();
                         aimPath = aimPath + File.separator + templNameID;
-                        byte[] aimDatByte = new byte[PERFECT_FEATURE_3];
+                        byte[] aimDatByte = null;
+                        int dataSize = 0;
+                        if (templModelType == TEMPL_MODEL_3) {
+                            dataSize = PERFECT_FEATURE_3;
+                            aimDatByte = new byte[PERFECT_FEATURE_3];
+                        } else if (templModelType == TEMPL_MODEL_6) {
+                            dataSize = PERFECT_FEATURE_6;
+                            aimDatByte = new byte[PERFECT_FEATURE_6];
+                        }
                         byte[] aimDat = FileUtil.readFile(aimPath, aimDatByte);
                         String fileId = templNameID.substring(0, templNameID.indexOf(".dat"));
-                        int downDevTmplRes = getTG661().TGDownDevTmpl(fileId.getBytes()
-                                , aimDat, PERFECT_FEATURE_3);
+                        byte[] userIDBytes = new byte[49];
+                        System.arraycopy(fileId.getBytes(), 0, userIDBytes, 0, fileId.getBytes().length);
+                        int downDevTmplRes = getTG661().TGDownDevTmpl(userIDBytes, aimDat, dataSize);
                         Message downTemplMsg = handler.obtainMessage();
                         downTemplMsg.what = DOWN_TEMPL_DEV;
                         if (downDevTmplRes == 0) {
-                            downTemplMsg.arg1 = 0;
+                            downTemplMsg.arg1 = 1;
                         } else if (downDevTmplRes == -1) {
                             downTemplMsg.arg1 = -1;
                         } else if (downDevTmplRes == -2) {
@@ -1573,10 +1682,10 @@ public class TG661JAPI {
                         showWaitDialog(-1, "");
                         break;
                     case UP_TEMPL_PAC_HOST:
-                        //上传模板包到主机
+                        //上传模板包到主机,先获取设备中模板得数量，然后分配内存大小
                         showWaitDialog(1, "正在上传模板包到主机");
-                        //先获取设备中模板得数量，然后分配内存大小
-                        devTmplNumUpRes = getTG661().TGGetDevTmplNum(0);
+                        type = 0;
+                        devTmplNumUpRes = getTG661().TGGetDevTmplNum(type);
                         Message templNumMsg = handler.obtainMessage();
                         templNumMsg.what = UP_TEMPL_PAC_HOST;
                         int nUp = 0;
@@ -1587,6 +1696,23 @@ public class TG661JAPI {
                                 nUp++;
                                 if (devTmplNumUpRes >= 0) {
                                     loopTemplUpNum = false;
+                                    if (templModelType == TEMPL_MODEL_3) {
+                                        upTemplData = new byte[PERFECT_FEATURE_17682 * devTmplNumUpRes];
+                                    } else if (templModelType == TEMPL_MODEL_6) {
+                                        upTemplData = new byte[PERFECT_FEATURE_35058 * devTmplNumUpRes];
+                                    }
+                                    IntByReference ibrfUp = new IntByReference();
+                                    int upDevTmplPkgRes = getTG661().TGUpDevTmplPkg(upTemplData, ibrfUp);
+                                    if (upDevTmplPkgRes == 0) {
+                                        checkPermissions(1);
+                                        templNumMsg.arg1 = 1;
+                                    } else if (upDevTmplPkgRes == 1) {
+                                        //设备中不存在模板
+                                        templNumMsg.arg1 = 2;
+                                    } else if (upDevTmplPkgRes == -1) {
+                                        //设备上传模板包超时
+                                        templNumMsg.arg1 = 3;
+                                    }
                                 }
                                 if (nUp >= 3 && devTmplNumUpRes < 0) {
                                     //获取模板数量超时
@@ -1598,18 +1724,22 @@ public class TG661JAPI {
                         } else {
                             //设备中已注册的模板的数量
                             //模板数据17632+模板名字50
-                            upTemplData = new byte[PERFECT_FEATURE_17682 * devTmplNumUpRes];
+                            if (templModelType == TEMPL_MODEL_3) {
+                                upTemplData = new byte[PERFECT_FEATURE_17682 * devTmplNumUpRes];
+                            } else if (templModelType == TEMPL_MODEL_6) {
+                                upTemplData = new byte[PERFECT_FEATURE_35058 * devTmplNumUpRes];
+                            }
                             IntByReference ibrfUp = new IntByReference();
                             int upDevTmplPkgRes = getTG661().TGUpDevTmplPkg(upTemplData, ibrfUp);
                             if (upDevTmplPkgRes == 0) {
                                 checkPermissions(1);
-                                templNumMsg.arg1 = 0;
+                                templNumMsg.arg1 = 1;
                             } else if (upDevTmplPkgRes == 1) {
                                 //设备中不存在模板
-                                templNumMsg.arg1 = 1;
+                                templNumMsg.arg1 = 2;
                             } else if (upDevTmplPkgRes == -1) {
                                 //设备上传模板包超时
-                                templNumMsg.arg1 = 2;
+                                templNumMsg.arg1 = 3;
                             }
                         }
                         handler.sendMessage(templNumMsg);
@@ -1618,7 +1748,6 @@ public class TG661JAPI {
                     case DOWN_TEMPL_PAC_DEV:
                         //下载模板包到设备
                         showWaitDialog(1, "正在下载模板包到设备");
-
                         String templPath = "";
                         if (templModelType == TEMPL_MODEL_3) {
                             templPath = frontTempl3Path;
@@ -1629,6 +1758,7 @@ public class TG661JAPI {
                         break;
                     case DEV_TEMPL_NUM:
                         //获取模板的数量
+                        Log.d("===OOO","   type："+type);
                         int devTmplNumRes = getTG661().TGGetDevTmplNum(type);
                         Message templNumMsg1 = handler.obtainMessage();
                         templNumMsg1.what = DEV_TEMPL_NUM;
@@ -1639,9 +1769,9 @@ public class TG661JAPI {
                                 devTmplNumRes = getTG661().TGGetDevTmplNum(type);
                                 n++;
                                 if (devTmplNumRes >= 0) {
-                                    if (type == 0 && devTmplNumRes > 0) {
+                                    if (type == 0 && devTmplNumRes >= 0) {
                                         DevTemplNum = devTmplNumRes;
-                                        getDevTemplList(handler, devTmplNumRes);
+                                        getDevTemplList(handler);
                                     }
                                     templNumMsg1.arg1 = devTmplNumRes;
                                     templNumMsg1.obj = type;
@@ -1654,9 +1784,10 @@ public class TG661JAPI {
                                 }
                             }
                         } else {
-                            if (type == 0 && devTmplNumRes > 0) {
+                            if (type == 0 && devTmplNumRes >= 0) {
+                                Log.d("===OOO", "  设备中已注册模板的数量：" + devTmplNumRes);
                                 DevTemplNum = devTmplNumRes;
-                                getDevTemplList(handler, devTmplNumRes);
+                                getDevTemplList(handler);
                             }
                             templNumMsg1.arg1 = devTmplNumRes;
                             templNumMsg1.obj = type;
@@ -1664,13 +1795,15 @@ public class TG661JAPI {
                         handler.sendMessage(templNumMsg1);
                         break;
                     case DEV_TEMPL_LIST:
-                        //获取设备的信息列表
                         //先获取设备中已经注册的模板的数量
-                        getDevTemplNameList(DevTemplNum);
+                        getDevTemplNameList(handler, DevTemplNum);
                         break;
                     case DEV_DEL_ID_TEMPL:
                         //删除设备的单个模板
-                        int devTmplRes = getTG661().TGDelDevTmpl(templId);
+                        byte[] delTemplId = new byte[49];
+                        System.arraycopy(templId, 0, delTemplId, 0, templId.length);
+                        int devTmplRes = getTG661().TGDelDevTmpl(delTemplId);
+                        Log.d("===LOG", "   设备删除模板  结果码：" + devTmplRes);
                         Message delTemplMsg = handler.obtainMessage();
                         delTemplMsg.what = DEV_DEL_ID_TEMPL;
                         if (devTmplRes == 0) {
@@ -1678,9 +1811,9 @@ public class TG661JAPI {
 //                            type = 0;
 //                            getDevTemplNum(handler, type);
 //                            getDevRegisterTempl();
-                            delTemplMsg.arg1 = 0;
-                        } else if (devTmplRes == 1) {
                             delTemplMsg.arg1 = 1;
+                        } else if (devTmplRes == 1) {
+                            delTemplMsg.arg1 = 2;
                         } else if (devTmplRes == -1) {
                             delTemplMsg.arg1 = -1;
                         }
@@ -1688,14 +1821,14 @@ public class TG661JAPI {
                         break;
                     case WRITE_FILE:
                         boolean writeTemplHost = writeTemplHost(templateData, templateName);
-                        Message upTemplPacMsg = handler.obtainMessage();
-                        upTemplPacMsg.what = UP_TEMPL_PAC_HOST;
-                        if (writeTemplHost) {
-                            if (index == (saveTemplateNum - 1)) {
-                                upTemplPacMsg.arg1 = 3;
-                            }
-                            handler.sendMessage(upTemplPacMsg);
-                        }
+//                        Message upTemplPacMsg = handler.obtainMessage();
+//                        upTemplPacMsg.what = UP_TEMPL_PAC_HOST;
+//                        if (writeTemplHost) {
+//                            if (index == (saveTemplateNum - 1)) {
+//                                upTemplPacMsg.arg1 = 4;
+//                                handler.sendMessage(upTemplPacMsg);
+//                            }
+//                        }
                         break;
                     case DEV_IMG_REGISTER:
                         getAP().play_inputDownGently();
@@ -1720,9 +1853,20 @@ public class TG661JAPI {
                         }
                         handler.sendMessage(imgMsg);
                         break;
+                    case BEHIND_CANCEL_REGISTER:
+                        int tgCancelGetImageRes1 = getTG661().TGCancelGetImage();
+                        LogUtils.d("取消获取设备图像的状态码：" + tgCancelGetImageRes1);
+                        Message cancelImgMsg1 = handler.obtainMessage();
+                        cancelImgMsg1.what = BEHIND_CANCEL_REGISTER;
+                        if (tgCancelGetImageRes1 == 0) {
+                            cancelImgMsg1.arg1 = 1;
+                        } else {
+                            cancelImgMsg1.arg1 = -1;
+                        }
+                        handler.sendMessage(cancelImgMsg1);
+                        break;
                     case CANCEL_DEV_IMG:
                         int tgCancelGetImageRes = getTG661().TGCancelGetImage();
-                        LogUtils.d("取消获取设备图像的状态码：" + tgCancelGetImageRes);
                         Message cancelImgMsg = handler.obtainMessage();
                         cancelImgMsg.what = CANCEL_DEV_IMG;
                         if (tgCancelGetImageRes == 0) {
@@ -1814,7 +1958,6 @@ public class TG661JAPI {
 //                                            hasTemplName = true;
                                             //模板融合成功--存储
                                             String templSavePath = getAimPath();
-                                            LogUtils.d("  模板存储的路径 ：" + templSavePath);
                                             String savePath = templSavePath + File.separator + templNameID + ".dat";
                                             boolean writeFile = FileUtil.writeFile(fusionTempl, savePath);
                                             if (writeFile) {
@@ -1835,7 +1978,6 @@ public class TG661JAPI {
                                             hasTemplName = false;
                                             imgFeaMsg.arg1 = 2;
                                             getAP().play_checkInFail();
-                                            LogUtils.d("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
                                         } else if (fusionFeatureRes == -1) {
                                             templIndex = 0;
                                             aimByte = null;
@@ -1843,7 +1985,6 @@ public class TG661JAPI {
                                             hasTemplName = false;
                                             imgFeaMsg.arg1 = 3;
                                             getAP().play_checkInFail();
-                                            LogUtils.d("特征融合失败，因参数不合法,Output数据无效");
                                         }
                                     }
                                 } else if (tgImgExtractFeatureRegRes == 1) {
@@ -1852,7 +1993,6 @@ public class TG661JAPI {
                                     hasTempl = false;
                                     hasTemplName = false;
                                     imgFeaMsg.arg1 = 4;
-                                    LogUtils.d("特征提取失败,因证书路径错误,Output数据无效");
                                 } else if (tgImgExtractFeatureRegRes == 2) {
                                     templIndex = 0;
                                     aimByte = null;
@@ -1926,26 +2066,19 @@ public class TG661JAPI {
                         Message extractFeatureVerifyMsg = handler.obtainMessage();
                         extractFeatureVerifyMsg.what = EXTRACT_FEATURE_VERIFY;
                         if (tgImgExtractFeatureVerRes == 0) {
-                            LogUtils.d("特征提取成功,Output数据有效");
                             extractFeatureVerifyMsg.arg1 = 1;
                             extractFeatureVerifyMsg.obj = verFeature;
                         } else if (tgImgExtractFeatureVerRes == 1) {
-                            LogUtils.d("特征提取失败,因证书路径错误,Output数据无效");
                             extractFeatureVerifyMsg.arg1 = 2;
                         } else if (tgImgExtractFeatureVerRes == 2) {
-                            LogUtils.d("特征提取失败,因证书内容无效,Output数据无效");
                             extractFeatureVerifyMsg.arg1 = 3;
                         } else if (tgImgExtractFeatureVerRes == 3) {
-                            LogUtils.d("特征提取失败,因证书内容过期,Output数据无效");
                             extractFeatureVerifyMsg.arg1 = 4;
                         } else if (tgImgExtractFeatureVerRes == 4) {
-                            LogUtils.d("特征提取失败,因\"图像\"数据无效,Output数据无效");
                             extractFeatureVerifyMsg.arg1 = 5;
                         } else if (tgImgExtractFeatureVerRes == 5) {
-                            LogUtils.d("特征提取失败,因\"图像\"质量较差,Output数据无效");
                             extractFeatureVerifyMsg.arg1 = 6;
                         } else if (tgImgExtractFeatureVerRes == -1) {
-                            LogUtils.d("特征提取失败,因参数不合法,Output数据无效");
                             extractFeatureVerifyMsg.arg1 = -1;
                         }
                         handler.sendMessage(extractFeatureVerifyMsg);
@@ -2210,7 +2343,6 @@ public class TG661JAPI {
                     case FEATURE_COMPARE1_N:
                         //获取模板的所有地址
                         String templsPath = getAimPath();
-                        LogUtils.d(" 验证的模板路径  " + templsPath);
                         Message matchNMsg = handler.obtainMessage();
                         matchNMsg.what = FEATURE_COMPARE1_N;
                         Bundle matchNBundle = new Bundle();
@@ -2300,9 +2432,6 @@ public class TG661JAPI {
                                         int templScore = intB2.getValue();//验证的分数
                                         //根据返回的指针获取主机中模板文件的名字
                                         String fileName = FileUtil.getFileName(templsPath, templIndex - 1);
-
-                                        Log.d("===TTT", " 返回的模板索引：" + templIndex + "  : 名字：" + fileName + "  ：路径：" + templsPath);
-
                                         matchNMsg.arg1 = 1;
                                         matchNBundle.putByteArray(COMPARE_N_TEMPL, updateTempl);
                                         matchNBundle.putString(COMPARE_NAME, fileName);
@@ -2414,7 +2543,12 @@ public class TG661JAPI {
                             int tgGetSNFromTmplRes = getTGFV().TGGetAPIVerFromTmpl(versionTempl, snData);
                             if (tgGetSNFromTmplRes == 0) {
                                 versionMsg.arg1 = 1;
-                                versionMsg.obj = snData;
+                                try {
+                                    String snVersion = new String(snData, "UTF-8");
+                                    versionMsg.obj = snVersion;
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
                             } else if (tgGetSNFromTmplRes == -1) {
                                 versionMsg.arg1 = -1;
                             }
@@ -2442,7 +2576,12 @@ public class TG661JAPI {
                             int tgGetSNFromTmplRes = getTGFV().TGGetSNFromTmpl(snTempl, snData);
                             if (tgGetSNFromTmplRes == 0) {
                                 snMsg.arg1 = 1;
-                                snMsg.obj = snData;
+                                try {
+                                    String sn = new String(snData, "UTF-8");
+                                    snMsg.obj = sn;
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
                             } else if (tgGetSNFromTmplRes == -1) {
                                 snMsg.arg1 = -1;
                             }
@@ -2470,7 +2609,12 @@ public class TG661JAPI {
                             int tgGetSNFromTmplRes = getTGFV().TGGetFWFromTmpl(fwTempl, fwData);
                             if (tgGetSNFromTmplRes == 0) {
                                 fwMsg.arg1 = 1;
-                                fwMsg.obj = fwData;
+                                try {
+                                    String fw = new String(fwData, "UTF-8");
+                                    fwMsg.obj = fw;
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
                             } else if (tgGetSNFromTmplRes == -1) {
                                 fwMsg.arg1 = -1;
                             }
@@ -2498,7 +2642,12 @@ public class TG661JAPI {
                             int tgGetSNFromTmplRes = getTGFV().TGGetTimeFromTmpl(timeTempl, timeData);
                             if (tgGetSNFromTmplRes == 0) {
                                 timeMsg.arg1 = 1;
-                                timeMsg.obj = timeData;
+                                try {
+                                    String time = new String(timeData, "UTF-8");
+                                    timeMsg.obj = time;
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
                             } else if (tgGetSNFromTmplRes == -1) {
                                 timeMsg.arg1 = -1;
                             }
@@ -2586,8 +2735,10 @@ public class TG661JAPI {
         msg.setData(bundle);
     }
 
-    private void getDevTemplNameList(int devTemplNum) {
+    //获取设备中已注册模板的列表
+    private void getDevTemplNameList(Handler handler, int devTemplNum) {
         Message templListMsg = handler.obtainMessage();
+        Bundle tempListBundle = new Bundle();
         templListMsg.what = DEV_TEMPL_LIST;
         if (devTemplNum > 0) {
             IntByReference ibrTemplList = new IntByReference();
@@ -2605,19 +2756,23 @@ public class TG661JAPI {
                     if (devTmplInfoRes >= 0 || loopTempList >= 3) {
                         loopDevTempls = false;
                         loopTempList = 0;
+                        ArrayList<String> templIdList = subID(devTemplNum, templByte);
+                        templListMsg.arg1 = 1;
+                        tempListBundle.putStringArrayList(TEMP_LIST, templIdList);
+                        templListMsg.setData(tempListBundle);
                     }
                 }
             } else {
-                if (devTemplNum > 0) {
-                    ArrayList<String> templIdList = subID(devTemplNum, templByte);
-                    templListMsg.arg1 = 1;
-                    templListMsg.obj = templIdList;
-                }
+                ArrayList<String> templIdList = subID(devTemplNum, templByte);
+                templListMsg.arg1 = 1;
+                tempListBundle.putStringArrayList(TEMP_LIST, templIdList);
+                templListMsg.setData(tempListBundle);
             }
         } else {
             //设备中得模板数为0
             templListMsg.arg1 = 2;
         }
+        Log.d("===LOG", "   已注册的模板列表中的数量：" + devTemplNum);
         handler.sendMessage(templListMsg);
     }
 
@@ -2823,7 +2978,6 @@ public class TG661JAPI {
     //获取目标文件夹得路径
     private String getAimPath() {
         String aimPath = "";
-        LogUtils.d("  设备得工作模式  ：" + workType);
         if (workType == WORK_FRONT) {
             if (templModelType == TEMPL_MODEL_3) {
                 aimPath = getTG661JAPI().getFrontHost3TemplPath();
@@ -2871,7 +3025,6 @@ public class TG661JAPI {
                 if (files.length > 0) {
                     templsByte = new ArrayList<>();
                     for (File file1 : files) {
-                        Log.d("===TTT", "  文件的名字 ：" + file1.getName());
                         byte[] bytes = null;
                         if (templModelType == TEMPL_MODEL_3) {
                             bytes = new byte[PERFECT_FEATURE_3];
@@ -2901,26 +3054,35 @@ public class TG661JAPI {
             File[] datDirList = datDir.listFiles();
             if (datDirList.length <= 0)
                 return;
-            byte[] totalHostTemplate = new byte[17682 * datDirList.length];
+            byte[] totalHostTemplate = null;
+            if (templModelType == TEMPL_MODEL_3) {
+                totalHostTemplate = new byte[PERFECT_FEATURE_17682 * datDirList.length];
+            } else if (templModelType == TEMPL_MODEL_6) {
+                totalHostTemplate = new byte[PERFECT_FEATURE_35058 * datDirList.length];
+            }
             for (int i = 0; i < datDirList.length; i++) {
                 File datFile = datDirList[i];
                 //先获取主机模板的ID
                 String datFileName = datFile.getName().trim();
                 byte[] templateId = new byte[50];
                 System.arraycopy(datFileName.getBytes(), 0, templateId, 0, datFileName.getBytes().length);
-
                 datFileData = new byte[PERFECT_FEATURE_3];
                 FileUtil.readFile(datFile, datFileData);
                 templatePag = new byte[PERFECT_FEATURE_17682];
                 System.arraycopy(templateId, 0, templatePag, 0, templateId.length);
                 System.arraycopy(datFileData, 0, templatePag, templateId.length, datFileData.length);
-                //                readFile(datFile, templateId, i);
-                LogUtils.d("当前的主机模板索引：" + i);
-                System.arraycopy(templatePag, 0, totalHostTemplate, i * 17682, templatePag.length);
+                if (templModelType == TEMPL_MODEL_3) {
+                    System.arraycopy(templatePag, 0, totalHostTemplate,
+                            i * PERFECT_FEATURE_17682, templatePag.length);
+                } else if (templModelType == TEMPL_MODEL_6) {
+                    System.arraycopy(templatePag, 0, totalHostTemplate,
+                            i * PERFECT_FEATURE_35058, templatePag.length);
+                }
                 if ((i + 1) == datDirList.length) {
                     int downDevTmplPkgRes = getTG661().TGDownDevTmplPkg(totalHostTemplate, totalHostTemplate.length);
                     Message downDevTemplPkgMsg = handler.obtainMessage();
                     downDevTemplPkgMsg.what = DOWN_TEMPL_PAC_DEV;
+                    if (downDevTmplPkgRes == 0) downDevTmplPkgRes = 1;
                     downDevTemplPkgMsg.arg1 = downDevTmplPkgRes;
                     handler.sendMessage(downDevTemplPkgMsg);
                     showWaitDialog(-1, "");
@@ -2937,33 +3099,38 @@ public class TG661JAPI {
      */
     public boolean writeTemplHost(byte[] templData, String tmlID) {
         String templId = tmlID.substring(0, tmlID.indexOf(".dat"));
-//        String datFilesPath = "";
-//        if (templModelType == TEMPL_MODEL_3) {
-//            datFilesPath = MessageFormat.format("{0}{1}{2}.dat",
-//                    getFrontHost3TemplPath(), File.separator, templId);
-//        } else if (templModelType == TEMPL_MODEL_6) {
-//            datFilesPath = MessageFormat.format("{0}{1}{2}.dat",
-//                    getFrontHost6TemplPath(), File.separator, templId);
-//        }
         String datFilesPath = getAimPath() + File.separator + templId + ".dat";
         boolean writeFile = FileUtil.writeFile(templData, datFilesPath);
         return writeFile;
     }
 
-    //检查权限
-    public void checkPermissions(int type) {
+
+    private void writeCMD() {
         String command = "chmod -R 777 /dev/bus/usb";
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
             int i = process.waitFor();
-            if (i == 0) {
-                findUSBDev(1317, 42156);
-            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    //检查权限
+    public void checkPermissions(int type) {
+//        String command = "chmod -R 777 /dev/bus/usb";
+//        try {
+//            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
+//            int i = process.waitFor();
+//            if (i == 0) {
+//                findUSBDev(1317, 42156);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         //检查权限
         for (String perm : perms) {
             int checkResult = ContextCompat.checkSelfPermission(mActivity, perm);
@@ -2975,6 +3142,9 @@ public class TG661JAPI {
                 mActivity.startActivity(intent);
                 break;
             }
+        }
+        if (type == 1) {
+            saveTemplHost();
         }
     }
 
@@ -3018,16 +3188,25 @@ public class TG661JAPI {
     private int saveTemplateNum;//要上传到主机存储的模板的数量
 
     private void subAndWriteSave(byte[] upTemplData, int devTmplNum) {
+        int size = 0;
+        int sizeTruth = 0;
+        if (templModelType == TEMPL_MODEL_3) {
+            size = PERFECT_FEATURE_17682;
+            sizeTruth = PERFECT_FEATURE_3;
+        } else if (templModelType == TEMPL_MODEL_6) {
+            size = PERFECT_FEATURE_35058;
+            sizeTruth = PERFECT_FEATURE_6;
+        }
         this.saveTemplateNum = devTmplNum;
         for (int i = 0; i < devTmplNum; i++) {
-            int n = i * 17682;
-            byte[] data = new byte[17682];
-            System.arraycopy(upTemplData, n, data, 0, 17682);
+            int n = i * size;
+            byte[] data = new byte[size];
+            System.arraycopy(upTemplData, n, data, 0, size);
             try {
                 byte[] templName = new byte[50];
-                byte[] templDataEntity = new byte[17632];
+                byte[] templDataEntity = new byte[sizeTruth];
                 System.arraycopy(data, 0, templName, 0, 50);
-                System.arraycopy(data, 50, templDataEntity, 0, 17632);
+                System.arraycopy(data, 50, templDataEntity, 0, sizeTruth);
                 //截取名字
                 for (int i1 = 0; i1 < templName.length; i1++) {
                     byte b = templName[i1];
@@ -3036,11 +3215,10 @@ public class TG661JAPI {
                         System.arraycopy(templName, 0, datTemplName, 0, i1);
                         String datTmlName = new String(datTemplName, "UTF-8");
                         LogUtils.d("文件的名字：" + datTmlName);
-                        getTG661JAPI().writeFileHost(handler, templDataEntity, datTmlName, i);
+                        writeFileHost(handler, templDataEntity, datTmlName, i);
                     }
                 }
                 //写入主机文件夹
-
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -3095,7 +3273,7 @@ public class TG661JAPI {
     }
 
 
-    public boolean writeLicennse(){
+    public boolean writeLicennse() {
         boolean b = InitLicense(context);
         return b;
     }
@@ -3176,6 +3354,7 @@ public class TG661JAPI {
                 int devServiceArg = msg.arg1;
                 Message tg661JMsg = handler.obtainMessage();
                 tg661JMsg.what = DEV_STATUS;
+                LogUtils.d("接收到的设备状态：" + devServiceArg);
                 if (devServiceArg == 0) {
                     tg661JMsg.arg1 = 1;
                 } else if (devServiceArg == -2) {
