@@ -46,7 +46,7 @@ public class Main2Activity extends AppCompatActivity implements TabLayout.OnTabS
 //        devStatusTv = findViewById(R.id.devStatus);
 
         //初始化
-        TG661JAPI.getTG661JAPI().init(Main2Activity.this);
+//        TG661JAPI.getTG661JAPI().init(Main2Activity.this);
 
         addInitData();
         TabAdapter tabAdapter = new TabAdapter(getSupportFragmentManager(), titles, fragments);

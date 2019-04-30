@@ -168,11 +168,11 @@ public class FrontFrags extends Fragment implements View.OnClickListener,
                     int devStatusArg = msg.arg1;
                     Log.d("===TAG", " 接收到的设备状态：" + devStatusArg);
                     if (devStatusArg >= 0) {
-//                        if (tipTv.getText().toString().contains("断开")) {
-//                            tipTv.setText("设备状态：已连接");
+                        if (tipTv.getText().toString().contains("断开")) {
+                            tipTv.setText("设备状态：已连接");
+                        }
                         dev_StatusTv.setText("设备状态:已连接");
                         devStatusTv.setText("设备状态:已连接");
-//                        }
                     } else if (devStatusArg == -1) {
                         tipTv.setText("设备状态：未连接");
                         dev_StatusTv.setText("设备状态:未连接");

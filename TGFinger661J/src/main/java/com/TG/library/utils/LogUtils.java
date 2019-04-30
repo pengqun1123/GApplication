@@ -8,7 +8,7 @@ import android.util.Log;
  */
 public class LogUtils {
 
-	private static final String TAG = "《《《===TG_TAG===》》》";
+	private static final String TAG = "《===TG_TAG===》";
 
 	private static final boolean LOGGER = true;
 

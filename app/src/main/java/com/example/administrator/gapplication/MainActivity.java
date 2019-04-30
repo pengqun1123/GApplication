@@ -599,7 +599,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         templFileRv.setAdapter(templAdapter);
 
 
-        TG661JAPI.getTG661JAPI().init(MainActivity.this);
+//        TG661JAPI.getTG661JAPI().init(MainActivity.this);
         //默认的初始化音量是4
         voiceTt.setText("4");
 

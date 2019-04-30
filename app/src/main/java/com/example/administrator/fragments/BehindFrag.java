@@ -116,10 +116,10 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                      */
                     int devStatusArg = msg.arg1;
                     if (devStatusArg >= 0) {
-//                        if (tipTv.getText().toString().contains("断开")) {
-//                            tipTv.setText("设备状态：已连接");
-                            devStatus.setText("设备状态:已连接");
-//                        }
+                        if (tipTv.getText().toString().contains("断开")) {
+                            tipTv.setText("设备状态：已连接");
+                        }
+                        devStatus.setText("设备状态:已连接");
                     } else if (devStatusArg == -1) {
                         tipTv.setText("设备状态：未连接");
                         devStatus.setText("设备状态:未连接");
@@ -275,7 +275,7 @@ public class BehindFrag extends Fragment implements View.OnClickListener,
                         getTemplList();
                         tipTv.setText("登记成功");
                         //显示图片
-//                        getImgData(msg);
+                        getImgData(msg);
 //                        registerBtnBehind.setClickable(true);
                     } else if (extractFeatureRegisterArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");

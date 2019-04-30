@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context="com.example.administrator.fragments.BehindFrag">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/devModelTv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@color/sao_pink_purple"
+            android:gravity="center"
+            android:padding="6dp"
+            android:text="后比"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold|italic" />
+
+        <TextView
+            android:id="@+id/devStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="6"
+            android:background="@color/green_cyan"
+            android:gravity="center"
+            android:padding="6dp"
+            android:textColor="@color/amber"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tipTv"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/user_name_et_shape"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:hint="状态提示信息"
+        android:textColor="@color/red"
+        android:textColorHint="@color/teal"
+        android:textSize="20sp"
+        android:textStyle="bold|italic" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/closeDevBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/gray_white_btn_shape"
+            android:padding="3dp"
+            android:text="关闭指静脉设备"
+            android:textColor="@color/black"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/openDevBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/gray_white_btn_shape"
+            android:padding="3dp"
+            android:text="打开指静脉设备"
+            android:textColor="@color/black"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/voiceDecreaceBtn"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:text="音-" />
+
+        <TextView
+            android:id="@+id/volumeTt"
+            android:layout_width="45dp"
+            android:layout_height="35dp"
+            android:background="@drawable/user_name_et_shape"
+            android:gravity="center"
+            android:textColor="@color/colorAccent"
+            android:textSize="15sp"
+            android:textStyle="bold|italic" />
+
+        <Button
+            android:id="@+id/voiceIncreaceBtn"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:text="音+" />
+
+        <RadioGroup
+            android:id="@+id/templSumModel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="15dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/templ3Rb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="3模板" />
+
+            <RadioButton
+                android:id="@+id/templ6Rb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:checked="true"
+                android:text="6模板" />
+        </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/templIDBehind"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/user_name_et_shape"
+                android:gravity="start|center_vertical"
+                android:hint="填写模板名称"
+                android:inputType="text"
+                android:padding="3dp"
+                android:textColor="@color/blue"
+                android:textSize="13sp" />
+
+            <ImageView
+                android:id="@+id/clearEt"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:padding="6dp"
+                android:src="@drawable/del_icon"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/cancelRegisterBtnBehind"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            android:text="取消注册" />
+
+        <Button
+            android:id="@+id/registerBtnBehind"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.6"
+            android:text="注册" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/ver1_1Btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1:1验证" />
+
+        <Button
+            android:id="@+id/ver1_NBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="1:N验证" />
+
+        <CheckBox
+            android:id="@+id/autoUpdateTempl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="自动更新模板" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/getTemplFW"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="获取模板固件号" />
+
+                <Button
+                    android:id="@+id/getTemplSN"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="获取模板序列号" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/templTimeBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="模板的时间" />
+
+                <Button
+                    android:id="@+id/getTemplAlgorVersionBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="获取模板算法版本号" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/delIDHostTemplBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="删除主机指定模板" />
+
+                <Button
+                    android:id="@+id/delAllHostTemplBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="删除主机所有模板" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/getDevModel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="获取设备模式" />
+
+                <Button
+                    android:id="@+id/getSDKVersion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="获取SDK版本" />
+
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/iv"
+                android:layout_width="500dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"
+                android:padding="15dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/iv_03"
+                android:visibility="visible" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/getImg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="抓图" />
+
+                <Button
+                    android:id="@+id/getImgFeature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="提取特征" />
+
+                <Button
+                    android:id="@+id/getFeatureTempl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="特征融合模板" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/getMatchTempl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="转比对模板" />
+
+                <Button
+                    android:id="@+id/get1_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1:1" />
+
+                <Button
+                    android:id="@+id/get1_N"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1:N" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/lineIv2"
+            android:layout_width="0.2dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@color/blue" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableBottom="@drawable/front_compare_tv_bg"
+                android:gravity="center"
+                android:padding="2dp"
+                android:text="模板文件"
+                android:textColor="@color/deep_orange"
+                android:textSize="15sp"
+                android:textStyle="italic|bold" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/templFileRv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"
+                android:background="@color/white"
+                tools:ignore="RtlHardcoded" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -136,9 +136,6 @@ public class TG661JAPI {
     public static final int WORK_FRONT = 1;
     //后比模式
     public static final int WORK_BEHIND = 2;
-    //是否获取设备模板列表
-    public static final int GET_DEV_TEMPL_Y = 7;
-    public static final int GET_DEV_TEMPL_N = 8;
 
     private static final int IMG_SIZE = 500 * 200 + 208;
     private static final int FEATURE_SIZE = 6016;
@@ -194,10 +191,6 @@ public class TG661JAPI {
     public String[] perms = new String[]{
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            //            android.Manifest.permission.STATUS_BAR,//这个权限含义：允许程序打开、关闭或禁用状态栏及图标
-            //            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            //            android.Manifest.permission.READ_PHONE_STATE,
-            //            android.Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS
     };
 
     //获取前比主机存储3模版的路径
@@ -241,13 +234,11 @@ public class TG661JAPI {
         if (rootSystem) {
             LogUtils.d("设备已经Root");
         } else {
-            ToastUtil.toast(context, "设备没有Root，无法使用");
+//            ToastUtil.toast(context, "设备没有Root，无法使用");
             LogUtils.d("设备没有Root，无法使用");
             return;
         }
         writeCMD();
-        //检查设备的权限
-        checkPermissions(2);
         createDirPath();
     }
 
@@ -319,12 +310,11 @@ public class TG661JAPI {
     /**
      * 整个API的初始化
      */
-    public void init(Activity activity) {
-        this.mActivity = activity;
-        this.context = activity;
-        //检查设备是否已经root
-        checkDevIsRoot();
-    }
+//    public void init(Activity activity) {
+//        this.mActivity = activity;
+//        this.context = activity;
+//
+//    }
 
     /**
      * 获取SDK的版本
@@ -355,7 +345,9 @@ public class TG661JAPI {
             if (devStatus >= 0) {
                 return;
             }
-            writeCMD();
+            //检查设备是否已经root
+            checkDevIsRoot();
+            //检查设备权限
             checkPermissions(2);
             work(mHandler, OPEN_DEV);
         }
@@ -568,7 +560,7 @@ public class TG661JAPI {
      * @param handler
      * @param userNameID
      */
-    public void verifyDev1_1(Handler handler,String userNameID) {
+    public void verifyDev1_1(Handler handler, String userNameID) {
         if (TextUtils.isEmpty(userNameID)) {
             Message verDev1_1Msg = handler.obtainMessage();
             verDev1_1Msg.what = DEV_VERIFY1_1;
@@ -766,7 +758,7 @@ public class TG661JAPI {
      */
     private byte[] templateData;
     private String templateName;
-    private int index;
+//    private int index;
 
     public void writeFileHost(Handler handler, byte[] templateData, String templateName, int index) {
         this.handler = handler;
@@ -779,7 +771,7 @@ public class TG661JAPI {
         }
         this.templateData = templateData;
         this.templateName = templateName;
-        this.index = index;
+//        this.index = index;
         work(handler, WRITE_FILE);
     }
 
@@ -807,7 +799,6 @@ public class TG661JAPI {
      */
     private int templModelType = TEMPL_MODEL_6;//默认是6模板
     private int templSize = 0;//模板的个数
-    private int getDevTemplNumFlag = GET_DEV_TEMPL_Y;//默认不获取
     //特征融合后模板的存储路径
     private String templSavePath;
     private String templNameID;
@@ -1201,9 +1192,8 @@ public class TG661JAPI {
                             cancelVerify(handler);
                             //设置工作模式
                             setDevWorkModel(handler, workType, templModelType);
-                            Log.d("===GGG","  workType:"+workType+"  templModelType:"+templModelType);
                             //初始化设置设备的音量 4
-                            if (workType==WORK_FRONT){
+                            if (workType == WORK_FRONT) {
                                 getTG661().TGPlayDevVoice(VOICE_VOLUME4);
                                 CurrentDevVoiceValue = VOICE_VOLUME4;
                                 currentVoice = "4";
@@ -1264,8 +1254,8 @@ public class TG661JAPI {
                                 setDevModeRes1 = getTG661().TGSetDevMode(1);
                             }
                         }
-                        Log.d("===OOO","   workType:"+workType+
-                                " :: templModelType:"+templModelType+" :: setDevModeRes1:"+setDevModeRes1);
+                        Log.d("===OOO", "   workType:" + workType +
+                                " :: templModelType:" + templModelType + " :: setDevModeRes1:" + setDevModeRes1);
                         Message devModelMsg = handler.obtainMessage();
                         devModelMsg.what = SET_DEV_MODEL;
                         if (setDevModeRes1 == 0) {
@@ -1465,7 +1455,7 @@ public class TG661JAPI {
                         Message registerMsg = handler.obtainMessage();
                         registerMsg.what = DEV_REGISTER;
                         boolean loopReg = true;
-                        byte[] userTempId=new byte[49];
+                        byte[] userTempId = new byte[49];
                         if (devRegFingerRes >= 0) {
                             while (loopReg) {
                                 int identReturnRes = getTG661().TGGetDevRegIdentReturn(userTempId,
@@ -1507,11 +1497,11 @@ public class TG661JAPI {
                             devSingleVerifyMsg.arg1 = -1;
                         } else if (devIdentFingerRes == 0) {
                             boolean tgCjangeIdent = true;
-                            byte[] userId=new byte[49];
+                            byte[] userId = new byte[49];
                             while (tgCjangeIdent) {
                                 int identReturnRes = getTG661().TGGetDevRegIdentReturn(userId,
                                         GET_IMG_OUT_TIME_5000);
-                                Log.d("===LOG","    1：N验证的结果："+identReturnRes);
+                                Log.d("===LOG", "    1：N验证的结果：" + identReturnRes);
                                 if (identReturnRes == VOICE_IDENT_SUCCESS) {
                                     devSingleVerifyMsg.arg1 = 1;
                                     tgCjangeIdent = false;
@@ -1520,7 +1510,7 @@ public class TG661JAPI {
                                     devSingleVerifyMsg.arg1 = 2;
                                     tgCjangeIdent = false;
                                     break;
-                                }else if (identReturnRes == -2){
+                                } else if (identReturnRes == -2) {
                                     devSingleVerifyMsg.arg1 = -2;
                                     tgCjangeIdent = false;
                                     break;
@@ -1535,16 +1525,16 @@ public class TG661JAPI {
                         System.arraycopy(templNameID.getBytes(), 0, userID,
                                 0, templNameID.getBytes().length);
                         int tgChangeIdentModeRes = getTG661().TGChangeIdentMode(retImgType, userID);
-                        Log.d("===LOG","   调用1：1验证接口："+tgChangeIdentModeRes);
+                        Log.d("===LOG", "   调用1：1验证接口：" + tgChangeIdentModeRes);
                         Message verifyMsg1_1 = handler.obtainMessage();
                         verifyMsg1_1.what = DEV_VERIFY1_1;
                         if (tgChangeIdentModeRes == 0) {
                             boolean tgCjangeIdent = true;
-                            byte[] userTempID=new byte[49];
+                            byte[] userTempID = new byte[49];
                             while (tgCjangeIdent) {
                                 int identReturnRes = getTG661().TGGetDevRegIdentReturn(userTempID,
                                         GET_IMG_OUT_TIME_5000);
-                                Log.d("===LOG","    1：1验证的结果："+identReturnRes);
+                                Log.d("===LOG", "    1：1验证的结果：" + identReturnRes);
                                 if (identReturnRes == VOICE_IDENT_SUCCESS) {
                                     verifyMsg1_1.arg1 = 1;
                                     tgCjangeIdent = false;
@@ -1553,7 +1543,7 @@ public class TG661JAPI {
                                     verifyMsg1_1.arg1 = 2;
                                     tgCjangeIdent = false;
                                     break;
-                                }else if (identReturnRes == -2){
+                                } else if (identReturnRes == -2) {
                                     verifyMsg1_1.arg1 = -2;
                                     tgCjangeIdent = false;
                                     break;
@@ -1758,7 +1748,7 @@ public class TG661JAPI {
                         break;
                     case DEV_TEMPL_NUM:
                         //获取模板的数量
-                        Log.d("===OOO","   type："+type);
+                        Log.d("===OOO", "   type：" + type);
                         int devTmplNumRes = getTG661().TGGetDevTmplNum(type);
                         Message templNumMsg1 = handler.obtainMessage();
                         templNumMsg1.what = DEV_TEMPL_NUM;
@@ -3119,19 +3109,6 @@ public class TG661JAPI {
 
     //检查权限
     public void checkPermissions(int type) {
-//        String command = "chmod -R 777 /dev/bus/usb";
-//        try {
-//            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
-//            int i = process.waitFor();
-//            if (i == 0) {
-//                findUSBDev(1317, 42156);
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        //检查权限
         for (String perm : perms) {
             int checkResult = ContextCompat.checkSelfPermission(mActivity, perm);
             if (checkResult == PackageManager.PERMISSION_DENIED) {
@@ -3314,7 +3291,7 @@ public class TG661JAPI {
                 if (input != null)
                     input.close();
                 //初始化算法
-                getTG661JAPI().initFV(handler);
+                initFV(handler);
             } catch (IOException e) {
                 e.printStackTrace();
             }
