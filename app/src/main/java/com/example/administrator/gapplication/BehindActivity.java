@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -24,9 +25,7 @@ import android.widget.TextView;
 
 import com.TG.library.CallBack.CommitCallBack;
 import com.TG.library.api.TG661JBehindAPI;
-import com.TG.library.api.TG661JFrontAPI;
 import com.TG.library.utils.AlertDialogUtil;
-import com.TG.library.utils.RegularUtil;
 import com.TG.library.utils.ToastUtil;
 import com.bumptech.glide.Glide;
 
@@ -170,6 +169,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     } else if (cancelImgArg == -1) {
                         tipTv.setText("取消注册失败");
                     }
+                    registerBtnBehind.setClickable(true);
                     break;
                 case TG661JBehindAPI.FEATURE_FUSION:
                     int fusionArg = msg.arg1;
@@ -211,7 +211,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("初始化失败,证书字节流不可为null");
                     }
                     break;
-                case TG661JFrontAPI.DEV_WORK_MODEL:
+                case TG661JBehindAPI.DEV_WORK_MODEL:
                     /*
                      * 获取工作模式：
                      * 返回值：devWorkModelArg
@@ -249,11 +249,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                      *   -2:设备断开
                      *   -3:操作取消
                      *   -4:入参错误
-                     *   -5:已存在相同模板名称
-                     *   -6:已存在相同模板名称
-                     *   -7:已存在相同模板名称
+                     *   -5:已存在相同名称模板
+                     *   -6:注册的模板ID不能为空
+                     *   -7:注册的模板名称不可包含数字/字母/中文以外的字符
                      */
                     int extractFeatureRegisterArg = msg.arg1;
+                    Log.d("===哈哈哈","      注册的结果："+extractFeatureRegisterArg);
                     //显示图片
                     getImgData(msg);
                     if (extractFeatureRegisterArg == 10) {
@@ -295,6 +296,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         ToastUtil.toast(BehindActivity.this,
                                 "注册的模板名称不可包含数字/字母/中文以外的字符");
                     }
+                    registerBtnBehind.setClickable(true);
                     break;
                 case TG661JBehindAPI.EXTRACT_FEATURE_VERIFY:
                     /*
@@ -771,11 +773,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 autoUpdateStatus = b;
             }
         });
-
         //开启设备
         openDev();
         //显示图片
-        tg661JBehindAPI.setsImg(true);
+//        tg661JBehindAPI.setsImg(true);
     }
 
     @Override
@@ -865,6 +866,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     if (devStatu) {
                         tg661JBehindAPI.extractFeatureRegister(handler,
                                 templModelType, templID);
+                        registerBtnBehind.setClickable(false);
 //                        }
                     } else {
                         ToastUtil.toast(BehindActivity.this,
@@ -995,25 +997,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     delAllHostTemplBtn.setClickable(false);
                 }
                 break;
-
-//            //测试
-//            case R.id.getImg://抓图
-//                if (!isGetImg) {
-//                    devStatu = checkDevStatus();
-//                    if (devStatu) {
-//                        tg661JBehindAPI.getDevImg(handler);
-//                        getImg.setText("取消抓图");
-//                        isGetImg = true;
-//                    }
-//                } else {
-//                    devStatu = checkDevStatus();
-//                    if (devStatu) {
-//                        tg661JBehindAPI.cancelDevImg(handler);
-//                        getImg.setText("抓图");
-//                        isGetImg = false;
-//                    }
-//                }
-//                break;
             case R.id.getImgFeature://从图像提取特征
                 if (imgData != null) {
                     if (imgDatas != null && imgDatas.size() == 2) {
@@ -1023,18 +1006,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.clearEt:
                 templIDBehind.getText().clear();
-                break;
-            case R.id.getFeatureTempl://特征融合成为模板
-
-                break;
-            case R.id.getMatchTempl://特征模板转成比对模板
-
-                break;
-            case R.id.get1_1://1:1
-
-                break;
-            case R.id.get1_N://1:N
-
                 break;
         }
     }

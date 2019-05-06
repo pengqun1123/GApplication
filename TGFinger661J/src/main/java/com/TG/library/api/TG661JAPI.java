@@ -1202,8 +1202,8 @@ public class TG661JAPI {
                             devClose = false;
                             //发送打开设备的结果:
                             openDevMsg.arg1 = 1;
-                            if (!licenseFlag) {
-                                //初始化证书
+                            if (!licenseFlag && workType == WORK_BEHIND) {
+                                //初始化证书,后比需要初始化证书
                                 licenseFlag = InitLicense(context);
                             }
                             //启动后台devService
@@ -3250,7 +3250,7 @@ public class TG661JAPI {
     }
 
 
-    public boolean writeLicennse() {
+    public boolean writeLicennse(Context context) {
         boolean b = InitLicense(context);
         return b;
     }

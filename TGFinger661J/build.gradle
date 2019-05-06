@@ -42,7 +42,7 @@ dependencies {
 }
 
 def _BASENAME = "TG661JFinger";
-def _VERSION = "_V1.0.1.190416_beta";
+def _VERSION = "_V1.1.0.190416_beta";
 def _DestinationPath = "src/main/jniLibs"; //生成jar包的位置
 def zipFile = file('build/intermediates/intermediate-jars/release/classes.jar'); //待打包文件位置
 

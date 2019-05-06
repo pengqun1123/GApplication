@@ -924,6 +924,7 @@ public class TG661JFrontAPI {
                 Intent intent = new Intent("com.tg.m661j.vein.api");
                 intent.addCategory("com.tg.m661j.vein.api");
                 intent.putExtra("type", type);
+                intent.putExtra("workModel", "f");
                 mActivity.startActivity(intent);
                 break;
             }

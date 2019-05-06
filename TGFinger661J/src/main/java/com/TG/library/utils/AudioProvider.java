@@ -92,34 +92,17 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
         // 使用音乐池播放短小的音乐
         createSoundPoolIfNeeded();
 //        soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
-//        soundID_deleteok = soundPool.load(context, R.raw.deleteok, 1);
-//        soundID_enrollok = soundPool.load(context, R.raw.enrollok, 1);
-//        soundID_enrollfail = soundPool.load(context, R.raw.enrollfail, 1);
-//        soundID_vetifyok = soundPool.load(context, R.raw.vetifyok, 1);
-//        soundID_vetifyfail = soundPool.load(context, R.raw.vetifyfail, 1);
-//        soundID_inputfinger = soundPool.load(context, R.raw.inputfinger, 1);
-//        soundID_inputagain = soundPool.load(context, R.raw.inputagain, 1);
-//        soundID_cardok = soundPool.load(context, R.raw.cardok1, 1);
-//        soundID_cardfail = soundPool.load(context, R.raw.cardfail1, 1);
-//        soundID_inputcard = soundPool.load(context, R.raw.inputcard1, 1);
-//        soundID_fingerrelease = soundPool.load(context, R.raw.release_finger, 1);
-//        soundID_timeout = soundPool.load(context, R.raw.time_out, 1);
-//        soundID_not_samefinger = soundPool.load(context, R.raw.input_new, 1);
-//        soundID_has_sameid = soundPool.load(context, R.raw.has_same_id, 1);
-//        soundID_idOk = soundPool.load(context, R.raw.idok, 1);
-//        rfid_card = soundPool.load(context, R.raw.rfid_card, 1);
-//        not_same_finger = soundPool.load(context, R.raw.not_same_finger, 1);
-//        success = soundPool.load(context, R.raw.success, 1);
         // 取得当前音量大小
         AudioManager mgr = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (mgr != null) {
-            mgr.loadSoundEffects();
-            // 当前音量
-            streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
-            // 最大音量
-            streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-//        volume = streamVolumeCurrent / streamVolumeMax;
-            volume = streamVolumeCurrent;
+                mgr.loadSoundEffects();
+                // 当前音量
+                streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
+                streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+                // 最大音量
+                volume = streamVolumeCurrent / streamVolumeMax;
+//                volume = streamVolumeCurrent;
+            Log.d("===哈哈哈", "   初始化 音量值：" + volume);
         }
     }
 
@@ -324,84 +307,98 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
             soundPool.load(mContext, R.raw.waw4, 1);
         }
     }
+
     // 请再放一次
     public void play_inputAgain() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw5, 1);
         }
     }
+
     // 请正确放入手指
     public void play_inputCorrect() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw6, 1);
         }
     }
+
     // 请自然轻放手指
     public void play_inputDownGently() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw7, 1);
         }
     }
+
     // 验证成功
     public void play_verifySuccess() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw8, 1);
         }
     }
+
     // 验证失败
     public void play_verifyFail() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw9, 1);
         }
     }
+
     // 请重试
     public void play_retryFeature() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw10, 1);
         }
     }
+
     // 删除成功
     public void play_deleteSuccess() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw11, 1);
         }
     }
+
     // 删除失败
     public void play_deleteFail() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw12, 1);
         }
     }
+
     // 指静脉已满
     public void play_featureFull() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw13, 1);
         }
     }
+
     // 登记重复
     public void play_registerRepeat() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw14, 1);
         }
     }
+
     // 请抬起手指
     public void play_upLiftFinger() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw15, 1);
         }
     }
+
     // 网线未连接
     public void play_notConnectNet() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw16, 1);
         }
     }
+
     // 服务器未连接
     public void play_noConnectServer() {
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw17, 1);
         }
     }
+
     // 请勿重复认证
     public void play_doNotAuthRepeat() {
         if (soundPool != null) {

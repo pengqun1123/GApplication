@@ -15,9 +15,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 
-import com.TG.library.api.TG661JAPI;
+import com.TG.library.api.TG661JBehindAPI;
 import com.TG.library.utils.LogUtils;
 import com.TG.library.utils.LogcatHelper;
 import com.example.mylibrary.R;
@@ -37,7 +38,6 @@ public class TGActivity extends AppCompatActivity {
     private List<String> requestPermission;
 
 
-
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         @Override
@@ -50,6 +50,7 @@ public class TGActivity extends AppCompatActivity {
     };
     private int type;
     private AlertDialog alertDialog;
+    private String workModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,7 @@ public class TGActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         type = intent.getIntExtra("type", -1);
+        workModel = intent.getStringExtra("workModel");
         checkPermissions();
     }
 
@@ -73,7 +75,7 @@ public class TGActivity extends AppCompatActivity {
          * PackageManager.PERMISSION_GRANTED -- 表示权限已经同意
          * PackageManager.PERMISSION_DENIED -- 表示权限没有同意，需要申请该权限
          */
-        String[] perms = TG661JAPI.getTG661JAPI().getPerms();
+        String[] perms = TG661JBehindAPI.getTG661JBehindAPI().getPerms();
         //检查权限
         for (int i = 0; i < perms.length; i++) {
             String perm = perms[i];
@@ -92,12 +94,19 @@ public class TGActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(TGActivity.this, permissions, requestMainPermissCode);
         } else {
             if (type == 1) {
-                TG661JAPI.getTG661JAPI().saveTemplHost();
+                TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
                 TGActivity.this.finish();
             } else if (type == 2) {
                 //Hot-USB连接方式，为设备授权
-                cmdUSBThread.start();
+//                cmdUSBThread.start();
+                initFv();
             }
+        }
+    }
+
+    private void initFv(){
+        if (!TextUtils.isEmpty(workModel) && workModel.equals("b")) {
+            TG661JBehindAPI.getTG661JBehindAPI().InitLicense();
         }
     }
 
@@ -119,11 +128,10 @@ public class TGActivity extends AppCompatActivity {
                     if (grantResult == -1) {
                         //添加需要申请的权限
                         requestPermission.add(permissions[i]);
-                    }else {
+                    } else {
                         requestPermission.remove(permissions[i]);
                     }
                 }
-                Log.d("===ppp"," 未同意权限的数量："+requestPermission.size());
                 if (requestPermission.size() > 0) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     alertDialog = builder.create();
@@ -151,12 +159,13 @@ public class TGActivity extends AppCompatActivity {
                     });
                     builder.show();
                 } else {
-                    if (alertDialog!=null&&alertDialog.isShowing())alertDialog.dismiss();
+                    if (alertDialog != null && alertDialog.isShowing()) alertDialog.dismiss();
                     if (type == 1) {
-                        TG661JAPI.getTG661JAPI().saveTemplHost();
+                        TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
                     } else if (type == 2) {
                         //Hot-USB连接方式，为设备授权
-                        cmdUSBThread.start();
+//                        cmdUSBThread.start();
+                        initFv();
                     }
                     //简单的写，所有的权限被同意后执行记录错误日志的初始化，
                     // 其实在文件的一些完成后就可以执行
@@ -173,8 +182,12 @@ public class TGActivity extends AppCompatActivity {
     private Thread cmdUSBThread = new Thread(new Runnable() {
         @Override
         public void run() {
-            TG661JAPI.getTG661JAPI().writeLicennse();
+//            writeLicennse(TGActivity.this);
 //            requestUsbPermission2();
+            if (!TextUtils.isEmpty(workModel) && workModel.equals("f")) {
+                TG661JBehindAPI.getTG661JBehindAPI().InitLicense();
+            }
+
         }
     });
 
@@ -233,7 +246,7 @@ public class TGActivity extends AppCompatActivity {
     //记录日志
     private void recordLog() {
         //使用完之后，记得stop
-        String logDir = TG661JAPI.getTG661JAPI().getLogDir();
+        String logDir = TG661JBehindAPI.getTG661JBehindAPI().getLogDir();
         //捕捉错误日志记录，存储在手机外部SD卡
         LogcatHelper.getInstance().init(logDir).start();
     }

@@ -85,6 +85,20 @@ public class TG661JBehindAPI {
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
+    //获取定义的权限数组
+    public String[] getPerms() {
+        return perms;
+    }
+
+    //获取主机存储日志的路径
+    public String getLogDir() {
+        return logDir;
+    }
+
+    //获取算法的路径
+    public String getFvPath() {
+        return licencePath;
+    }
 
     //完整的特征大小
     private static final int PERFECT_FEATURE_17682 = 17682;
@@ -113,6 +127,10 @@ public class TG661JBehindAPI {
     //后比的3，6模板路径
     private String behindTempl3Path = behindDatDir + File.separator + "TEMPL_3";
     private String behindTempl6Path = behindDatDir + File.separator + "TEMPL_6";
+    //证书路径
+    private String licencePath = Environment.getExternalStorageDirectory().getAbsolutePath()
+            + File.separator + "TG_VEIN" + File.separator + "license.dat";
+
     //日志的路径
     private String logDir = tgDirPath + File.separator + "Log";
     //图片存储的路径
@@ -130,8 +148,8 @@ public class TG661JBehindAPI {
     //SDK的当前版本号
     private static final String SDK_VERSION = "1.1.0_190417_Beta";
     //算法证书的路径
-    private String licencePath;
-    private String lic_dir;
+//    private String licencePath;
+//    private String lic_dir;
 
     /**
      * 获取SDK的版本
@@ -147,7 +165,6 @@ public class TG661JBehindAPI {
      * @param mHandler
      * @param context
      */
-    private boolean licenseFlag = false;//是否已经写入算法证书的标志
     private int workType = WORK_BEHIND;//默认是后比
     public boolean devOpen = false;//设备是否已经打开
     public boolean devClose = false;//设备关闭的标志
@@ -226,7 +243,6 @@ public class TG661JBehindAPI {
                 return;
             }
             writeCMD();
-            checkPermissions(2);
             work(mHandler, OPEN_DEV);
         }
     }
@@ -291,7 +307,10 @@ public class TG661JBehindAPI {
      * @param inputStream    证书字节流
      * @param netLoadLicence 标记是否由网络下发证书流
      */
-    public void initFV(Handler handler, Context context, InputStream inputStream, boolean netLoadLicence) {
+    private boolean netLoadLicence;
+    private InputStream inputStream;
+
+    public void initFV(Handler handler, Activity context, InputStream inputStream, boolean netLoadLicence) {
         this.handler = handler;
         Message message = handler.obtainMessage();
         message.what = INIT_FV;
@@ -300,7 +319,9 @@ public class TG661JBehindAPI {
             handler.sendMessage(message);
             return;
         }
+        this.mActivity = context;
         this.context = context;
+        this.netLoadLicence = netLoadLicence;
         if (netLoadLicence) {
             if (inputStream == null) {
                 message.arg1 = -2;
@@ -308,12 +329,12 @@ public class TG661JBehindAPI {
                 return;
             }
         }
-        createDirPath(context);
-        InitLicense(inputStream, netLoadLicence);
+        this.inputStream = inputStream;
+        checkPermissions(2);
     }
 
     //创建相关的文件夹,获取到相关的路径
-    private void createDirPath(Context context) {
+    private void createDirPath() {
         File dat3File = new File(behindTempl3Path);
         if (!dat3File.exists())
             dat3File.mkdirs();
@@ -323,9 +344,7 @@ public class TG661JBehindAPI {
         File logFile = new File(logDir);
         if (!logFile.exists())
             logFile.mkdirs();
-        lic_dir = FileUtil.getExtendedMemoryPath(context) + File.separator + "TG_VEIN";
-        licencePath = lic_dir + File.separator + "license.dat";
-        File licenceFile = new File(logDir);
+        File licenceFile = new File(licencePath);
         if (!licenceFile.exists())
             licenceFile.mkdirs();
     }
@@ -347,7 +366,7 @@ public class TG661JBehindAPI {
     private String templSavePath;
 
     //设置图片是否发送出去，内部测试用
-    public void setsImg(boolean sImg) {
+    private void setsImg(boolean sImg) {
         this.sImg = sImg;
     }
 
@@ -597,26 +616,28 @@ public class TG661JBehindAPI {
     /**
      * 初始化证书
      */
-    private void InitLicense(InputStream input, boolean netLoadLicence) {
+    public void InitLicense() {
+        createDirPath();
+        //如果是由网络下发证书流，先写入指定路径的文件
+        File file = new File(licencePath);
+        if (!file.exists())
+            file.mkdirs();
+        OutputStream output = null;
         if (netLoadLicence) {
-            //如果是由网络下发证书流，先写入指定路径的文件
-            //        boolean writeLicense = false;
-            File file = new File(lic_dir);
-            if (!file.exists())
-                file.mkdirs();
-//        InputStream input = null;
-            OutputStream output = null;
             // 从资源中读取数据库流
             try {
-//            input = context.getResources().openRawResource(R.raw.license);
-                output = new FileOutputStream(licencePath);
-                // 拷贝到输出流
-                byte[] buffer = new byte[2048];
-                int length;
-                while ((length = input.read(buffer)) > 0) {
-                    output.write(buffer, 0, length);
+//                String LIC_DIR = FileUtil.getExtendedMemoryPath(context) + File.separator + "TG_VEIN";
+//                licencePath = LIC_DIR + File.separator + "license.dat";
+//                input = context.getResources().openRawResource(R.raw.license);
+                if (inputStream != null) {
+                    output = new FileOutputStream(licencePath);
+                    // 拷贝到输出流
+                    byte[] buffer = new byte[2048];
+                    int length;
+                    while ((length = inputStream.read(buffer)) > 0) {
+                        output.write(buffer, 0, length);
+                    }
                 }
-//            writeLicense = true;
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e("===TAG", e.getMessage());
@@ -626,18 +647,16 @@ public class TG661JBehindAPI {
                         output.flush();
                     if (output != null)
                         output.close();
-                    if (input != null)
-                        input.close();
+                    if (inputStream != null) {
+                        inputStream.close();
+                    }
                     //初始化算法
                     work(handler, INIT_FV);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-//        return writeLicense;
-
         } else {
-            //直接从指定路径读取事先存放的证书
             //初始化算法
             work(handler, INIT_FV);
         }
@@ -820,15 +839,22 @@ public class TG661JBehindAPI {
 
     //检查权限
     public void checkPermissions(int type) {
-        for (String perm : perms) {
+        for (int i = 0; i < perms.length; i++) {
+            String perm = perms[i];
             int checkResult = ContextCompat.checkSelfPermission(mActivity, perm);
             if (checkResult == PackageManager.PERMISSION_DENIED) {
                 //权限没有同意，需要申请该权限
                 Intent intent = new Intent("com.tg.m661j.vein.api");
                 intent.addCategory("com.tg.m661j.vein.api");
                 intent.putExtra("type", type);
+                intent.putExtra("workModel", "b");
                 mActivity.startActivity(intent);
                 break;
+            } else {
+                if (i == perms.length - 1) {
+                    InitLicense();
+                    Log.d("===哈哈哈", "   计数i:" + i);
+                }
             }
         }
         if (type == 1) {
@@ -975,6 +1001,8 @@ public class TG661JBehindAPI {
                     case INIT_FV:
                         //初始化算法
                         int tgInitFVProcessRes = getTGFV().TGInitFVProcess(licencePath);
+                        Log.d("===哈哈哈", "    证书路径：" + licencePath);
+                        Log.d("===哈哈哈", "    证书结果：" + tgInitFVProcessRes);
                         Message initFvMsg = handler.obtainMessage();
                         initFvMsg.what = INIT_FV;
                         if (tgInitFVProcessRes == 0) {
@@ -1096,9 +1124,10 @@ public class TG661JBehindAPI {
                         Message imgFeaMsg = handler.obtainMessage();
                         imgFeaMsg.what = EXTRACT_FEATURE_REGISTER;
                         //该指静脉已经注册
-                        if (hasTemplName || hasTempl) {
-                            imgFeaMsg.arg1 = -5;
-//                            getAP().play_registerRepeat();
+                        if (hasTemplName) {
+                            if (hasTempl) {
+                                imgFeaMsg.arg1 = -5;
+                            }
                         } else {
                             if (templIndex == 0) {
                                 getAP().play_inputDownGently();
@@ -1137,7 +1166,6 @@ public class TG661JBehindAPI {
                                         int fusionFeatureRes = getTGFV().TGFeaturesFusionTmpl(aimFeatures,
                                                 templSize, fusionTempl);
                                         if (fusionFeatureRes == 0) {
-//                                            hasTemplName = true;
                                             //模板融合成功--存储
                                             String templSavePath = getAimPath();
                                             String savePath = templSavePath + File.separator + templNameID + ".dat";
@@ -2061,7 +2089,7 @@ public class TG661JBehindAPI {
                 if (sImg) {
                     img(imgFeaNMsg, match1_NImgData, tgGetDevImageMatchNRes);
                     //存储图片
-                    imgFeaNMsg.arg1=1;
+                    imgFeaNMsg.arg1 = 1;
                     saveImg(templNameID + 0,
                             match1_NImgData, tgGetDevImageMatchNRes);
                 }
@@ -2229,7 +2257,6 @@ public class TG661JBehindAPI {
         public void onServiceDisconnected(ComponentName componentName) {
             devServiceMessenger = null;
             isStart = false;
-            Log.d("===TAG===", "  TG661JAPI 与 DevService断开连接 !");
         }
     };
 
