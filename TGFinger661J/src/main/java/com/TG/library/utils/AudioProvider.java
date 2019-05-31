@@ -1,9 +1,12 @@
 package com.TG.library.utils;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.Build;
+import android.util.AndroidException;
 import android.util.Log;
 
 import com.example.mylibrary.R;
@@ -60,6 +63,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
     private float streamVolumeCurrent;
     //最大的音量值
     private float streamVolumeMax;
+    private final AudioManager mgr;
 
     /**
      * 创建SoundPool ，注意 api 等级
@@ -93,14 +97,14 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
         createSoundPoolIfNeeded();
 //        soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         // 取得当前音量大小
-        AudioManager mgr = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mgr = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (mgr != null) {
-                mgr.loadSoundEffects();
-                // 当前音量
-                streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
-                streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-                // 最大音量
-                volume = streamVolumeCurrent / streamVolumeMax;
+            mgr.loadSoundEffects();
+            // 当前音量
+            streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);
+            streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            // 最大音量
+            volume = streamVolumeCurrent / streamVolumeMax;
 //                volume = streamVolumeCurrent;
             Log.d("===哈哈哈", "   初始化 音量值：" + volume);
         }
@@ -114,6 +118,38 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
             }
         }
         return mInstance;
+    }
+
+    /**
+     * 暂停播放背景音乐和回复播放背景音乐
+     * https://blog.csdn.net/sodino/article/details/10055659
+     *
+     * @param bMute
+     * @return
+     */
+    @TargetApi(Build.VERSION_CODES.FROYO)
+    public boolean muteAudioFocus( boolean bMute) {
+        if (mContext == null) {
+            Log.d("ANDROID_LAB", "context is null.");
+            return false;
+        }
+//        if () {
+//            // 2.1以下的版本不支持下面的API：requestAudioFocus和abandonAudioFocus
+//            Log.d("ANDROID_LAB", "Android 2.1 and below can not stop music");
+//            return false;
+//        }
+        boolean bool = false;
+//        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (bMute) {
+            int result = mgr.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+            bool = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        } else {
+            int result = mgr.abandonAudioFocus(null);
+            bool = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        }
+        Log.d("ANDROID_LAB", "pauseMusic bMute=" + bMute + " result=" + bool);
+        return bool;
     }
 
     //获取当前的音量

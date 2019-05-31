@@ -9,6 +9,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +19,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.TG.library.CallBack.Common;
+import com.TG.library.CallBack.PermissionCallBack;
+import com.TG.library.api.TG661JBAPI;
 import com.TG.library.api.TG661JBehindAPI;
 import com.TG.library.utils.LogUtils;
 import com.TG.library.utils.LogcatHelper;
@@ -29,6 +33,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * 指静脉设备使用节点方式通信，没有使用USB方式
+ */
 public class TGActivity extends AppCompatActivity {
 
     private final int requestMainPermissCode = 0xFF;
@@ -36,21 +43,18 @@ public class TGActivity extends AppCompatActivity {
     private List<String> needRequestPermission = new ArrayList<>();
     //用于存储用户拒绝掉的必须权限
     private List<String> requestPermission;
+    private PermissionCallBack permissionCallBack;
 
-
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what == FIND_USB) {
-                findUSBDev(1317, 42156);
-            }
-        }
+    //权限：读写文件
+    @SuppressLint("InlinedApi")
+    private String[] perms = new String[]{
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-    private int type;
+
+
+//    private int type;
     private AlertDialog alertDialog;
-    private String workModel;
+    private String flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +62,12 @@ public class TGActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tg);
 
         Intent intent = getIntent();
-        type = intent.getIntExtra("type", -1);
-        workModel = intent.getStringExtra("workModel");
-        checkPermissions();
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
+//            type = bundle.getInt("type", -1);
+            flag = bundle.getString("flag");
+            checkPermissions();
+        }
     }
 
     @Override
@@ -75,7 +82,6 @@ public class TGActivity extends AppCompatActivity {
          * PackageManager.PERMISSION_GRANTED -- 表示权限已经同意
          * PackageManager.PERMISSION_DENIED -- 表示权限没有同意，需要申请该权限
          */
-        String[] perms = TG661JBehindAPI.getTG661JBehindAPI().getPerms();
         //检查权限
         for (int i = 0; i < perms.length; i++) {
             String perm = perms[i];
@@ -93,22 +99,22 @@ public class TGActivity extends AppCompatActivity {
             //申请权限
             ActivityCompat.requestPermissions(TGActivity.this, permissions, requestMainPermissCode);
         } else {
-            if (type == 1) {
-                TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
-                TGActivity.this.finish();
-            } else if (type == 2) {
-                //Hot-USB连接方式，为设备授权
-//                cmdUSBThread.start();
-                initFv();
+            //已经同意全部权限
+            if (flag.equals(Common.TG661JB)) {
+                //后比初始化算法
+                TG661JBAPI.getTg661JBAPI().FV();
             }
+//            if (type == 1) {
+//                TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
+//                TGActivity.this.finish();
+//            } else if (type == 2) {
+//                //Hot-USB连接方式，为设备授权
+////                cmdUSBThread.start();
+//                initFv();
+//            }
         }
     }
 
-    private void initFv(){
-        if (!TextUtils.isEmpty(workModel) && workModel.equals("b")) {
-            TG661JBehindAPI.getTG661JBehindAPI().InitLicense();
-        }
-    }
 
     //接收权限申请的结果
     @Override
@@ -160,36 +166,52 @@ public class TGActivity extends AppCompatActivity {
                     builder.show();
                 } else {
                     if (alertDialog != null && alertDialog.isShowing()) alertDialog.dismiss();
-                    if (type == 1) {
-                        TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
-                    } else if (type == 2) {
-                        //Hot-USB连接方式，为设备授权
-//                        cmdUSBThread.start();
-                        initFv();
+                    //已经同意权限
+                    if (flag.equals(Common.TG661JB)) {
+                        //后比初始化算法
+                        TG661JBAPI.getTg661JBAPI().FV();
                     }
+//                    if (type == 1) {
+//                        TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
+//                    } else if (type == 2) {
+//                        //Hot-USB连接方式，为设备授权
+////                        cmdUSBThread.start();
+//                        initFv();
+//                    }
                     //简单的写，所有的权限被同意后执行记录错误日志的初始化，
                     // 其实在文件的一些完成后就可以执行
                     //执行日志记录的初始化工作
-                    recordLog();
+//                    recordLog();
                     TGActivity.this.finish();
                 }
                 break;
         }
     }
 
-    private final int FIND_USB = 0xF2;
+//    private final int FIND_USB = 0xF2;
     /*--------------------------这里是工作线程创建区-------------------------*/
-    private Thread cmdUSBThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-//            writeLicennse(TGActivity.this);
-//            requestUsbPermission2();
-            if (!TextUtils.isEmpty(workModel) && workModel.equals("f")) {
-                TG661JBehindAPI.getTG661JBehindAPI().InitLicense();
-            }
+//    private Thread cmdUSBThread = new Thread(new Runnable() {
+//        @Override
+//        public void run() {
+////            writeLicennse(TGActivity.this);
+////            requestUsbPermission2();
+//            if (!TextUtils.isEmpty(workModel) && workModel.equals("f")) {
+//                TG661JBehindAPI.getTG661JBehindAPI().InitLicense();
+//            }
+//
+//        }
+//    });
 
-        }
-    });
+//    @SuppressLint("HandlerLeak")
+//    private Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            super.handleMessage(msg);
+//            if (msg.what == FIND_USB) {
+//                findUSBDev(1317, 42156);
+//            }
+//        }
+//    };
 
     /**
      * 找寻目标的USB设备
@@ -197,59 +219,59 @@ public class TGActivity extends AppCompatActivity {
      * @param VENDORID
      * @param PRODUCTID
      */
-    private void findUSBDev(int VENDORID, int PRODUCTID) {
-        //检索USB设备
-        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        //获取到所有的USB设备，过滤出合适的USb设备
-        if (usbManager != null) {
-            HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-            Log.d("===TAG==", "    deviceList  size  " + deviceList.size());
-            Iterator<UsbDevice> iterator = deviceList.values().iterator();
-            while (iterator.hasNext()) {
-                UsbDevice usbDevice = iterator.next();
-                int deviceId = usbDevice.getDeviceId();
-                int vendorId = usbDevice.getVendorId();
-                String deviceName = usbDevice.getDeviceName();
-                int productId = usbDevice.getProductId();
-                LogUtils.d("deviceName:" + deviceName + "  vendorId :" + vendorId +
-                        "deviceId:" + deviceId + "productId:" + productId);
-                if (vendorId == VENDORID && productId == PRODUCTID) {
-                    UsbDevice mUsbDevice = usbDevice;
-                    //获取目标USB设备成功
-
-                }
-            }
-            TGActivity.this.finish();
-        }
-    }
+//    private void findUSBDev(int VENDORID, int PRODUCTID) {
+//        //检索USB设备
+//        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+//        //获取到所有的USB设备，过滤出合适的USb设备
+//        if (usbManager != null) {
+//            HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
+//            Log.d("===TAG==", "    deviceList  size  " + deviceList.size());
+//            Iterator<UsbDevice> iterator = deviceList.values().iterator();
+//            while (iterator.hasNext()) {
+//                UsbDevice usbDevice = iterator.next();
+//                int deviceId = usbDevice.getDeviceId();
+//                int vendorId = usbDevice.getVendorId();
+//                String deviceName = usbDevice.getDeviceName();
+//                int productId = usbDevice.getProductId();
+//                LogUtils.d("deviceName:" + deviceName + "  vendorId :" + vendorId +
+//                        "deviceId:" + deviceId + "productId:" + productId);
+//                if (vendorId == VENDORID && productId == PRODUCTID) {
+//                    UsbDevice mUsbDevice = usbDevice;
+//                    //获取目标USB设备成功
+//
+//                }
+//            }
+//            TGActivity.this.finish();
+//        }
+//    }
 
     /**
      * 为661j和650设备授权，如果设备连接方式为usb-host模式
      */
-    private void requestUsbPermission2() {
-        String command = "chmod -R 777 /dev/bus/usb";
-        try {
-            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
-            int i = process.waitFor();
-            if (i == 0) {
-                handler.sendEmptyMessage(FIND_USB);
-            }
-            LogUtils.d(" VM665J  执行授权命令 " + i);
-//            ToastUtil.toast(this," 执行授权命令 ");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void requestUsbPermission2() {
+//        String command = "chmod -R 777 /dev/bus/usb";
+//        try {
+//            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
+//            int i = process.waitFor();
+//            if (i == 0) {
+//                handler.sendEmptyMessage(FIND_USB);
+//            }
+//            LogUtils.d(" VM665J  执行授权命令 " + i);
+////            ToastUtil.toast(this," 执行授权命令 ");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     //记录日志
-    private void recordLog() {
-        //使用完之后，记得stop
-        String logDir = TG661JBehindAPI.getTG661JBehindAPI().getLogDir();
-        //捕捉错误日志记录，存储在手机外部SD卡
-        LogcatHelper.getInstance().init(logDir).start();
-    }
+//    private void recordLog() {
+//        //使用完之后，记得stop
+//        String logDir = TG661JBehindAPI.getTG661JBehindAPI().getLogDir();
+//        //捕捉错误日志记录，存储在手机外部SD卡
+//        LogcatHelper.getInstance().init(logDir).start();
+//    }
 
 
 }

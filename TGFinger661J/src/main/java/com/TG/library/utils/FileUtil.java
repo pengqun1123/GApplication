@@ -4,15 +4,21 @@ import android.content.Context;
 import android.os.storage.StorageManager;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 /**
@@ -90,12 +96,9 @@ public class FileUtil {
     /**
      * 向文件中写入字符串String类型的内容
      *
-     * @param file
-     *            文件路径
-     * @param content
-     *            文件内容
-     * @param charset
-     *            写入时候所使用的字符集
+     * @param file    文件路径
+     * @param content 文件内容
+     * @param charset 写入时候所使用的字符集
      */
     public static void writeString(String file, String content, String charset) {
         try {
@@ -106,13 +109,12 @@ public class FileUtil {
         }
 
     }
+
     /**
      * 向文件中写入数据
      *
-     * @param filePath
-     *            目标文件全路径
-     * @param data
-     *            要写入的数据
+     * @param filePath 目标文件全路径
+     * @param data     要写入的数据
      * @return true表示写入成功  false表示写入失败
      */
     public static boolean writeBytes(String filePath, byte[] data) {
@@ -130,10 +132,8 @@ public class FileUtil {
     /**
      * 从文件中读取数据，返回类型是字符串String类型
      *
-     * @param file
-     *            文件路径
-     * @param charset
-     *            读取文件时使用的字符集，如utf-8、GBK等
+     * @param file    文件路径
+     * @param charset 读取文件时使用的字符集，如utf-8、GBK等
      * @return
      */
     public static String readString(String file, String charset) {
@@ -176,6 +176,92 @@ public class FileUtil {
             }
         }
         return tmpByte;
+    }
+
+    /**
+     * 读取数据
+     *
+     * @param filePath
+     * @return
+     */
+    public static byte[] readFile(String filePath) {
+        FileChannel channel = null;
+        byte[] array = null;
+        try {
+            channel = new FileInputStream(new File(filePath)).getChannel();
+            MappedByteBuffer byteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+            array = new byte[byteBuffer.remaining()];
+            byteBuffer.get(array, 0, array.length);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return array;
+    }
+
+    public static byte[] readFile(File file) {
+        FileChannel channel = null;
+        byte[] array = null;
+        try {
+            channel = new FileInputStream(file).getChannel();
+            ByteBuffer byteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size()).asReadOnlyBuffer();
+            array = new byte[byteBuffer.remaining()];
+            byteBuffer.get(array, 0, array.length);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (channel != null) {
+                try {
+                    channel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return array;
+    }
+
+    public static void readFileToArray(File file, byte[] b) {
+        try {
+            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+            while (bis.available() > 0) {
+                bis.read(b);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] readFileToArray(File file) {
+        byte[] bytes = null;
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+            bytes = sb.toString().getBytes();
+            br.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bytes;
     }
 
     /**
@@ -237,7 +323,7 @@ public class FileUtil {
      */
     public static boolean updateFile(String path, String fileName, byte[] FileData) {
         boolean status = false;
-        Log.d("===TAG","  更新文件，路径："+path);
+        Log.d("===TAG", "  更新文件，路径：" + path);
         File file = new File(path);
         if (!file.exists()) {
             status = false;
@@ -257,7 +343,7 @@ public class FileUtil {
                                 fos.write(FileData);
                                 fos.flush();
                                 status = true;
-                                Log.d("===TAG","   更新模板："+status);
+                                Log.d("===TAG", "   更新模板：" + status);
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             } catch (IOException e) {
@@ -271,7 +357,7 @@ public class FileUtil {
                 }
             } else {
                 status = false;
-                Log.d("===TAG","   更新模板："+status);
+                Log.d("===TAG", "   更新模板：" + status);
             }
         }
         return status;
@@ -331,7 +417,7 @@ public class FileUtil {
                         fileList.add(name);
                     }
                 } else {
-                    return null;
+                    return fileList;
                 }
             }
         }

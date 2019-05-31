@@ -1,19 +1,5 @@
 package com.example.administrator.gapplication;
 
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-
-import com.TG.library.api.TG661JAPI;
-import com.example.administrator.adapters.TabAdapter;
-
-
-import java.util.ArrayList;
-import java.util.List;
 //
 //public class Main2Activity extends AppCompatActivity implements TabLayout.OnTabSelectedListener
 //        , View.OnClickListener, ViewPager.OnPageChangeListener {

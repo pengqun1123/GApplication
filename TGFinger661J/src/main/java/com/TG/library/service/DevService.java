@@ -75,7 +75,6 @@ public class DevService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("===TAG===", " DevService 的 onDestroy  ");
         releaseTimerTask();
     }
 

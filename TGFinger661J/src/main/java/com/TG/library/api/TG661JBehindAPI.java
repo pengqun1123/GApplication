@@ -21,6 +21,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.WindowManager;
 
+import com.TG.library.CallBack.Common;
+import com.TG.library.pojos.MatchN;
+import com.TG.library.service.GetFileTask;
 import com.TG.library.utils.AudioProvider;
 import com.TG.library.utils.FileUtil;
 import com.TG.library.utils.LogUtils;
@@ -36,6 +39,11 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created By pq
@@ -81,9 +89,11 @@ public class TG661JBehindAPI {
 
     @SuppressLint("InlinedApi") //读写文件，定位，手机状态，地理位置
     public String[] perms = new String[]{
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+//            android.Manifest.permission.READ_EXTERNAL_STORAGE,
     };
+    private ExecutorService executorService;
+    private ExecutorCompletionService<MatchN> ecs;
 
     //获取定义的权限数组
     public String[] getPerms() {
@@ -97,25 +107,25 @@ public class TG661JBehindAPI {
 
     //获取算法的路径
     public String getFvPath() {
-        return licencePath;
+        return licenceDir + File.separator + "license.dat";
     }
 
     //完整的特征大小
     private static final int PERFECT_FEATURE_17682 = 17682;
     private static final int PERFECT_FEATURE_35058 = 35058;
-    private static final int PERFECT_FEATURE_3 = 17632;//3特征
-    private static final int PERFECT_FEATURE_6 = 35008;//6特征
+    public static final int PERFECT_FEATURE_3 = 17632;//3特征
+    public static final int PERFECT_FEATURE_6 = 35008;//6特征
 
     //可比对的特征大小
-    private static final int WAIT_COMPARE_FEATURE_6 = 34784;//6特征
-    private static final int WAIT_COMPARE_FEATURE_3 = 17408;//3特征
+    public static final int WAIT_COMPARE_FEATURE_6 = 34784;//6特征
+    public static final int WAIT_COMPARE_FEATURE_3 = 17408;//3特征
 
-    private static final int IMG_SIZE = 500 * 200 + 208;
-    private static final int FEATURE_SIZE = 6016;
+    public static final int IMG_SIZE = 500 * 200 + 208;
+    public static final int FEATURE_SIZE = 6016;
     //临时加的图片大小
-    private static final int T_SIZE = 1024 * 500;
-    private static final int GET_IMG_OUT_TIME = 15;//默认设置抓图超时的时间为15S
-    private static final int GET_IMG_OUT_TIME_5000 = 5000;//默认设置抓图超时的时间为5000
+    public static final int T_SIZE = 1024 * 500;
+    public static final int GET_IMG_OUT_TIME = 15;//默认设置抓图超时的时间为15S
+    public static final int GET_IMG_OUT_TIME_5000 = 5000;//默认设置抓图超时的时间为5000
     //启动目标service的Action
     private static final String DevServiceAction = "com.example.mylibrary.DevService.action";
     //标记devService是否已经启动
@@ -128,8 +138,8 @@ public class TG661JBehindAPI {
     private String behindTempl3Path = behindDatDir + File.separator + "TEMPL_3";
     private String behindTempl6Path = behindDatDir + File.separator + "TEMPL_6";
     //证书路径
-    private String licencePath = Environment.getExternalStorageDirectory().getAbsolutePath()
-            + File.separator + "TG_VEIN" + File.separator + "license.dat";
+    private String licenceDir = Environment.getExternalStorageDirectory().getAbsolutePath()
+            + File.separator + "TG_VEIN";
 
     //日志的路径
     private String logDir = tgDirPath + File.separator + "Log";
@@ -176,7 +186,7 @@ public class TG661JBehindAPI {
     private int templModelType;
 
     //获取通信库的代理对象
-    private TGXG661API getTG661() {
+    public TGXG661API getTG661() {
         return TGXG661API.TGXG_661_API;
     }
 
@@ -202,7 +212,7 @@ public class TG661JBehindAPI {
     }
 
     //获取算法库的代理对象
-    private TGFV getTGFV() {
+    public TGFV getTGFV() {
         return TGFV.TGFV_INSTANCE;
     }
 
@@ -224,7 +234,10 @@ public class TG661JBehindAPI {
      *
      * @param templModelType
      */
+    private boolean isCancelRegister = false;
+
     public void cancelRegister(Handler handler, int templModelType) {
+        isCancelRegister = true;
         this.handler = handler;
         this.templModelType = templModelType;
         work(handler, CANCEL_REGISTER);
@@ -261,10 +274,10 @@ public class TG661JBehindAPI {
             return;
         }
         //解绑devService
-        if (isStart) {
-            isStart = false;
-            context.unbindService(serviceConnection);
-        }
+//        if (isStart) {
+//            isStart = false;
+//            context.unbindService(serviceConnection);
+//        }
         //否则，关闭设备
         work(handler, CLOSE_DEV);
     }
@@ -331,6 +344,9 @@ public class TG661JBehindAPI {
         }
         this.inputStream = inputStream;
         checkPermissions(2);
+        //创建线程池
+        executorService = Executors.newCachedThreadPool();
+        ecs = new ExecutorCompletionService<MatchN>(executorService);
     }
 
     //创建相关的文件夹,获取到相关的路径
@@ -344,7 +360,7 @@ public class TG661JBehindAPI {
         File logFile = new File(logDir);
         if (!logFile.exists())
             logFile.mkdirs();
-        File licenceFile = new File(licencePath);
+        File licenceFile = new File(licenceDir);
         if (!licenceFile.exists())
             licenceFile.mkdirs();
     }
@@ -422,6 +438,7 @@ public class TG661JBehindAPI {
                 }
             }
         }
+        isCancelRegister = false;
         work(handler, EXTRACT_FEATURE_REGISTER);
     }
 
@@ -618,47 +635,70 @@ public class TG661JBehindAPI {
      */
     public void InitLicense() {
         createDirPath();
-        //如果是由网络下发证书流，先写入指定路径的文件
-        File file = new File(licencePath);
+        File file = new File(licenceDir);
         if (!file.exists())
             file.mkdirs();
-        OutputStream output = null;
         if (netLoadLicence) {
-            // 从资源中读取数据库流
-            try {
-//                String LIC_DIR = FileUtil.getExtendedMemoryPath(context) + File.separator + "TG_VEIN";
-//                licencePath = LIC_DIR + File.separator + "license.dat";
-//                input = context.getResources().openRawResource(R.raw.license);
-                if (inputStream != null) {
-                    output = new FileOutputStream(licencePath);
-                    // 拷贝到输出流
-                    byte[] buffer = new byte[2048];
-                    int length;
-                    while ((length = inputStream.read(buffer)) > 0) {
-                        output.write(buffer, 0, length);
+            //如果是由网络下发证书流，先写入指定路径的文件
+            writeLicenseToFile(inputStream);
+        } else {
+            //检测指定的文件夹下是否存在证书
+            ArrayList<String> licenseList = FileUtil.getInitFinerFileList(licenceDir);
+            if (licenseList != null) {
+                if (licenseList.size() > 0) {
+                    for (int i = 0; i < licenseList.size(); i++) {
+                        String name = licenseList.get(i);
+                        if (name.equals("license.dat")) {
+                            //存在证书历史,初始化算法
+                            work(handler, INIT_FV);
+                        } else {
+                            if (i == licenseList.size() - 1) {
+                                //不存在证书历史，将SDK的证书写入指定文件
+                                InputStream LicenseIs = context.getResources().openRawResource(R.raw.license);
+                                writeLicenseToFile(LicenseIs);
+                            }
+                        }
                     }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                Log.e("===TAG", e.getMessage());
-            } finally {
-                try {
-                    if (output != null)
-                        output.flush();
-                    if (output != null)
-                        output.close();
-                    if (inputStream != null) {
-                        inputStream.close();
-                    }
-                    //初始化算法
-                    work(handler, INIT_FV);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                } else {
+                    //不存在证书，将SDK的证书写入指定文件
+                    InputStream LicenseIs = context.getResources().openRawResource(R.raw.license);
+                    writeLicenseToFile(LicenseIs);
                 }
             }
-        } else {
-            //初始化算法
-            work(handler, INIT_FV);
+        }
+    }
+
+    //写入证书到指定文件
+    private void writeLicenseToFile(InputStream inputStream) {
+        String licensePath = licenceDir + File.separator + "license.dat";
+        OutputStream output = null;
+        try {
+            if (inputStream != null) {
+                output = new FileOutputStream(licensePath);
+                // 拷贝到输出流
+                byte[] buffer = new byte[2048];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    output.write(buffer, 0, length);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("===license", e.getMessage());
+        } finally {
+            try {
+                if (output != null)
+                    output.flush();
+                if (output != null)
+                    output.close();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                //初始化算法
+                work(handler, INIT_FV);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -844,16 +884,22 @@ public class TG661JBehindAPI {
             int checkResult = ContextCompat.checkSelfPermission(mActivity, perm);
             if (checkResult == PackageManager.PERMISSION_DENIED) {
                 //权限没有同意，需要申请该权限
+//                Intent intent = new Intent("com.tg.m661j.vein.api");
+//                intent.addCategory("com.tg.m661j.vein.api");
+//                intent.putExtra("type", type);
+//                intent.putExtra("workModel", "b");
+
                 Intent intent = new Intent("com.tg.m661j.vein.api");
+                Bundle bundle = new Bundle();
                 intent.addCategory("com.tg.m661j.vein.api");
-                intent.putExtra("type", type);
-                intent.putExtra("workModel", "b");
+//                bundle.putInt("type", type);
+                bundle.putString("flag", Common.TG661JB);
+                intent.putExtras(bundle);
                 mActivity.startActivity(intent);
                 break;
             } else {
                 if (i == perms.length - 1) {
                     InitLicense();
-                    Log.d("===哈哈哈", "   计数i:" + i);
                 }
             }
         }
@@ -940,6 +986,7 @@ public class TG661JBehindAPI {
         handler.sendMessage(dialogMsg);
     }
 
+
     private void work(final Handler handler, final int flag) {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -965,14 +1012,10 @@ public class TG661JBehindAPI {
                             devClose = false;
                             //发送打开设备的结果:
                             openDevMsg.arg1 = 1;
-//                            if (!licenseFlag) {
-//                                //初始化证书
-//                                licenseFlag = InitLicense(context);
-//                            }
                             //启动后台devService
-                            if (!isStart) {
-                                startDevService();
-                            }
+//                            if (!isStart) {
+//                                startDevService(context);
+//                            }
                         } else {
                             openDevMsg.arg1 = -1;
                         }
@@ -1000,9 +1043,8 @@ public class TG661JBehindAPI {
                         break;
                     case INIT_FV:
                         //初始化算法
-                        int tgInitFVProcessRes = getTGFV().TGInitFVProcess(licencePath);
-                        Log.d("===哈哈哈", "    证书路径：" + licencePath);
-                        Log.d("===哈哈哈", "    证书结果：" + tgInitFVProcessRes);
+                        String licensePath = licenceDir + File.separator + "license.dat";
+                        int tgInitFVProcessRes = getTGFV().TGInitFVProcess(licensePath);
                         Message initFvMsg = handler.obtainMessage();
                         initFvMsg.what = INIT_FV;
                         if (tgInitFVProcessRes == 0) {
@@ -1090,9 +1132,11 @@ public class TG661JBehindAPI {
                         break;
                     case CANCEL_REGISTER:
                         int tgCancelRegisterRes = getTG661().TGCancelGetImage();
+                        Log.d("===啊啊啊", "  取消注册： " + tgCancelRegisterRes);
                         Message cancelRegisterMsg = handler.obtainMessage();
                         cancelRegisterMsg.what = CANCEL_DEV_IMG;
                         if (tgCancelRegisterRes == 0) {
+                            isCancelRegister = true;
                             cancelRegisterMsg.arg1 = 1;
                             setTemplModelType(templModelType);
                             aimByte = null;
@@ -1115,7 +1159,7 @@ public class TG661JBehindAPI {
                     case EXTRACT_FEATURE_REGISTER:
                         //首先检查主机中已注册的模板文件名是否已存在
                         if (!hasTemplName) {
-                            hasTemplName = checkTemplName(templNameID);
+                            checkTemplName(templNameID);
                         }
                         //注册前核对当前指静脉是否已经注册
                         if (!isCheck && !hasTemplName) {
@@ -1125,145 +1169,148 @@ public class TG661JBehindAPI {
                         imgFeaMsg.what = EXTRACT_FEATURE_REGISTER;
                         //该指静脉已经注册
                         if (hasTemplName) {
-                            if (hasTempl) {
-                                imgFeaMsg.arg1 = -5;
-                            }
+                            imgFeaMsg.arg1 = -8;
+                        } else if (hasTempl) {
+                            imgFeaMsg.arg1 = -5;
                         } else {
-                            if (templIndex == 0) {
-                                getAP().play_inputDownGently();
-                            } else if (templIndex > 0) {
-                                getAP().play_inputAgain();
-                            }
+                            if (!isCancelRegister) {
+                                if (templIndex == 0) {
+                                    Log.d("===啊啊啊", "    index  == 0 ");
+                                    getAP().play_inputDownGently();
+                                } else if (templIndex > 0) {
+                                    getAP().play_inputAgain();
+                                }
 //                            byte[] imgDataFea = new byte[IMG_SIZE];
-                            byte[] imgDataFea = new byte[IMG_SIZE + T_SIZE];
-                            imgDataFea[0] = ((byte) 0xfe);
-                            int tgGetDevImageFeaRes = getTG661().TGGetDevImage(imgDataFea, GET_IMG_OUT_TIME);
-                            if (tgGetDevImageFeaRes >= 0) {
-                                //提取特征  --- 注册
-                                byte[] regFeature = new byte[FEATURE_SIZE];
-                                int tgImgExtractFeatureRegRes = getTGFV().TGImgExtractFeatureRegister(imgDataFea,
-                                        500, 200, regFeature);
-                                if (tgImgExtractFeatureRegRes == 0) {
-                                    byte[] aimFeatures = null;
-                                    if (templIndex < templSize) {
-                                        imgFeaMsg.arg1 = 10;
-                                        aimFeatures = jointTempl(regFeature);
-                                        extractFeatureRegister(handler, templModelType,
-                                                TG661JBehindAPI.this.templNameID);
-                                    }
-                                    if (templSize == templIndex) {
-                                        templIndex = 0;
-                                        aimByte = null;
-                                        isCheck = false;
-                                        hasTemplName = true;
-                                        //融合
-                                        byte[] fusionTempl = null;
-                                        if (templModelType == TEMPL_MODEL_3) {
-                                            fusionTempl = new byte[PERFECT_FEATURE_3];
-                                        } else if (templModelType == TEMPL_MODEL_6) {
-                                            fusionTempl = new byte[PERFECT_FEATURE_6];
+                                byte[] imgDataFea = new byte[IMG_SIZE + T_SIZE];
+                                imgDataFea[0] = ((byte) 0xfe);
+                                int tgGetDevImageFeaRes = getTG661().TGGetDevImage(imgDataFea, GET_IMG_OUT_TIME);
+                                if (tgGetDevImageFeaRes >= 0) {
+                                    //提取特征  --- 注册
+                                    byte[] regFeature = new byte[FEATURE_SIZE];
+                                    int tgImgExtractFeatureRegRes = getTGFV().TGImgExtractFeatureRegister(imgDataFea,
+                                            500, 200, regFeature);
+                                    if (tgImgExtractFeatureRegRes == 0) {
+                                        byte[] aimFeatures = null;
+                                        if (templIndex < templSize) {
+                                            imgFeaMsg.arg1 = 10;
+                                            aimFeatures = jointTempl(regFeature);
+                                            extractFeatureRegister(handler, templModelType,
+                                                    TG661JBehindAPI.this.templNameID);
                                         }
-                                        int fusionFeatureRes = getTGFV().TGFeaturesFusionTmpl(aimFeatures,
-                                                templSize, fusionTempl);
-                                        if (fusionFeatureRes == 0) {
-                                            //模板融合成功--存储
-                                            String templSavePath = getAimPath();
-                                            String savePath = templSavePath + File.separator + templNameID + ".dat";
-                                            boolean writeFile = FileUtil.writeFile(fusionTempl, savePath);
-                                            if (writeFile) {
-                                                hasTempl = true;
-                                                //登记成功
-                                                imgFeaMsg.arg1 = 1;
-                                                getAP().play_checkInSuccess();
-                                            } else {
+                                        if (templSize == templIndex) {
+                                            templIndex = 0;
+                                            aimByte = null;
+                                            isCheck = false;
+                                            hasTemplName = true;
+                                            //融合
+                                            byte[] fusionTempl = null;
+                                            if (templModelType == TEMPL_MODEL_3) {
+                                                fusionTempl = new byte[PERFECT_FEATURE_3];
+                                            } else if (templModelType == TEMPL_MODEL_6) {
+                                                fusionTempl = new byte[PERFECT_FEATURE_6];
+                                            }
+                                            int fusionFeatureRes = getTGFV().TGFeaturesFusionTmpl(aimFeatures,
+                                                    templSize, fusionTempl);
+                                            if (fusionFeatureRes == 0) {
+                                                //模板融合成功--存储
+                                                String templSavePath = getAimPath();
+                                                String savePath = templSavePath + File.separator + templNameID + ".dat";
+                                                boolean writeFile = FileUtil.writeFile(fusionTempl, savePath);
+                                                if (writeFile) {
+                                                    hasTempl = true;
+                                                    //登记成功
+                                                    imgFeaMsg.arg1 = 1;
+                                                    getAP().play_checkInSuccess();
+                                                } else {
+                                                    hasTempl = false;
+                                                    getAP().play_checkInFail();
+                                                }
+                                            } else if (fusionFeatureRes == 6) {
+                                                templIndex = 0;
+                                                aimByte = null;
                                                 hasTempl = false;
+                                                hasTemplName = false;
+                                                imgFeaMsg.arg1 = 2;
+                                                getAP().play_checkInFail();
+                                            } else if (fusionFeatureRes == -1) {
+                                                templIndex = 0;
+                                                aimByte = null;
+                                                hasTempl = false;
+                                                hasTemplName = false;
+                                                imgFeaMsg.arg1 = 3;
                                                 getAP().play_checkInFail();
                                             }
-                                        } else if (fusionFeatureRes == 6) {
-                                            templIndex = 0;
-                                            aimByte = null;
-                                            hasTempl = false;
-                                            hasTemplName = false;
-                                            imgFeaMsg.arg1 = 2;
-                                            getAP().play_checkInFail();
-                                        } else if (fusionFeatureRes == -1) {
-                                            templIndex = 0;
-                                            aimByte = null;
-                                            hasTempl = false;
-                                            hasTemplName = false;
-                                            imgFeaMsg.arg1 = 3;
-                                            getAP().play_checkInFail();
                                         }
+                                    } else if (tgImgExtractFeatureRegRes == 1) {
+                                        templIndex = 0;
+                                        aimByte = null;
+                                        hasTempl = false;
+                                        hasTemplName = false;
+                                        imgFeaMsg.arg1 = 4;
+                                    } else if (tgImgExtractFeatureRegRes == 2) {
+                                        templIndex = 0;
+                                        aimByte = null;
+                                        hasTempl = false;
+                                        hasTemplName = false;
+                                        imgFeaMsg.arg1 = 5;
+                                    } else if (tgImgExtractFeatureRegRes == 3) {
+                                        templIndex = 0;
+                                        aimByte = null;
+                                        hasTempl = false;
+                                        hasTemplName = false;
+                                        imgFeaMsg.arg1 = 6;
+                                    } else if (tgImgExtractFeatureRegRes == 4) {
+                                        templIndex = 0;
+                                        aimByte = null;
+                                        hasTempl = false;
+                                        hasTemplName = false;
+                                        imgFeaMsg.arg1 = 7;
+                                    } else if (tgImgExtractFeatureRegRes == 5) {
+                                        templIndex = 0;
+                                        aimByte = null;
+                                        hasTempl = false;
+                                        hasTemplName = false;
+                                        imgFeaMsg.arg1 = 8;
+                                    } else if (tgImgExtractFeatureRegRes == -1) {
+                                        templIndex = 0;
+                                        aimByte = null;
+                                        hasTempl = false;
+                                        hasTemplName = false;
+                                        imgFeaMsg.arg1 = 9;
                                     }
-                                } else if (tgImgExtractFeatureRegRes == 1) {
-                                    templIndex = 0;
-                                    aimByte = null;
-                                    hasTempl = false;
-                                    hasTemplName = false;
-                                    imgFeaMsg.arg1 = 4;
-                                } else if (tgImgExtractFeatureRegRes == 2) {
-                                    templIndex = 0;
-                                    aimByte = null;
-                                    hasTempl = false;
-                                    hasTemplName = false;
-                                    imgFeaMsg.arg1 = 5;
-                                } else if (tgImgExtractFeatureRegRes == 3) {
-                                    templIndex = 0;
-                                    aimByte = null;
-                                    hasTempl = false;
-                                    hasTemplName = false;
-                                    imgFeaMsg.arg1 = 6;
-                                } else if (tgImgExtractFeatureRegRes == 4) {
-                                    templIndex = 0;
-                                    aimByte = null;
-                                    hasTempl = false;
-                                    hasTemplName = false;
-                                    imgFeaMsg.arg1 = 7;
-                                } else if (tgImgExtractFeatureRegRes == 5) {
-                                    templIndex = 0;
-                                    aimByte = null;
-                                    hasTempl = false;
-                                    hasTemplName = false;
-                                    imgFeaMsg.arg1 = 8;
-                                } else if (tgImgExtractFeatureRegRes == -1) {
-                                    templIndex = 0;
-                                    aimByte = null;
-                                    hasTempl = false;
-                                    hasTemplName = false;
-                                    imgFeaMsg.arg1 = 9;
-                                }
-                                if (sImg) {
-                                    img(imgFeaMsg, imgDataFea, tgGetDevImageFeaRes);
+                                    if (sImg) {
+                                        img(imgFeaMsg, imgDataFea, tgGetDevImageFeaRes);
 //                                    imgFeaMsg.arg1=1;
-                                    saveImg(templNameID + templIndex,
-                                            imgDataFea, tgGetDevImageFeaRes);
+                                        saveImg(templNameID + templIndex,
+                                                imgDataFea, tgGetDevImageFeaRes);
 
+                                    }
+                                } else if (tgGetDevImageFeaRes == -1) {
+                                    templIndex = 0;
+                                    aimByte = null;
+                                    hasTempl = false;
+                                    hasTemplName = false;
+                                    getAP().play_time_out();
+                                    imgFeaMsg.arg1 = -1;
+                                } else if (tgGetDevImageFeaRes == -2) {
+                                    templIndex = 0;
+                                    aimByte = null;
+                                    hasTempl = false;
+                                    hasTemplName = false;
+                                    imgFeaMsg.arg1 = -2;
+                                } else if (tgGetDevImageFeaRes == -3) {
+                                    templIndex = 0;
+                                    aimByte = null;
+                                    hasTempl = false;
+                                    hasTemplName = false;
+                                    imgFeaMsg.arg1 = -3;
+                                } else if (tgGetDevImageFeaRes == -4) {
+                                    templIndex = 0;
+                                    aimByte = null;
+                                    hasTempl = false;
+                                    hasTemplName = false;
+                                    imgFeaMsg.arg1 = -4;
                                 }
-                            } else if (tgGetDevImageFeaRes == -1) {
-                                templIndex = 0;
-                                aimByte = null;
-                                hasTempl = false;
-                                hasTemplName = false;
-                                getAP().play_time_out();
-                                imgFeaMsg.arg1 = -1;
-                            } else if (tgGetDevImageFeaRes == -2) {
-                                templIndex = 0;
-                                aimByte = null;
-                                hasTempl = false;
-                                hasTemplName = false;
-                                imgFeaMsg.arg1 = -2;
-                            } else if (tgGetDevImageFeaRes == -3) {
-                                templIndex = 0;
-                                aimByte = null;
-                                hasTempl = false;
-                                hasTemplName = false;
-                                imgFeaMsg.arg1 = -3;
-                            } else if (tgGetDevImageFeaRes == -4) {
-                                templIndex = 0;
-                                aimByte = null;
-                                hasTempl = false;
-                                hasTemplName = false;
-                                imgFeaMsg.arg1 = -4;
                             }
                         }
                         handler.sendMessage(imgFeaMsg);
@@ -1565,206 +1612,13 @@ public class TG661JBehindAPI {
                         handler.sendMessage(msg1_1);
                         break;
                     case FEATURE_COMPARE1_N:
-                        //获取模板的所有地址
-                        String templsPath = getAimPath();
                         Message matchNMsg = handler.obtainMessage();
                         matchNMsg.what = FEATURE_COMPARE1_N;
                         Bundle matchNBundle = new Bundle();
-                        //读取所有文件模板
-                        ArrayList<byte[]> allTemplByteList = readAllTempl(templsPath);
-                        byte[] allWaitTempl = null;
-                        ArrayList<byte[]> allMatchTemplList = null;
-                        //转成比对模板
-                        if (allTemplByteList != null && allTemplByteList.size() > 0) {
-                            allMatchTemplList = new ArrayList<>();
-                            for (byte[] bytes : allTemplByteList) {
-                                byte[] matchTempll_N = null;
-                                if (templModelType == TEMPL_MODEL_3) {
-                                    matchTempll_N = new byte[WAIT_COMPARE_FEATURE_3];
-                                } else if (templModelType == TEMPL_MODEL_6) {
-                                    matchTempll_N = new byte[WAIT_COMPARE_FEATURE_6];
-                                }
-                                int tgTmplToMatchTmpl1_NRes = getTGFV().TGTmplToMatchTmpl(bytes, matchTempll_N);
-                                if (tgTmplToMatchTmpl1_NRes == 0) {
-                                    allMatchTemplList.add(matchTempll_N);
-                                } else if (tgTmplToMatchTmpl1_NRes == -1) {
-                                    int k = 0;
-                                    boolean continueMatch = true;
-                                    while (continueMatch) {
-                                        if (k < 3) {
-                                            tgTmplToMatchTmpl1_NRes = getTGFV().
-                                                    TGTmplToMatchTmpl(bytes, matchTempll_N);
-                                            k++;
-                                            if (tgTmplToMatchTmpl1_NRes == 0) {
-                                                allMatchTemplList.add(matchTempll_N);
-                                                k = 0;
-                                                continueMatch = false;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (allMatchTemplList.size() > 0) {
-                                if (templModelType == TEMPL_MODEL_3) {
-                                    allWaitTempl = new byte[WAIT_COMPARE_FEATURE_3
-                                            * allMatchTemplList.size()];
-                                } else if (templModelType == TEMPL_MODEL_6) {
-                                    allWaitTempl = new byte[WAIT_COMPARE_FEATURE_6
-                                            * allMatchTemplList.size()];
-                                }
-                                for (int i = 0; i < allMatchTemplList.size(); i++) {
-                                    int i1 = 0;
-                                    if (templModelType == TEMPL_MODEL_3) {
-                                        i1 = WAIT_COMPARE_FEATURE_3 * i;
-                                    } else if (templModelType == TEMPL_MODEL_6) {
-                                        i1 = WAIT_COMPARE_FEATURE_6 * i;
-                                    }
-                                    byte[] bytes = allMatchTemplList.get(i);
-                                    System.arraycopy(bytes, 0, allWaitTempl, i1, bytes.length);
-                                }
-                            }
-                        }
-                        //用转换好的模板等待比对，--》抓取图片
-                        getAP().play_inputDownGently();
-//                        byte[] match1_NImgData = new byte[IMG_SIZE];
-                        byte[] match1_NImgData = new byte[IMG_SIZE + T_SIZE];
-                        match1_NImgData[0] = ((byte) 0xfe);
-                        int tgGetDevImageMatchNRes = getTG661().TGGetDevImage(match1_NImgData,
-                                GET_IMG_OUT_TIME);
-                        if (tgGetDevImageMatchNRes >= 0) {
-                            //提取特征
-                            byte[] match1_NFeature = new byte[FEATURE_SIZE];
-                            int tgImgExtractFeatureVerifyNRes = getTGFV().TGImgExtractFeatureVerify(
-                                    match1_NImgData, 500, 200, match1_NFeature);
-                            if (tgImgExtractFeatureVerifyNRes == 0) {
-                                if (allWaitTempl != null) {
-                                    IntByReference intB1 = new IntByReference();
-                                    IntByReference intB2 = new IntByReference();
-                                    byte[] uuId = new byte[33];
-                                    byte[] updateTempl = null;
-                                    if (templModelType == TEMPL_MODEL_3) {
-                                        updateTempl = new byte[PERFECT_FEATURE_3];
-                                    } else if (templModelType == TEMPL_MODEL_6) {
-                                        updateTempl = new byte[PERFECT_FEATURE_6];
-                                    }
-                                    int tgFeatureMatchTmpl1NRes = getTGFV().TGFeatureMatchTmpl1N(match1_NFeature,
-                                            allWaitTempl, allMatchTemplList.size(), intB1, uuId,
-                                            intB2, updateTempl);
-                                    if (tgFeatureMatchTmpl1NRes == 0) {
-                                        getAP().play_verifySuccess();
-                                        int templIndex = intB1.getValue();//模板的指针位置
-                                        int templScore = intB2.getValue();//验证的分数
-                                        //根据返回的指针获取主机中模板文件的名字
-                                        String fileName = FileUtil.getFileName(templsPath, templIndex - 1);
-                                        matchNMsg.arg1 = 1;
-                                        matchNBundle.putByteArray(COMPARE_N_TEMPL, updateTempl);
-                                        matchNBundle.putString(COMPARE_NAME, fileName);
-                                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
-                                        //传出抓取图片的数据
-                                        if (sImg) {
-                                            matchNBundle.putInt("imgLength", tgGetDevImageMatchNRes);
-                                            matchNBundle.putByteArray("imgData", match1_NImgData);
-//                                            img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                            //存储图片
-                                            saveImg(fileName, match1_NImgData, tgGetDevImageMatchNRes);
-                                        }
-                                        matchNMsg.setData(matchNBundle);
-                                    } else if (tgFeatureMatchTmpl1NRes == 8) {
-                                        int templIndex = intB1.getValue();//模板的指针位置
-                                        int templScore = intB2.getValue();//验证的分数
-                                        getAP().play_verifyFail();
-                                        matchNMsg.arg1 = 2;
-                                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
-                                        //传出抓取图片的数据
-                                        if (sImg) {
-                                            matchNBundle.putInt("imgLength", tgGetDevImageMatchNRes);
-                                            matchNBundle.putByteArray("imgData", match1_NImgData);
-//                                            img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                            //存储图片
-                                            long l = System.currentTimeMillis();
-                                            saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                        }
-                                        matchNMsg.setData(matchNBundle);
-                                    } else if (tgFeatureMatchTmpl1NRes == -1) {
-                                        getAP().play_time_out();
-                                        matchNMsg.arg1 = 3;
-                                        //传出抓取图片的数据
-                                        if (sImg) {
-                                            img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                            //存储图片
-                                            long l = System.currentTimeMillis();
-                                            saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                        }
-                                    }
-                                }
-                            } else if (tgImgExtractFeatureVerifyNRes == 1) {
-                                getAP().play_verifyFail();
-                                matchNMsg.arg1 = 4;
-                                //传出抓取图片的数据
-                                if (sImg) {
-                                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                    //存储图片
-                                    long l = System.currentTimeMillis();
-                                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                }
-                            } else if (tgImgExtractFeatureVerifyNRes == 2) {
-                                getAP().play_verifyFail();
-                                matchNMsg.arg1 = 5;
-                                //传出抓取图片的数据
-                                if (sImg) {
-                                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                    //存储图片
-                                    long l = System.currentTimeMillis();
-                                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                }
-                            } else if (tgImgExtractFeatureVerifyNRes == 3) {
-                                getAP().play_verifyFail();
-                                matchNMsg.arg1 = 6;
-                                //传出抓取图片的数据
-                                if (sImg) {
-                                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                    //存储图片
-                                    long l = System.currentTimeMillis();
-                                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                }
-                            } else if (tgImgExtractFeatureVerifyNRes == 4) {
-                                getAP().play_verifyFail();
-                                matchNMsg.arg1 = 7;
-                            } else if (tgImgExtractFeatureVerifyNRes == 5) {
-                                getAP().play_verifyFail();
-                                matchNMsg.arg1 = 8;
-                                //传出抓取图片的数据
-                                if (sImg) {
-                                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                    //存储图片
-                                    long l = System.currentTimeMillis();
-                                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                }
-                            } else if (tgImgExtractFeatureVerifyNRes == -1) {
-                                getAP().play_verifyFail();
-                                matchNMsg.arg1 = 9;
-                                //传出抓取图片的数据
-                                if (sImg) {
-                                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
-                                    //存储图片
-                                    long l = System.currentTimeMillis();
-                                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
-                                }
-                            }
-                        } else if (tgGetDevImageMatchNRes == -1) {
-                            getAP().play_verifyFail();
-                            matchNMsg.arg1 = -1;
-                        } else if (tgGetDevImageMatchNRes == -2) {
-                            getAP().play_verifyFail();
-                            matchNMsg.arg1 = -2;
-                        } else if (tgGetDevImageMatchNRes == -3) {
-                            getAP().play_verifyFail();
-                            matchNMsg.arg1 = -3;
-                        } else if (tgGetDevImageMatchNRes == -4) {
-                            getAP().play_verifyFail();
-                            matchNMsg.arg1 = -4;
-                        }
-                        handler.sendMessage(matchNMsg);
+                        String aimPath = getAimPath();
+
+                        getDevImgData(handler, matchNMsg, matchNBundle, aimPath);
+
                         break;
                     case TEMPL_FV_VERSION:
                         //获取模板对应算法的版本
@@ -1971,6 +1825,177 @@ public class TG661JBehindAPI {
         return aimByte;
     }
 
+    //获取图片数据
+    private void getDevImgData(Handler handler, Message msg, Bundle bundle, String aimPath) {
+        TG661JBehindAPI.getTG661JBehindAPI().getAP().play_inputDownGently();
+//                        byte[] match1_NImgData = new byte[IMG_SIZE];
+        byte[] match1_NImgData = new byte[TG661JBehindAPI.IMG_SIZE + TG661JBehindAPI.T_SIZE];
+        match1_NImgData[0] = ((byte) 0xfe);
+        int tgGetDevImageMatchNRes = TG661JBehindAPI.getTG661JBehindAPI().getTG661()
+                .TGGetDevImage(match1_NImgData, TG661JBehindAPI.GET_IMG_OUT_TIME);
+        if (tgGetDevImageMatchNRes >= 0) {
+            //提取特征
+            byte[] match1_NFeature = new byte[TG661JBehindAPI.FEATURE_SIZE];
+            int tgImgExtractFeatureVerifyNRes = TG661JBehindAPI.getTG661JBehindAPI()
+                    .getTGFV().TGImgExtractFeatureVerify(match1_NImgData, 500,
+                            200, match1_NFeature);
+            if (tgImgExtractFeatureVerifyNRes == 0) {
+                //分流比对
+                excutorsFile(aimPath, handler, msg, bundle, match1_NImgData,
+                        tgGetDevImageMatchNRes, match1_NFeature);
+            } else if (tgImgExtractFeatureVerifyNRes == 1) {
+                getAP().play_verifyFail();
+                msg.arg1 = 4;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(msg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 2) {
+                getAP().play_verifyFail();
+                msg.arg1 = 5;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(msg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 3) {
+                getAP().play_verifyFail();
+                msg.arg1 = 6;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(msg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 4) {
+                getAP().play_verifyFail();
+                msg.arg1 = 7;
+            } else if (tgImgExtractFeatureVerifyNRes == 5) {
+                getAP().play_verifyFail();
+                msg.arg1 = 8;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(msg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == -1) {
+                getAP().play_verifyFail();
+                msg.arg1 = 9;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(msg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            }
+        } else if (tgGetDevImageMatchNRes == -1) {
+            getAP().play_time_out();
+            msg.arg1 = -1;
+        } else if (tgGetDevImageMatchNRes == -2) {
+            getAP().play_verifyFail();
+            msg.arg1 = -2;
+        } else if (tgGetDevImageMatchNRes == -3) {
+            getAP().play_verifyFail();
+            msg.arg1 = -3;
+        } else if (tgGetDevImageMatchNRes == -4) {
+            getAP().play_verifyFail();
+            msg.arg1 = -4;
+        }
+        handler.sendMessage(msg);
+    }
+
+    //创建线程池
+    private int cardinal = 1000;//1:N的基数设定为300，提高比对的效率
+
+    private void excutorsFile(String datPath, Handler handler, Message message, Bundle bundle,
+                              byte[] matchNImgData, int tgGetNImgRes, byte[] matchImgFeature) {
+        File file = new File(datPath);
+        if (!file.exists()) {
+//            return null;
+        } else {
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                if (files.length > 0) {
+                    int datSize = files.length;
+                    double v = (double) datSize / cardinal;
+                    //四舍五入向上取整，1：N会比对的次数
+                    double ceil = Math.ceil(v);
+                    //四舍五入向下取整
+                    double floor = Math.floor(v);
+                    double value;
+                    if (ceil != floor) {
+                        value = ceil;
+                    } else {
+                        //如果ceil和floor相等，则正好除尽
+                        value = floor;
+                    }
+                    //为线程池添加事件
+                    if (value > 0) {
+                        int count = 0;
+                        for (int i = 0; i < 1; i++) {
+                            File[] files1 = null;
+                            int srcLength = 0;
+                            if (value == ceil && i == floor) {
+                                //除不尽，最后一项
+                                srcLength = files.length - 1000 * i;
+                                files1 = new File[srcLength];
+                            } else {
+                                files1 = new File[1000];
+                                srcLength = files1.length;
+                            }
+                            Log.d("===HHH", "     srcLength ； " + srcLength);
+                            System.arraycopy(files, 1000 * i, files1, 0, srcLength);
+                            GetFileTask getContentTask = new GetFileTask(files1, templModelType
+                                    , datPath, handler, message, bundle, matchNImgData, tgGetNImgRes,
+                                    matchImgFeature);
+                            //添加任务
+                            ecs.submit(getContentTask);
+                            count++;
+                        }
+                        for (int i = 0; i < count; i++) {
+                            try {
+                                Future<MatchN> take = ecs.take();
+                                MatchN matchN = take.get();
+                                int resultCode = matchN.getResultCode();
+                                if (resultCode == 1) {
+                                    TG661JBehindAPI.getTG661JBehindAPI()
+                                            .getAP().play_verifySuccess();
+                                    break;
+                                } else {
+                                    if (i == count - 1) {
+                                        if (resultCode == 2) {
+                                            TG661JBehindAPI.getTG661JBehindAPI().getAP().play_verifyFail();
+                                        } else if (resultCode == 3) {
+                                            TG661JBehindAPI.getTG661JBehindAPI().getAP().play_time_out();
+                                        }
+                                    }
+                                }
+                                Log.d("===HHH", "   数量：" + count + "  结果码：" + resultCode);
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private int v = 0;
+
     //读取所有文件模板
     private ArrayList<byte[]> readAllTempl(String aimPath) {
         ArrayList<byte[]> templsByte = null;
@@ -1989,13 +2014,225 @@ public class TG661JBehindAPI {
                         } else if (templModelType == TEMPL_MODEL_6) {
                             bytes = new byte[PERFECT_FEATURE_6];
                         }
-                        FileUtil.readFile(file1, bytes);
+                        v++;
+                        String name = file1.getName();
+                        long length = file1.length();
+                        Log.d("===LLL", "   文件:" + name + " 的长度 ：" + length + "   数量：" + v);
+//                        byte[] file1Data = FileUtil.readFile(file1);
+                        FileUtil.readFileToArray(file1, bytes);
+//                        FileUtil.readFile(file1, bytes);
+//                        byte[] bytes1 = FileUtil.readFileToArray(file1);
                         templsByte.add(bytes);
                     }
+                    v = 0;
                 }
             }
         }
         return templsByte;
+    }
+
+    public void finger1N(Message matchNMsg, Bundle matchNBundle) {
+        //获取模板的所有地址
+        String templsPath = getAimPath();
+//        Message matchNMsg = handler.obtainMessage();
+//        matchNMsg.what = FEATURE_COMPARE1_N;
+//        Bundle matchNBundle = new Bundle();
+//        //读取所有文件模板
+        ArrayList<byte[]> allTemplByteList = readAllTempl(templsPath);
+
+        byte[] allWaitTempl = null;
+        ArrayList<byte[]> allMatchTemplList = null;
+        //转成比对模板
+        if (allTemplByteList != null && allTemplByteList.size() > 0) {
+            allMatchTemplList = new ArrayList<>();
+            for (byte[] bytes : allTemplByteList) {
+                byte[] matchTempll_N = null;
+                if (templModelType == TEMPL_MODEL_3) {
+                    matchTempll_N = new byte[WAIT_COMPARE_FEATURE_3];
+                } else if (templModelType == TEMPL_MODEL_6) {
+                    matchTempll_N = new byte[WAIT_COMPARE_FEATURE_6];
+                }
+                int tgTmplToMatchTmpl1_NRes = getTGFV().TGTmplToMatchTmpl(bytes, matchTempll_N);
+                if (tgTmplToMatchTmpl1_NRes == 0) {
+                    allMatchTemplList.add(matchTempll_N);
+                } else if (tgTmplToMatchTmpl1_NRes == -1) {
+                    int k = 0;
+                    boolean continueMatch = true;
+                    while (continueMatch) {
+                        if (k < 3) {
+                            tgTmplToMatchTmpl1_NRes = getTGFV().
+                                    TGTmplToMatchTmpl(bytes, matchTempll_N);
+                            k++;
+                            if (tgTmplToMatchTmpl1_NRes == 0) {
+                                allMatchTemplList.add(matchTempll_N);
+                                k = 0;
+                                continueMatch = false;
+                            }
+                        }
+                    }
+                }
+            }
+            if (allMatchTemplList.size() > 0) {
+                if (templModelType == TEMPL_MODEL_3) {
+                    allWaitTempl = new byte[WAIT_COMPARE_FEATURE_3
+                            * allMatchTemplList.size()];
+                } else if (templModelType == TEMPL_MODEL_6) {
+                    allWaitTempl = new byte[WAIT_COMPARE_FEATURE_6
+                            * allMatchTemplList.size()];
+                }
+                for (int i = 0; i < allMatchTemplList.size(); i++) {
+                    int i1 = 0;
+                    if (templModelType == TEMPL_MODEL_3) {
+                        i1 = WAIT_COMPARE_FEATURE_3 * i;
+                    } else if (templModelType == TEMPL_MODEL_6) {
+                        i1 = WAIT_COMPARE_FEATURE_6 * i;
+                    }
+                    byte[] bytes = allMatchTemplList.get(i);
+                    System.arraycopy(bytes, 0, allWaitTempl, i1, bytes.length);
+                }
+            }
+        }
+        //用转换好的模板等待比对，--》抓取图片
+        getAP().play_inputDownGently();
+//                        byte[] match1_NImgData = new byte[IMG_SIZE];
+        byte[] match1_NImgData = new byte[IMG_SIZE + T_SIZE];
+        match1_NImgData[0] = ((byte) 0xfe);
+        int tgGetDevImageMatchNRes = getTG661().TGGetDevImage(match1_NImgData,
+                GET_IMG_OUT_TIME);
+        if (tgGetDevImageMatchNRes >= 0) {
+            //提取特征
+            byte[] match1_NFeature = new byte[FEATURE_SIZE];
+            int tgImgExtractFeatureVerifyNRes = getTGFV().TGImgExtractFeatureVerify(
+                    match1_NImgData, 500, 200, match1_NFeature);
+            if (tgImgExtractFeatureVerifyNRes == 0) {
+                if (allWaitTempl != null) {
+                    IntByReference intB1 = new IntByReference();
+                    IntByReference intB2 = new IntByReference();
+                    byte[] uuId = new byte[33];
+                    byte[] updateTempl = null;
+                    if (templModelType == TEMPL_MODEL_3) {
+                        updateTempl = new byte[PERFECT_FEATURE_3];
+                    } else if (templModelType == TEMPL_MODEL_6) {
+                        updateTempl = new byte[PERFECT_FEATURE_6];
+                    }
+                    int tgFeatureMatchTmpl1NRes = getTGFV().TGFeatureMatchTmpl1N(match1_NFeature,
+                            allWaitTempl, allMatchTemplList.size(), intB1, uuId,
+                            intB2, updateTempl);
+                    if (tgFeatureMatchTmpl1NRes == 0) {
+                        getAP().play_verifySuccess();
+                        int templIndex = intB1.getValue();//模板的指针位置
+                        int templScore = intB2.getValue();//验证的分数
+                        //根据返回的指针获取主机中模板文件的名字
+                        String fileName = FileUtil.getFileName(templsPath, templIndex - 1);
+                        matchNMsg.arg1 = 1;
+                        matchNBundle.putByteArray(COMPARE_N_TEMPL, updateTempl);
+                        matchNBundle.putString(COMPARE_NAME, fileName);
+                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
+                        //传出抓取图片的数据
+                        if (sImg) {
+                            matchNBundle.putInt("imgLength", tgGetDevImageMatchNRes);
+                            matchNBundle.putByteArray("imgData", match1_NImgData);
+//                                            img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                            //存储图片
+                            saveImg(fileName, match1_NImgData, tgGetDevImageMatchNRes);
+                        }
+                        matchNMsg.setData(matchNBundle);
+                    } else if (tgFeatureMatchTmpl1NRes == 8) {
+                        int templIndex = intB1.getValue();//模板的指针位置
+                        int templScore = intB2.getValue();//验证的分数
+                        getAP().play_verifyFail();
+                        matchNMsg.arg1 = 2;
+                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
+                        //传出抓取图片的数据
+                        if (sImg) {
+                            matchNBundle.putInt("imgLength", tgGetDevImageMatchNRes);
+                            matchNBundle.putByteArray("imgData", match1_NImgData);
+//                                            img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                            //存储图片
+                            long l = System.currentTimeMillis();
+                            saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                        }
+                        matchNMsg.setData(matchNBundle);
+                    } else if (tgFeatureMatchTmpl1NRes == -1) {
+                        getAP().play_time_out();
+                        matchNMsg.arg1 = 3;
+                        //传出抓取图片的数据
+                        if (sImg) {
+                            img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                            //存储图片
+                            long l = System.currentTimeMillis();
+                            saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                        }
+                    }
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 1) {
+                getAP().play_verifyFail();
+                matchNMsg.arg1 = 4;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 2) {
+                getAP().play_verifyFail();
+                matchNMsg.arg1 = 5;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 3) {
+                getAP().play_verifyFail();
+                matchNMsg.arg1 = 6;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == 4) {
+                getAP().play_verifyFail();
+                matchNMsg.arg1 = 7;
+            } else if (tgImgExtractFeatureVerifyNRes == 5) {
+                getAP().play_verifyFail();
+                matchNMsg.arg1 = 8;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            } else if (tgImgExtractFeatureVerifyNRes == -1) {
+                getAP().play_verifyFail();
+                matchNMsg.arg1 = 9;
+                //传出抓取图片的数据
+                if (sImg) {
+                    img(matchNMsg, match1_NImgData, tgGetDevImageMatchNRes);
+                    //存储图片
+                    long l = System.currentTimeMillis();
+                    saveImg(String.valueOf(l), match1_NImgData, tgGetDevImageMatchNRes);
+                }
+            }
+        } else if (tgGetDevImageMatchNRes == -1) {
+            getAP().play_time_out();
+            matchNMsg.arg1 = -1;
+        } else if (tgGetDevImageMatchNRes == -2) {
+            getAP().play_verifyFail();
+            matchNMsg.arg1 = -2;
+        } else if (tgGetDevImageMatchNRes == -3) {
+            getAP().play_verifyFail();
+            matchNMsg.arg1 = -3;
+        } else if (tgGetDevImageMatchNRes == -4) {
+            getAP().play_verifyFail();
+            matchNMsg.arg1 = -4;
+        }
+        handler.sendMessage(matchNMsg);
     }
 
     private boolean checkTemplName(String newTemplName) {
@@ -2162,8 +2399,13 @@ public class TG661JBehindAPI {
         }
     }
 
+    //解绑service
+    public void unbindDevService(Context context) {
+        context.unbindService(serviceConnection);
+    }
+
     //启动devService
-    private void startDevService() {
+    public void startDevService(Context context) {
         if (context != null) {
             Intent intent = new Intent();
             intent.setAction(DevServiceAction);
@@ -2186,7 +2428,7 @@ public class TG661JBehindAPI {
     }
 
     //对外传图
-    private void img(Message msg, byte[] imgData, int length) {
+    public void img(Message msg, byte[] imgData, int length) {
 //        msg.arg1 = 0;
         msg.obj = imgData;
         //传出抓取图片的数据
@@ -2197,7 +2439,7 @@ public class TG661JBehindAPI {
     }
 
     //存储图片
-    private void saveImg(String imgName, byte[] imgData, int imgLength) {
+    public void saveImg(String imgName, byte[] imgData, int imgLength) {
         if (imgName.contains(".dat")) {
             imgName = imgName.substring(0, imgName.indexOf(".dat"));
         }
@@ -2215,16 +2457,18 @@ public class TG661JBehindAPI {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == RECEIVE_MESSAGE_CODE) {
-                int devServiceArg = msg.arg1;
-                Message tg661JMsg = handler.obtainMessage();
-                tg661JMsg.what = DEV_STATUS;
-                LogUtils.d("接收到的设备状态：" + devServiceArg);
-                if (devServiceArg == 0) {
-                    tg661JMsg.arg1 = 1;
-                } else if (devServiceArg == -2) {
-                    tg661JMsg.arg1 = -2;
+                if (handler != null) {
+                    int devServiceArg = msg.arg1;
+                    Message tg661JMsg = handler.obtainMessage();
+                    tg661JMsg.what = DEV_STATUS;
+                    LogUtils.d("接收到的设备状态：" + devServiceArg);
+                    if (devServiceArg == 0) {
+                        tg661JMsg.arg1 = 1;
+                    } else if (devServiceArg == -2) {
+                        tg661JMsg.arg1 = -2;
+                    }
+                    handler.sendMessage(tg661JMsg);
                 }
-                handler.sendMessage(tg661JMsg);
             }
         }
     });
@@ -2238,19 +2482,19 @@ public class TG661JBehindAPI {
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             devServiceMessenger = new Messenger(iBinder);
             isStart = true;
-            if (devOpen) {
-                //如果设备开启
-                Message tg661JMessage = Message.obtain();
-                tg661JMessage.what = SEND_MESSAGE_CODE;
-                tg661JMessage.obj = getTG661();
-                tg661JMessage.replyTo = tg661JMessenger;
-                try {
-                    devServiceMessenger.send(tg661JMessage);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                    Log.d("===TAG===", "  TG661JAPI向DevService发送信息失败 !");
-                }
+//            if (devOpen) {
+            //如果设备开启
+            Message tg661JMessage = Message.obtain();
+            tg661JMessage.what = SEND_MESSAGE_CODE;
+            tg661JMessage.obj = getTG661();
+            tg661JMessage.replyTo = tg661JMessenger;
+            try {
+                devServiceMessenger.send(tg661JMessage);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                Log.d("===TAG===", "  TG661JAPI向DevService发送信息失败 !");
             }
+//            }
         }
 
         @Override

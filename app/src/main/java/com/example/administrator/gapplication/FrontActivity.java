@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.TG.library.CallBack.ActionClickListener;
 import com.TG.library.CallBack.CommitCallBack;
+import com.TG.library.api.TG661JFrontAPI;
 import com.TG.library.utils.AlertDialogUtil;
 import com.TG.library.utils.LogUtils;
 import com.TG.library.utils.RegularUtil;
@@ -759,7 +760,6 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
                 }
             }
         });
-
 
         rb3.setChecked(true);
         RG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {

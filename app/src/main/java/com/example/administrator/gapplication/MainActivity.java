@@ -1,34 +1,5 @@
 package com.example.administrator.gapplication;
 
-import android.annotation.SuppressLint;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.OrientationHelper;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-
-import com.TG.library.CallBack.CommitCallBack;
-import com.TG.library.api.TG661JAPI;
-import com.TG.library.utils.AlertDialogUtil;
-import com.TG.library.utils.LogUtils;
-import com.TG.library.utils.ToastUtil;
-
-import java.io.UnsupportedEncodingException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-
 
 //public class MainActivity extends AppCompatActivity implements View.OnClickListener,
 //        CommitCallBack, TemplAdapter.ItemClick {

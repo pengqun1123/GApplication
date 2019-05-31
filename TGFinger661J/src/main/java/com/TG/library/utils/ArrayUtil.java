@@ -1,5 +1,6 @@
 package com.TG.library.utils;
 
+
 /**
  * Created by WangFeng on 2017/6/28 0028 18:30.
  *
@@ -66,14 +67,15 @@ public class ArrayUtil {
 
     /**
      * 截取字节数组
+     *
      * @param sourceByte
      * @param startIndex
      * @param endIndex
      * @return
      */
-    public static byte[] subArrays(byte[] sourceByte,int startIndex,int endIndex){
+    public static byte[] subArrays(byte[] sourceByte, int startIndex, int endIndex) {
         byte[] aimByte = new byte[50];
-        System.arraycopy(sourceByte,startIndex,aimByte,0,endIndex);
+        System.arraycopy(sourceByte, startIndex, aimByte, 0, endIndex);
         return aimByte;
     }
 
@@ -108,4 +110,49 @@ public class ArrayUtil {
             paramString = paramString + " ";
         }
     }
+
+    /*===============================本人所写============================*/
+
+    /**
+     * 从一个源数组中剔除一个单元数组的数据,减小
+     *
+     * @param sourceByte       源数据数组
+     * @param fingerTemplCount 模板的数量
+     * @param index            要剔除的单元数组在源数组下的索引下标
+     * @param cellByteLength   单元数组的长度
+     * @return 返回剔除目标数据后的数组
+     */
+    public static byte[] subReduceAtIndexBytes(byte[] sourceByte, int fingerTemplCount,
+                                               int index, int cellByteLength) {
+        byte[] newByte = new byte[cellByteLength * (fingerTemplCount - 1)];
+        if (index == 0) {
+            System.arraycopy(sourceByte, cellByteLength, newByte, 0, sourceByte.length);
+        } else if (index == cellByteLength - 1) {
+            System.arraycopy(sourceByte, 0, newByte, 0, (sourceByte.length - cellByteLength));
+        } else {
+            int middleStart = index * cellByteLength;
+            int middleEnd = (index + 1) * cellByteLength;
+            System.arraycopy(sourceByte, 0, newByte, 0, middleStart);
+            System.arraycopy(sourceByte, middleEnd, newByte, middleStart, sourceByte.length);
+        }
+        return newByte;
+    }
+
+    /**
+     * 在一个byte[]数组的末尾增加一个新的单元数组数据
+     *
+     * @param sourceByte       源数组
+     * @param fingerTemplCount 模板的数量
+     * @param increaseData     新增加的数组单元
+     * @param cellByteLength   数组单元的长度
+     * @return 返回添加新单元数据之后的数组
+     */
+    public static byte[] subIncreaseAtIndexBytes(byte[] sourceByte, int fingerTemplCount,
+                                                 byte[] increaseData, int cellByteLength) {
+        byte[] newByte = new byte[cellByteLength * (fingerTemplCount + 1)];
+        System.arraycopy(sourceByte, 0, newByte, 0, sourceByte.length);
+        System.arraycopy(increaseData, 0, newByte, sourceByte.length, increaseData.length);
+        return newByte;
+    }
+
 }

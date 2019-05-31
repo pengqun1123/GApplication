@@ -313,10 +313,10 @@ public class TG661JFrontAPI {
             return;
         }
         //解绑devService
-        if (isStart) {
-            isStart = false;
-            context.unbindService(serviceConnection);
-        }
+//        if (isStart) {
+//            isStart = false;
+//            context.unbindService(serviceConnection);
+//        }
         //否则，关闭设备
         work(handler, CLOSE_DEV);
     }
@@ -1054,9 +1054,9 @@ public class TG661JFrontAPI {
                             //发送打开设备的结果:
                             openDevMsg.arg1 = 1;
                             //启动后台devService
-                            if (!isStart) {
-                                startDevService();
-                            }
+//                            if (!isStart) {
+//                                startDevService();
+//                            }
                         } else {
                             openDevMsg.arg1 = -1;
                         }
@@ -1745,9 +1745,13 @@ public class TG661JFrontAPI {
         thread.start();
     }
 
+    //解绑service
+    public void unbindDevService(Context context){
+        context.unbindService(serviceConnection);
+    }
 
     //启动devService
-    private void startDevService() {
+    private void startDevService(Context context) {
         if (context != null) {
             Intent intent = new Intent();
             intent.setAction(DevServiceAction);

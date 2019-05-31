@@ -10,7 +10,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public interface TGFV extends Library {
 
-    TGFV TGFV_INSTANCE = Native.loadLibrary("TG_FV", TGFV.class);
+    TGFV TGFV_INSTANCE = Native.loadLibrary("TGFVProcessAPI"/*"TG_FV"*/, TGFV.class);
 
     /**
      * const char * 对应的Java数据类型是String

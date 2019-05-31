@@ -24,8 +24,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.TG.library.CallBack.CommitCallBack;
-import com.TG.library.api.TG661JBehindAPI;
+import com.TG.library.api.TG661JBAPI;
 import com.TG.library.utils.AlertDialogUtil;
+import com.TG.library.utils.AudioProvider;
 import com.TG.library.utils.ToastUtil;
 import com.bumptech.glide.Glide;
 
@@ -54,14 +55,13 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
     private ImageView clearEt;
     private boolean devStatu;
 
-
     private AlertDialog waitDialog;
     private EditText templIDBehind;
-    private TextView volumeTt, tipTv, devStatus,devModelTv;
+    private TextView volumeTt, tipTv, devStatus, devModelTv;
     private byte[] imgData;
     private List<byte[]> imgDatas = new ArrayList<>();
 
-    private int templModelType = TG661JBehindAPI.TEMPL_MODEL_6;//默认为6模板模式
+    private int templModelType = TG661JBAPI.TEMPL_MODEL_6;//默认为6模板模式
     private boolean autoUpdateStatus = false;//自动更新模板
     private ImageView iv;
 
@@ -77,7 +77,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case TG661JBehindAPI.DEV_STATUS:
+                case TG661JBAPI.DEV_STATUS:
                     /*
                      * 设备状态：
                      *  1：设备状态：已连接
@@ -100,63 +100,64 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         registerBtnBehind.setText("注册");
                         isGetImg = false;
                     }
+                    registerBtnBehind.setClickable(true);
                     break;
-                case TG661JBehindAPI.DEV_IMG_REGISTER:
-                    /*
-                     * 后比注册
-                     * 返回值 imgArg
-                     * 1:设备获取图像成功，特征提取成功，特征融合成功，模板存储成功-->登记成功
-                     * 2:特征融合失败，因"特征"数据一致性差，Output数据无效
-                     * 3:特征融合失败，因参数不合法,Output数据无效
-                     * 4:特征提取失败,因证书路径错误,Output数据无效
-                     * 5:特征提取失败,因证书内容无效,Output数据无效
-                     * 6:特征提取失败,因证书内容过期,Output数据无效
-                     * 7:特征提取失败,因"图像"数据无效,Output数据无效
-                     * 8:特征提取失败,因"图像"质量较差,Output数据无效
-                     * 9:特征提取失败,因参数不合法,Output数据无效
-                     * -1:抓图超时
-                     * -2:设备断开
-                     * -3:操作取消
-                     * -4:入参错误
-                     * -5:该指静脉已经注册或模板名字已存在
-                     */
-                    int imgArg = msg.arg1;
-                    if (imgArg == 1) {
-                        int imgLength = msg.arg2;
-                        imgData = (byte[]) msg.obj;
-                        imgDatas.add(imgData);
-//                        getTemplList();
-                        tipTv.setText("设备获取图像成功");
-
-                    } else if (imgArg == -1) {
-                        tipTv.setText("抓图超时");
-                    } else if (imgArg == -2) {
-                        tipTv.setText("设备断开");
-                    } else if (imgArg == -3) {
-                        tipTv.setText("操作取消");
-                    } else if (imgArg == -4) {
-                        tipTv.setText("入参错误");
-                    } else if (imgArg == -5) {
-                        tipTv.setText("该指静脉已经注册或模板名字已存在");
-                    } else if (imgArg == 2) {
-                        tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
-                    } else if (imgArg == 3) {
-                        tipTv.setText("特征融合失败，因参数不合法,Output数据无效");
-                    } else if (imgArg == 4) {
-                        tipTv.setText("特征提取失败,因证书路径错误,Output数据无效");
-                    } else if (imgArg == 5) {
-                        tipTv.setText("特征提取失败,因证书内容无效,Output数据无效");
-                    } else if (imgArg == 6) {
-                        tipTv.setText("特征提取失败,因证书内容过期,Output数据无效");
-                    } else if (imgArg == 7) {
-                        tipTv.setText("特征提取失败,因\"图像\"数据无效,Output数据无效");
-                    } else if (imgArg == 8) {
-                        tipTv.setText("特征提取失败,因\"图像\"质量较差,Output数据无效");
-                    } else if (imgArg == 9) {
-                        tipTv.setText("特征提取失败,因参数不合法,Output数据无效");
-                    }
-                    break;
-                case TG661JBehindAPI.CANCEL_REGISTER:
+//                case TG661JBAPI.DEV_IMG:
+//                    /*
+//                     * 后比注册
+//                     * 返回值 imgArg
+//                     * 1:设备获取图像成功，特征提取成功，特征融合成功，模板存储成功-->登记成功
+//                     * 2:特征融合失败，因"特征"数据一致性差，Output数据无效
+//                     * 3:特征融合失败，因参数不合法,Output数据无效
+//                     * 4:特征提取失败,因证书路径错误,Output数据无效
+//                     * 5:特征提取失败,因证书内容无效,Output数据无效
+//                     * 6:特征提取失败,因证书内容过期,Output数据无效
+//                     * 7:特征提取失败,因"图像"数据无效,Output数据无效
+//                     * 8:特征提取失败,因"图像"质量较差,Output数据无效
+//                     * 9:特征提取失败,因参数不合法,Output数据无效
+//                     * -1:抓图超时
+//                     * -2:设备断开
+//                     * -3:操作取消
+//                     * -4:入参错误
+//                     * -5:该指静脉已经注册或模板名字已存在
+//                     */
+//                    int imgArg = msg.arg1;
+//                    if (imgArg == 1) {
+//                        int imgLength = msg.arg2;
+//                        imgData = (byte[]) msg.obj;
+//                        imgDatas.add(imgData);
+////                        getTemplList();
+//                        tipTv.setText("设备获取图像成功");
+//
+//                    } else if (imgArg == -1) {
+//                        tipTv.setText("抓图超时");
+//                    } else if (imgArg == -2) {
+//                        tipTv.setText("设备断开");
+//                    } else if (imgArg == -3) {
+//                        tipTv.setText("操作取消");
+//                    } else if (imgArg == -4) {
+//                        tipTv.setText("入参错误");
+//                    } else if (imgArg == -5) {
+//                        tipTv.setText("该指静脉已经注册或模板名字已存在");
+//                    } else if (imgArg == 2) {
+//                        tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
+//                    } else if (imgArg == 3) {
+//                        tipTv.setText("特征融合失败，因参数不合法,Output数据无效");
+//                    } else if (imgArg == 4) {
+//                        tipTv.setText("特征提取失败,因证书路径错误,Output数据无效");
+//                    } else if (imgArg == 5) {
+//                        tipTv.setText("特征提取失败,因证书内容无效,Output数据无效");
+//                    } else if (imgArg == 6) {
+//                        tipTv.setText("特征提取失败,因证书内容过期,Output数据无效");
+//                    } else if (imgArg == 7) {
+//                        tipTv.setText("特征提取失败,因\"图像\"数据无效,Output数据无效");
+//                    } else if (imgArg == 8) {
+//                        tipTv.setText("特征提取失败,因\"图像\"质量较差,Output数据无效");
+//                    } else if (imgArg == 9) {
+//                        tipTv.setText("特征提取失败,因参数不合法,Output数据无效");
+//                    }
+//                    break;
+                case TG661JBAPI.CANCEL_REGISTER:
                     /*
                      * 取消设备抓图
                      * 返回值 cancelImgArg
@@ -171,7 +172,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     registerBtnBehind.setClickable(true);
                     break;
-                case TG661JBehindAPI.FEATURE_FUSION:
+                case TG661JBAPI.FEATURE_FUSION:
                     int fusionArg = msg.arg1;
 //                    if (fusionArg == 1) {
 //
@@ -185,7 +186,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 //
 //                    }
                     break;
-                case TG661JBehindAPI.INIT_FV:
+                case TG661JBAPI.INIT_FV:
                     /*
                      * 初始化算法接口
                      * 返回值:initFvArg
@@ -211,7 +212,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("初始化失败,证书字节流不可为null");
                     }
                     break;
-                case TG661JBehindAPI.DEV_WORK_MODEL:
+                case TG661JBAPI.DEV_WORK_MODEL:
                     /*
                      * 获取工作模式：
                      * 返回值：devWorkModelArg
@@ -231,11 +232,11 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         devModelTv.setText("获取工作模式失败");
                     }
                     break;
-                case TG661JBehindAPI.EXTRACT_FEATURE_REGISTER:
+                case TG661JBAPI.EXTRACT_FEATURE_REGISTER:
                     /*
                      * 从图片中提取特征(注册的时候专用)
                      * 返回值:extractFeatureRegisterArg
-                     *   1：登记成功
+                     *   1：登记成功(标识外部存储，登记成功后会返回融合后的模板数据)
                      *   2: 特征融合失败，因"特征"数据一致性差，Output数据无效
                      *   3: 特征融合失败，因参数不合法,Output数据无效
                      *   4: 特征提取失败,因证书路径错误,Output数据无效
@@ -245,16 +246,18 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                      *   8：特征提取失败,因"图像"质量较差,Output数据无效
                      *   9：特征提取失败,因参数不合法,Output数据无效
                      *   10: 特征提取成功,Output数据有效
+                     *   11:抓取图片成功
                      *   -1: 抓图超时
                      *   -2:设备断开
                      *   -3:操作取消
                      *   -4:入参错误
-                     *   -5:已存在相同名称模板
+                     *   -5:已存在相同模板
                      *   -6:注册的模板ID不能为空
                      *   -7:注册的模板名称不可包含数字/字母/中文以外的字符
+                     *   -8:已存在相同模板名称
+                     *   -9:抓取的图片数据为null，请检查
                      */
                     int extractFeatureRegisterArg = msg.arg1;
-                    Log.d("===哈哈哈","      注册的结果："+extractFeatureRegisterArg);
                     //显示图片
                     getImgData(msg);
                     if (extractFeatureRegisterArg == 10) {
@@ -262,6 +265,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     } else if (extractFeatureRegisterArg == 1) {
                         getTemplList();
                         tipTv.setText("登记成功");
+                        Bundle data = msg.getData();
+                        //指静脉模板数据
+                        byte[] fingerData = data.getByteArray(TG661JBAPI.FINGER_DATA);
+                        Log.d("===HHH", "   模板数据返回成功  ");
                     } else if (extractFeatureRegisterArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
                     } else if (extractFeatureRegisterArg == 3) {
@@ -287,7 +294,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     } else if (extractFeatureRegisterArg == -4) {
                         tipTv.setText("入参错误");
                     } else if (extractFeatureRegisterArg == -5) {
-                        tipTv.setText("已存在相同模板名称");
+                        tipTv.setText("已存在相同模板");
                     } else if (extractFeatureRegisterArg == -6) {
                         tipTv.setText("注册的模板ID不能为空");
                         ToastUtil.toast(BehindActivity.this, "注册的模板ID不能为空");
@@ -295,10 +302,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("注册的模板名称不可包含数字/字母/中文以外的字符");
                         ToastUtil.toast(BehindActivity.this,
                                 "注册的模板名称不可包含数字/字母/中文以外的字符");
+                    } else if (extractFeatureRegisterArg == -8) {
+                        tipTv.setText("已存在相同模板名称");
                     }
                     registerBtnBehind.setClickable(true);
                     break;
-                case TG661JBehindAPI.EXTRACT_FEATURE_VERIFY:
+                case TG661JBAPI.EXTRACT_FEATURE_VERIFY:
                     /*
                      * 图片提取特征(验证专用)
                      * 返回值：extractFeatureVerifyArg
@@ -328,7 +337,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("特征提取失败,因参数不合法,Output数据无效");
                     }
                     break;
-                case TG661JBehindAPI.RESOLVE_COMPARE_TEMPL:
+                case TG661JBAPI.RESOLVE_COMPARE_TEMPL:
                     /*
                      * 将模板解析成可比对模板
                      * 返回值:resolveCompareMsg
@@ -346,7 +355,30 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("待解析的模板数据为null");
                     }
                     break;
-                case TG661JBehindAPI.FEATURE_COMPARE1_1:
+                case TG661JBAPI.DEV_IMG:
+                    /*
+                    设备抓取图片:
+                     返回值：
+                     0：图片抓取成功
+                     -1：抓图超时
+                     -2:设备断开
+                     -3:操作取消
+                     -4:入参错误
+                     */
+                    int devImgArg = msg.arg1;
+                    if (devImgArg == 0) {
+                        tipTv.setText("图片抓取成功");
+                    } else if (devImgArg == -1) {
+                        tipTv.setText("抓图超时");
+                    } else if (devImgArg == -2) {
+                        tipTv.setText("设备断开");
+                    } else if (devImgArg == -3) {
+                        tipTv.setText("操作取消");
+                    } else if (devImgArg == -4) {
+                        tipTv.setText("入参错误");
+                    }
+                    break;
+                case TG661JBAPI.FEATURE_COMPARE1_1:
                     /*
                      * 特征模板1:1验证
                      * 返回值:match1Arg1
@@ -363,25 +395,27 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                      * 11:设备断开
                      * 12:操作取消
                      * 13:入参错误
-                     * -1:模板解析失败，因参数不合法，Output数据无效
+                     * -1:模板解析失败，因参数不合法，Output数据无
+                     * -2:模板数据可能为null，请检查
                      */
                     int match1Arg1 = msg.arg1;
                     if (match1Arg1 == 1) {
                         Bundle data = msg.getData();
-                        byte[] updateTemplData = data.getByteArray(TG661JBehindAPI.COMPARE_N_TEMPL);//可更新的模板
-                        String templName = data.getString(TG661JBehindAPI.COMPARE_NAME);
-                        int templScore = data.getInt(TG661JBehindAPI.COMPARE_N_SCORE);
+                        byte[] updateTemplData = data.getByteArray(TG661JBAPI.COMPARE_N_TEMPL);//可更新的模板
+                        String templName = data.getString(TG661JBAPI.COMPARE_NAME);
+                        int templScore = data.getInt(TG661JBAPI.COMPARE_N_SCORE);
                         //显示图片
                         getImgData(msg);
                         if (autoUpdateStatus) {
-                            tg661JBehindAPI.updateHostTempl(updateTemplData,
+                            tg661JBAPI.updateHostTempl(updateTemplData,
                                     handler, templName);
                         }
                         tipTv.setText(MessageFormat.format("验证成功,验证分数：{0}", templScore));
                     } else if (match1Arg1 == 2) {
                         Bundle data = msg.getData();
-                        int match1Score = data.getInt(TG661JBehindAPI.COMPARE_N_SCORE);
-                        tipTv.setText(MessageFormat.format("特征比对（1:1）失败，因比对失败,仅Output的matchScore数据有效,分数：{0}", match1Score));
+                        int match1Score = data.getInt(TG661JBAPI.COMPARE_N_SCORE);
+                        tipTv.setText(MessageFormat.format("特征比对（1:1）失败，" +
+                                "因比对失败,仅Output的matchScore数据有效,分数：{0}", match1Score));
                         //显示图片
                         getImgData(msg);
                     } else if (match1Arg1 == 3) {
@@ -431,7 +465,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     ver1_1Btn.setClickable(true);
                     break;
-                case TG661JBehindAPI.FEATURE_COMPARE1_N:
+                case TG661JBAPI.FEATURE_COMPARE1_N:
                     /*
                      * 返回值：matchNArg
                      * 1:特征比对（1：N）成功，Output数据有效
@@ -452,11 +486,14 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     int matchNArg = msg.arg1;
                     if (matchNArg == 1) {
                         Bundle data = msg.getData();
-                        byte[] updateTemplData = data.getByteArray(TG661JBehindAPI.COMPARE_N_TEMPL);//可更新的模板
-                        String templName = data.getString(TG661JBehindAPI.COMPARE_NAME);
-                        int templScore = data.getInt(TG661JBehindAPI.COMPARE_N_SCORE);
+                        byte[] updateTemplData = data.getByteArray(TG661JBAPI.COMPARE_N_TEMPL);//可更新的模板
+                        int templScore = data.getInt(TG661JBAPI.COMPARE_N_SCORE);
+                        //非主机文件存储时候才返回这个模板索引
+                        int index = data.getInt(TG661JBAPI.INDEX);
+                        //主机文件夹下存储时才返回模板名称
+                        String templName = data.getString(TG661JBAPI.COMPARE_NAME);
                         if (autoUpdateStatus) {
-                            tg661JBehindAPI.updateHostTempl(updateTemplData, handler, templName);
+                            tg661JBAPI.updateHostTempl(updateTemplData, handler, templName);
                         }
                         tipTv.setText(MessageFormat.format("验证成功,验证分数：{0}", templScore));
                         //显示图片
@@ -464,7 +501,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 
                     } else if (matchNArg == 2) {
                         Bundle data = msg.getData();
-                        int templScore = data.getInt(TG661JBehindAPI.COMPARE_N_SCORE);
+                        int templScore = data.getInt(TG661JBAPI.COMPARE_N_SCORE);
                         tipTv.setText("特征比对（1：N）失败，仅Output的matchScore数据有效,分数：" + templScore);
                         //显示图片
                         getImgData(msg);
@@ -517,35 +554,35 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     ver1_nBtn.setClickable(true);
                     break;
-                case TG661JBehindAPI.DELETE_HOST_ALL_TEMPL:
+                case TG661JBAPI.DELETE_HOST_ALL_TEMPL:
                     int deleteHostIDArg = msg.arg1;
                     if (deleteHostIDArg == 1) {
                         getTemplList();
                         tipTv.setText("删除成功");
                         templIDBehind.getText().clear();
-                        tg661JBehindAPI.setTemplModelType(templModelType);
-                        tg661JBehindAPI.getAP().play_deleteSuccess();
+                        tg661JBAPI.setTemplModelType(templModelType);
+                        getAp().play_deleteSuccess();
                     } else if (deleteHostIDArg == -1) {
                         tipTv.setText("删除失败");
-                        tg661JBehindAPI.getAP().play_deleteFail();
+                        getAp().play_deleteFail();
                     }
                     delAllHostTemplBtn.setClickable(true);
                     break;
-                case TG661JBehindAPI.DELETE_HOST_ID_TEMPL:
+                case TG661JBAPI.DELETE_HOST_ID_TEMPL:
                     int deleteHostAllArg = msg.arg1;
                     if (deleteHostAllArg == 1) {
                         getTemplList();
                         templIDBehind.getText().clear();
-                        tg661JBehindAPI.setTemplModelType(templModelType);
+                        tg661JBAPI.setTemplModelType(templModelType);
                         tipTv.setText("删除成功");
-                        tg661JBehindAPI.getAP().play_deleteSuccess();
+                        getAp().play_deleteSuccess();
                     } else if (deleteHostAllArg == -1) {
                         tipTv.setText("删除失败");
-                        tg661JBehindAPI.getAP().play_deleteFail();
+                        getAp().play_deleteFail();
                     }
                     delIDHostTemplBtn.setClickable(true);
                     break;
-                case TG661JBehindAPI.UPDATE_HOST_TEMPL:
+                case TG661JBAPI.UPDATE_HOST_TEMPL:
                     //更新主机模板的结果
                     boolean updateStatus = (boolean) msg.obj;
                     if (updateStatus) {
@@ -554,7 +591,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("模板更新失败");
                     }
                     break;
-                case TG661JBehindAPI.TEMPL_SN:
+                case TG661JBAPI.TEMPL_SN:
                     int templSnArg = msg.arg1;
                     if (templSnArg == 1) {
                         String sn = (String) msg.obj;
@@ -566,7 +603,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     getTemplSN.setClickable(true);
                     break;
-                case TG661JBehindAPI.TEMPL_FW:
+                case TG661JBAPI.TEMPL_FW:
                     int fwArg = msg.arg1;
                     if (fwArg == 1) {
                         String fw = (String) msg.obj;
@@ -578,7 +615,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     getTemplFW.setClickable(true);
                     break;
-                case TG661JBehindAPI.TEMPL_TIME:
+                case TG661JBAPI.TEMPL_TIME:
                     int templTimeArg = msg.arg1;
                     if (templTimeArg == 1) {
                         String time = (String) msg.obj;
@@ -590,7 +627,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     templTimeBtn.setClickable(true);
                     break;
-                case TG661JBehindAPI.TEMPL_FV_VERSION:
+                case TG661JBAPI.TEMPL_FV_VERSION:
                     int templVersionArg = msg.arg1;
                     if (templVersionArg == 1) {
                         String snVersion = (String) msg.obj;
@@ -602,7 +639,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     getTemplAlgorVersionBtn.setClickable(true);
                     break;
-                case TG661JBehindAPI.WAIT_DIALOG:
+                case TG661JBAPI.WAIT_DIALOG:
                     int typeDialog = msg.arg1;
                     if (typeDialog == 1) {
                         String tipStr = (String) msg.obj;
@@ -614,7 +651,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         }
                     }
                     break;
-                case TG661JBehindAPI.OPEN_DEV:
+                case TG661JBAPI.OPEN_DEV:
                     int openDevArg = msg.arg1;
                     if (openDevArg == 1) {
                         //初始化获取主机模板列表
@@ -624,7 +661,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("设备打开失败");
                     }
                     break;
-                case TG661JBehindAPI.CLOSE_DEV:
+                case TG661JBAPI.CLOSE_DEV:
                     int closeDevArg = msg.arg1;
                     if (closeDevArg == -1) {
                         tipTv.setText("设备状态:设备关闭失败");
@@ -634,12 +671,46 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("设备状态:设备已关闭");
                     }
                     break;
+                case TG661JBAPI.WRITE_FILE:
+                    //往主机中写入文件
+                    int writeHostArg = msg.arg1;
+                    if (writeHostArg == -1) {
+                        tipTv.setText("写入失败");
+                    } else if (writeHostArg == -9) {
+                        tipTv.setText("传进来待写入的文件数据或文件名称为null，请检查");
+                    } else if (writeHostArg == 1) {
+                        tipTv.setText("写入成功");
+                    }
+                    break;
+                case TG661JBAPI.DEV_IMG_LISTENER:
+                    //设备是否有图像返回
+                    int devImgArg1 = msg.arg1;
+                    int devImgLength = msg.arg2;
+                    byte[] devImgData = (byte[]) msg.obj;
+                    if (devImgArg1 == 1 && devImgData != null) {
+//                        tipTv.setText("检测到有指静脉");
+                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength+"  指静脉数据 ："+devImgData);
+                    } else {
+//                        tipTv.setText("没检测到指静脉");
+                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength+"  指静脉数据 ："+devImgData);
+                    }
+                    break;
             }
         }
     };
 
     boolean isGetImg = false;
-    private TG661JBehindAPI tg661JBehindAPI = TG661JBehindAPI.getTG661JBehindAPI();
+    //小特征 6K
+    private TG661JBAPI tg661JBAPI = TG661JBAPI.getTg661JBAPI();
+
+    //大特征 32K
+//    private TG661JBehindAPI tg661JBAPI = TG661JBehindAPI.getTG661JBehindAPI();
+
+    private AudioProvider getAp() {
+        return tg661JBAPI.getAP(BehindActivity.this);
+//       return tg661JBAPI.getAP();
+    }
+
     private boolean devOpen;
 
     @Override
@@ -647,6 +718,17 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_behind);
         //后比
+        initView();
+        init();
+        //开启设备
+        openDev();
+        //显示图片
+        tg661JBAPI.setsImg(true);
+        //监听设备是否有指静脉图像返回
+//        devImgListener();
+    }
+
+    private void initView() {
         Button closeDevBtn = findViewById(R.id.closeDevBtn);
         Button openDevBtn = findViewById(R.id.openDevBtn);
         Button getDevModel = findViewById(R.id.getDevModel);
@@ -692,10 +774,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         templFileRv.setAdapter(templAdapter);
 
         //初始化算法----->将算法的数据流传进去
-        tg661JBehindAPI.initFV(handler, BehindActivity.this, null, false);
+        tg661JBAPI.initFV(handler, BehindActivity.this, null, false);
 
         //获取当前音量
-        String currentVolume = tg661JBehindAPI.getCurrentVolume(handler);
+        String currentVolume = tg661JBAPI.getCurrentVolume(handler);
         volumeTt.setText(currentVolume);
         //初始化获取当前特征模式下的模板列表
         getTemplList();
@@ -755,11 +837,11 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 if (devStatu) {
                     templIDBehind.getText().clear();
                     if (i == templ3Rb.getId()) {
-                        templModelType = TG661JBehindAPI.TEMPL_MODEL_3;
-                        tg661JBehindAPI.setTemplModelType(TG661JBehindAPI.TEMPL_MODEL_3);
+                        templModelType = TG661JBAPI.TEMPL_MODEL_3;
+                        tg661JBAPI.setTemplModelType(TG661JBAPI.TEMPL_MODEL_3);
                     } else if (i == templ6Rb.getId()) {
-                        templModelType = TG661JBehindAPI.TEMPL_MODEL_6;
-                        tg661JBehindAPI.setTemplModelType(TG661JBehindAPI.TEMPL_MODEL_6);
+                        templModelType = TG661JBAPI.TEMPL_MODEL_6;
+                        tg661JBAPI.setTemplModelType(TG661JBAPI.TEMPL_MODEL_6);
                     }
                     getTemplList();
                 }
@@ -773,10 +855,14 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 autoUpdateStatus = b;
             }
         });
-        //开启设备
-        openDev();
-        //显示图片
-//        tg661JBehindAPI.setsImg(true);
+    }
+
+    private void init() {
+        //检查权限，如果同意权限后会初始化一次算法；如果不需要权限的，则需要另行初始化算法
+        tg661JBAPI.checkPermissions(handler, 0, this);
+//        if (!tg661JBAPI.getisInitFV())
+        //初始化算法
+        tg661JBAPI.initFV(handler, this, null, false);
     }
 
     @Override
@@ -791,19 +877,20 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         if (waitDialog != null && waitDialog.isShowing()) {
             waitDialog.dismiss();
         }
-        if (tg661JBehindAPI.isDevOpen()) {
+        if (tg661JBAPI.isDevOpen()) {
             closeDev();
         }
+        loop = false;
     }
 
     public void getTemplList() {
-        ArrayList<String> aimFileList = tg661JBehindAPI.getAimFileList();
+        ArrayList<String> aimFileList = tg661JBAPI.getAimFileList();
         templAdapter.clearData();
         templAdapter.addData(aimFileList);
     }
 
     private boolean checkDevStatus() {
-        boolean devOpen = tg661JBehindAPI.isDevOpen();
+        boolean devOpen = tg661JBAPI.isDevOpen();
         if (!devOpen) {
             ToastUtil.toast(BehindActivity.this, "请先开启设备");
             return false;
@@ -814,11 +901,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 
     //打开设备
     private void openDev() {
-        devOpen = tg661JBehindAPI.isDevOpen();
+        devOpen = tg661JBAPI.isDevOpen();
         if (!devOpen) {
             //设备工作模式--》后比
-            int workType = TG661JBehindAPI.WORK_BEHIND;
-            tg661JBehindAPI.openDev(handler, BehindActivity.this, workType, templModelType);
+            int workType = TG661JBAPI.WORK_BEHIND;
+            tg661JBAPI.openDev(handler, BehindActivity.this, workType,
+                    templModelType, TG661JBAPI.DIR_TEMPL_SOURCES);
         } else {
             ToastUtil.toast(BehindActivity.this, "设备已经开启");
         }
@@ -826,9 +914,9 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 
     //关闭设备
     private void closeDev() {
-        devOpen = tg661JBehindAPI.isDevOpen();
+        devOpen = tg661JBAPI.isDevOpen();
         if (devOpen) {
-            tg661JBehindAPI.closeDev(handler);
+            tg661JBAPI.closeDev(handler);
         } else {
             ToastUtil.toast(BehindActivity.this, "设备已经关闭");
         }
@@ -845,11 +933,11 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.getDevModel:
                 //获取设备的工作模式
-                tg661JBehindAPI.getDevWorkModel(handler);
+                tg661JBAPI.getDevWorkModel(handler);
                 break;
             case R.id.getSDKVersion:
                 //获取SDK的版本号
-                String sdkVersion = tg661JBehindAPI.getSDKVersion();
+                String sdkVersion = tg661JBAPI.getSDKVersion();
                 tipTv.setText(String.format("SDK版本号：%s", sdkVersion));
                 break;
             ////后比
@@ -864,7 +952,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 //                    if (b) {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.extractFeatureRegister(handler,
+                        tg661JBAPI.extractFeatureRegister(handler,
                                 templModelType, templID);
                         registerBtnBehind.setClickable(false);
 //                        }
@@ -878,7 +966,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 //取消注册：调用取消抓图接口并重置上一次抓图已经存在的数据
                 devStatu = checkDevStatus();
                 if (devStatu) {
-                    tg661JBehindAPI.cancelRegister(handler, templModelType);
+                    tg661JBAPI.cancelRegister(handler, templModelType);
                 }
                 break;
             case R.id.ver1_1Btn:
@@ -889,7 +977,8 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.featureCompare1_1(handler, templName);
+                        tg661JBAPI.featureCompare1_1(handler, templName,
+                                null, true);
                         ver1_1Btn.setClickable(false);
                     }
                 }
@@ -898,7 +987,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 //1:N验证
                 devStatu = checkDevStatus();
                 if (devStatu) {
-                    tg661JBehindAPI.featureCompare1_N(handler);
+                    tg661JBAPI.featureCompare1_N(handler, true);
                     ver1_nBtn.setClickable(false);
                 }
                 break;
@@ -909,7 +998,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.getTemplSN(handler, snTemplName);
+                        tg661JBAPI.getTemplSN(handler, snTemplName);
                         getTemplSN.setClickable(false);
                     }
                 }
@@ -921,7 +1010,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.getTemplFW(handler, fwTemplName);
+                        tg661JBAPI.getTemplFW(handler, fwTemplName);
                         getTemplFW.setClickable(false);
                     }
                 }
@@ -933,7 +1022,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.getTemplTime(handler, timeTemplName);
+                        tg661JBAPI.getTemplTime(handler, timeTemplName);
                         templTimeBtn.setClickable(false);
                     }
                 }
@@ -945,17 +1034,17 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.getTemplVersion(handler, fvVersionTemplName);
+                        tg661JBAPI.getTemplVersion(handler, fvVersionTemplName);
                         getTemplAlgorVersionBtn.setClickable(false);
                     }
                 }
                 break;
             case R.id.voiceIncreaceBtn:
                 //音量加
-                boolean increaseVolume = tg661JBehindAPI.increaseVolume(handler);
+                boolean increaseVolume = tg661JBAPI.increaseVolume(handler);
                 voiceIncreaceBtn.setClickable(false);
                 if (increaseVolume) {
-                    String currentVolume = tg661JBehindAPI.getCurrentVolume(handler);
+                    String currentVolume = tg661JBAPI.getCurrentVolume(handler);
                     volumeTt.setText(currentVolume);
                     tipTv.setText("音量增大成功");
                 } else {
@@ -965,10 +1054,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case R.id.voiceDecreaceBtn:
                 //音量减
-                boolean descreaseVolume = tg661JBehindAPI.descreaseVolume(handler);
+                boolean descreaseVolume = tg661JBAPI.descreaseVolume(handler);
                 voiceDecreaceBtn.setClickable(false);
                 if (descreaseVolume) {
-                    String currentVolume = tg661JBehindAPI.getCurrentVolume(handler);
+                    String currentVolume = tg661JBAPI.getCurrentVolume(handler);
                     volumeTt.setText(currentVolume);
                     tipTv.setText("音量减小成功");
                 } else {
@@ -984,7 +1073,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBehindAPI.deleteHostIdTempl(handler, templNameID);
+                        tg661JBAPI.deleteHostIdTempl(handler, templNameID);
                         delIDHostTemplBtn.setClickable(false);
                     }
                 }
@@ -993,14 +1082,14 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 //删除主机中的所有模板
                 devStatu = checkDevStatus();
                 if (devStatu) {
-                    tg661JBehindAPI.deleteHostAllTempl(handler);
+                    tg661JBAPI.deleteHostAllTempl(handler);
                     delAllHostTemplBtn.setClickable(false);
                 }
                 break;
             case R.id.getImgFeature://从图像提取特征
                 if (imgData != null) {
                     if (imgDatas != null && imgDatas.size() == 2) {
-                        tg661JBehindAPI.fusionFeature(handler, imgDatas);
+                        tg661JBAPI.fusionFeature(handler, imgDatas);
                     }
                 }
                 break;
@@ -1027,7 +1116,27 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void delTempl(String datFileName) {
-        tg661JBehindAPI.deleteHostIdTempl(handler, datFileName);
+        tg661JBAPI.deleteHostIdTempl(handler, datFileName);
+    }
+
+    private boolean loop = true;
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            while (loop) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                tg661JBAPI.DevImgListener(handler);
+            }
+        }
+    };
+
+    //监听设备是否有指静脉数据返回
+    private void devImgListener() {
+        new Thread(runnable).start();
     }
 
     /**
@@ -1038,10 +1147,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         Bundle data = msg.getData();
         int imgLength = data.getInt("imgLength");
         byte[] imgData = data.getByteArray("imgData");
-        if (imgData != null) {
+        if (imgData != null && imgLength > 0) {
             byte[] jpegData = new byte[imgLength];
             System.arraycopy(imgData, 1024 * 256, jpegData, 0, imgLength);
             Glide.with(BehindActivity.this).load(jpegData).into(iv);
         }
     }
+
+
 }

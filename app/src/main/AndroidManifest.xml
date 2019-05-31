@@ -18,17 +18,18 @@
         <activity
             android:name=".Main2Activity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".Main3Activity" />
-        <activity android:name=".BehindActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden">
-
-        </activity>
-        <activity android:name=".FrontActivity"
+        <activity
+            android:name=".BehindActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden"></activity>
-        <activity android:name=".Main4Activity"
+        <activity
+            android:name=".FrontActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".Main4Activity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -38,6 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".BActivity"></activity>
     </application>
 
 </manifest>
