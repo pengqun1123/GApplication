@@ -1,36 +1,22 @@
 package com.TG.library.activitys;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.TG.library.CallBack.Common;
 import com.TG.library.CallBack.PermissionCallBack;
 import com.TG.library.api.TG661JBAPI;
-import com.TG.library.api.TG661JBehindAPI;
-import com.TG.library.utils.LogUtils;
-import com.TG.library.utils.LogcatHelper;
 import com.example.mylibrary.R;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -52,7 +38,7 @@ public class TGActivity extends AppCompatActivity {
     };
 
 
-//    private int type;
+    //    private int type;
     private AlertDialog alertDialog;
     private String flag;
 
@@ -102,7 +88,7 @@ public class TGActivity extends AppCompatActivity {
             //已经同意全部权限
             if (flag.equals(Common.TG661JB)) {
                 //后比初始化算法
-                TG661JBAPI.getTg661JBAPI().FV();
+                TG661JBAPI.getTg661JBAPI().FV(this);
             }
 //            if (type == 1) {
 //                TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();
@@ -169,7 +155,7 @@ public class TGActivity extends AppCompatActivity {
                     //已经同意权限
                     if (flag.equals(Common.TG661JB)) {
                         //后比初始化算法
-                        TG661JBAPI.getTg661JBAPI().FV();
+                        TG661JBAPI.getTg661JBAPI().FV(this);
                     }
 //                    if (type == 1) {
 //                        TG661JBehindAPI.getTG661JBehindAPI().saveTemplHost();

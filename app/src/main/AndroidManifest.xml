@@ -12,13 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity
-            android:name=".MainActivity"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
-            android:name=".Main2Activity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" />
+
         <activity android:name=".Main3Activity" />
         <activity
             android:name=".BehindActivity"

@@ -244,7 +244,7 @@ public class TG661JBehindAPI {
     }
 
     public void openDev(Handler mHandler, Activity activity,
-                        int workType, int templModelType) {
+                        int workType, int templModelType,int type) {
         this.handler = mHandler;
         this.context = activity;
         this.mActivity = activity;
@@ -343,7 +343,7 @@ public class TG661JBehindAPI {
             }
         }
         this.inputStream = inputStream;
-        checkPermissions(2);
+        checkPermissions(handler,2,context);
         //创建线程池
         executorService = Executors.newCachedThreadPool();
         ecs = new ExecutorCompletionService<MatchN>(executorService);
@@ -382,7 +382,7 @@ public class TG661JBehindAPI {
     private String templSavePath;
 
     //设置图片是否发送出去，内部测试用
-    private void setsImg(boolean sImg) {
+    public void setsImg(boolean sImg) {
         this.sImg = sImg;
     }
 
@@ -515,7 +515,7 @@ public class TG661JBehindAPI {
      *
      * @param handler
      */
-    public void featureCompare1_1(Handler handler, String templName) {
+    public void featureCompare1_1(Handler handler, String templName,byte[] data,boolean b) {
         if (TextUtils.isEmpty(templName)) {
             Message compare1_1Msg = handler.obtainMessage();
             compare1_1Msg.what = FEATURE_COMPARE1_1;
@@ -537,7 +537,7 @@ public class TG661JBehindAPI {
      *
      * @param handler
      */
-    public void featureCompare1_N(Handler handler) {
+    public void featureCompare1_N(Handler handler,boolean b) {
         this.handler = handler;
         work(handler, FEATURE_COMPARE1_N);
     }
@@ -878,7 +878,7 @@ public class TG661JBehindAPI {
     }
 
     //检查权限
-    public void checkPermissions(int type) {
+    public void checkPermissions(Handler handler,int type,Context context) {
         for (int i = 0; i < perms.length; i++) {
             String perm = perms[i];
             int checkResult = ContextCompat.checkSelfPermission(mActivity, perm);
@@ -1175,7 +1175,6 @@ public class TG661JBehindAPI {
                         } else {
                             if (!isCancelRegister) {
                                 if (templIndex == 0) {
-                                    Log.d("===啊啊啊", "    index  == 0 ");
                                     getAP().play_inputDownGently();
                                 } else if (templIndex > 0) {
                                     getAP().play_inputAgain();
@@ -1840,9 +1839,10 @@ public class TG661JBehindAPI {
                     .getTGFV().TGImgExtractFeatureVerify(match1_NImgData, 500,
                             200, match1_NFeature);
             if (tgImgExtractFeatureVerifyNRes == 0) {
-                //分流比对
-                excutorsFile(aimPath, handler, msg, bundle, match1_NImgData,
-                        tgGetDevImageMatchNRes, match1_NFeature);
+                finger1N(msg,bundle);
+//                //分流比对
+//                excutorsFile(aimPath, handler, msg, bundle, match1_NImgData,
+//                        tgGetDevImageMatchNRes, match1_NFeature);
             } else if (tgImgExtractFeatureVerifyNRes == 1) {
                 getAP().play_verifyFail();
                 msg.arg1 = 4;
@@ -1955,7 +1955,7 @@ public class TG661JBehindAPI {
                             Log.d("===HHH", "     srcLength ； " + srcLength);
                             System.arraycopy(files, 1000 * i, files1, 0, srcLength);
                             GetFileTask getContentTask = new GetFileTask(files1, templModelType
-                                    , datPath, handler, message, bundle, matchNImgData, tgGetNImgRes,
+                                    , datPath, message, bundle, matchNImgData, tgGetNImgRes,
                                     matchImgFeature);
                             //添加任务
                             ecs.submit(getContentTask);
@@ -2232,7 +2232,7 @@ public class TG661JBehindAPI {
             getAP().play_verifyFail();
             matchNMsg.arg1 = -4;
         }
-        handler.sendMessage(matchNMsg);
+//        handler.sendMessage(matchNMsg);
     }
 
     private boolean checkTemplName(String newTemplName) {

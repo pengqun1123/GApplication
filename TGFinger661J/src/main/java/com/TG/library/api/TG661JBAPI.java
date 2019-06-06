@@ -26,11 +26,15 @@ import com.TG.library.CallBack.Common;
 import com.TG.library.CallBack.PermissionCallBack;
 import com.TG.library.pojos.FingerBean;
 import com.TG.library.pojos.MatchN;
+import com.TG.library.service.GetFileTask;
+import com.TG.library.utils.AlertDialogUtil;
 import com.TG.library.utils.ArrayUtil;
 import com.TG.library.utils.AudioProvider;
 import com.TG.library.utils.FileUtil;
+import com.TG.library.utils.ImgExechangeBMP;
 import com.TG.library.utils.LogUtils;
 import com.TG.library.utils.RegularUtil;
+import com.TG.library.utils.TGDialogUtil;
 import com.TG.library.utils.ToastUtil;
 import com.example.mylibrary.R;
 import com.sun.jna.ptr.IntByReference;
@@ -44,9 +48,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created By pq
@@ -84,6 +90,8 @@ public class TG661JBAPI {
     public static final int UPDATE_HOST_TEMPL = 0xf47;//更新主机中的模板
     public static final int SET_DEV_MODEL = 0xf48;//设置设备模式
     public static final int DEV_IMG_LISTENER = 0xf49;//指静脉图像设备监听
+    public static final int INIT_MATCH_DATA = 0xf50;//初始化或更新科比对模板的数据
+    public static final int READ_AND_EXCHANGED = 0xf51;//读取数据模板并将模板转换成可比对的模板
 
     public static final String COMPARE_N_TEMPL = "update_templ";//1:N验证的模板
     public static final String INDEX = "index";//模板的索引
@@ -112,6 +120,8 @@ public class TG661JBAPI {
     public static final int UUID_SIZE = 33;
     //时间值的占位大小
     public static final int TIME_SIZE = 15;
+    //一次转换多少的可比对模板的数据常量
+    public static final int READ_COMPARE_COUNT = 3500;
 
     //临时加的图片大小
     public static final int T_SIZE = 1024 * 500;
@@ -128,6 +138,7 @@ public class TG661JBAPI {
         ecs = new ExecutorCompletionService<Object>(executors);
 
 
+        int startSrc = 0;
     }
 
     //获取代理对象
@@ -281,7 +292,7 @@ public class TG661JBAPI {
                 pers = false;
             } else {
                 if (i == perms.length - 1) {
-//                    InitLicense();
+                    InitLicense(context);
                     //已经获取权限
                     pers = true;
                 }
@@ -316,7 +327,10 @@ public class TG661JBAPI {
             }
         }
         this.inputStream = inputStream;
+        writeCMD();
         work(handler, INIT_FV);
+//        FV_InitAct(handler);
+//        InitLicense();
     }
 
     //标记算法是否已经初始化
@@ -349,11 +363,8 @@ public class TG661JBAPI {
     /**
      * 初始化证书
      */
-    private void InitLicense() {
+    private void InitLicense(Context context) {
         createDirPath();
-        File file = new File(licenceDir);
-        if (!file.exists())
-            file.mkdirs();
         if (netLoadLicence) {
             //如果是由网络下发证书流，先写入指定路径的文件
             writeLicenseToFile(inputStream);
@@ -384,11 +395,11 @@ public class TG661JBAPI {
         }
     }
 
-    public void FV() {
+    public void FV(Context context) {
         if (!isInitFV) {
-            InitLicense();
-            writeCMD();
+            InitLicense(context);
         }
+
     }
     //算法初始化结束
 
@@ -429,7 +440,8 @@ public class TG661JBAPI {
     public void updateAllTemplData(List<FingerBean> newCountTemplData, int templSources) {
         this.allTemplData = newCountTemplData;
         this.templSources = templSources;
-        initMatchTemplDatas();
+//        initMatchTemplDatas();
+        tgInitMatchDatas();
     }
 
     //设置设备的工作状态
@@ -438,6 +450,8 @@ public class TG661JBAPI {
         this.hasTemplName = false;
         this.isCheck = false;
         this.lastTemplName = "";
+//        initMatchTemplDatas();
+        tgInitMatchDatas();
     }
 
     //打开设备
@@ -456,7 +470,14 @@ public class TG661JBAPI {
             }
             //模板数据初始化
             if (allFingerMatchDatas == null)
-                initMatchTemplDatas();
+////                initMatchTemplDatas();
+                tgInitMatchDatas();
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialogUtil.Instance().showWaitDialog(context, "正在打开设备...");
+                }
+            });
             work(handler, OPEN_DEV);
         }
 
@@ -484,6 +505,7 @@ public class TG661JBAPI {
 //        }
         //否则，关闭设备
         work(handler, CLOSE_DEV);
+        //allFingerMatchDatas = new byte[0];
     }
 
     /**
@@ -494,31 +516,31 @@ public class TG661JBAPI {
      * @param templId        模板名称
      */
     public void extractFeatureRegister(Handler handler, int templModelType, String templId) {
-        if (TextUtils.isEmpty(templId)) {
-            Message extractFeatureRegisterMsg = handler.obtainMessage();
-            extractFeatureRegisterMsg.what = EXTRACT_FEATURE_REGISTER;
-            extractFeatureRegisterMsg.arg1 = -6;
-            handler.sendMessage(extractFeatureRegisterMsg);
-            return;
+//        if (TextUtils.isEmpty(templId)) {
+//            Message extractFeatureRegisterMsg = handler.obtainMessage();
+//            extractFeatureRegisterMsg.what = EXTRACT_FEATURE_REGISTER;
+//            extractFeatureRegisterMsg.arg1 = -6;
+//            handler.sendMessage(extractFeatureRegisterMsg);
+//            return;
+//        }
+        if (!TextUtils.isEmpty(templId)) {
+            boolean b = RegularUtil.strContainsNumOrAlpOrChin(templId);
+            if (!b) {
+                Message extractFeatureRegisterMsg = handler.obtainMessage();
+                extractFeatureRegisterMsg.what = EXTRACT_FEATURE_REGISTER;
+                extractFeatureRegisterMsg.arg1 = -7;
+                handler.sendMessage(extractFeatureRegisterMsg);
+                return;
+            }
+            if (!lastTemplName.equals(templId)) {
+                hasTempl = false;
+                hasTemplName = false;
+                isCheck = false;
+                templIndex = 0;
+            }
+            this.lastTemplName = this.templNameID = templId;
         }
-        boolean b = RegularUtil.strContainsNumOrAlpOrChin(templId);
-        if (!b) {
-            Message extractFeatureRegisterMsg = handler.obtainMessage();
-            extractFeatureRegisterMsg.what = EXTRACT_FEATURE_REGISTER;
-            extractFeatureRegisterMsg.arg1 = -7;
-            handler.sendMessage(extractFeatureRegisterMsg);
-            return;
-        }
-        if (!lastTemplName.equals(templId)) {
-            Log.d("===HHH", "     lastTemplName  ==  templId ");
-            hasTempl = false;
-            hasTemplName = false;
-            isCheck = false;
-            templIndex = 0;
-        }
-        this.lastTemplName = templId;
         this.templModelType = templModelType;
-        this.templNameID = templId;
         this.handler = handler;
         if (templModelType == TEMPL_MODEL_3) {
             templSize = 3;
@@ -655,9 +677,11 @@ public class TG661JBAPI {
      *
      * @param handler 信使
      */
-    public void featureCompare1_N(Handler handler, boolean backUpdateFingerData) {
+//    private String userFingerName;
+    public void featureCompare1_N(Handler handler, boolean backUpdateFingerData/*, String userName*/) {
         this.handler = handler;
         this.backUpdateFingerData = backUpdateFingerData;
+//        this.userFingerName = userName;
         work(handler, FEATURE_COMPARE1_N);
     }
 
@@ -976,15 +1000,23 @@ public class TG661JBAPI {
         ecs.submit(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
-                getThreadName();
+                getThreadName("执行功能");
                 switch (flag) {
                     case INIT_FV:
                         //初始化算法
-                        InitLicense();
+                        InitLicense(context);
+                        break;
+                    case READ_AND_EXCHANGED:
+                        //读取模板并转换成可比对模板
+
                         break;
                     case OPEN_DEV:
                         //打开设备
                         tgOpenDev(handler);
+                        break;
+                    case INIT_MATCH_DATA:
+                        //更新科比对的模板
+                        initMatchTemplDatas();
                         break;
                     case CLOSE_DEV:
                         //关闭设备
@@ -1040,7 +1072,6 @@ public class TG661JBAPI {
                         break;
                     case FEATURE_COMPARE1_N:
                         //1:N
-//                        getDevImgData(handler, matchNMsg, matchNBundle, aimPath);
                         tgTempl1_N(handler);
                         break;
                     case TEMPL_FV_VERSION:
@@ -1089,8 +1120,9 @@ public class TG661JBAPI {
     /*----------------------封装的SDK内部功能性方法 Start----------------------*/
 
     private void tgOpenDev(Handler handler) {
-        showWaitDialog(1, "正在打开设备...");
-        /**
+//        showWaitDialog(1, "正在打开设备...");
+
+        /*
          * 打开设备：默认前比3特征模板的工作模式,不支持连续验证
          * 1：后比工作模式  0：前比工作模式
          */
@@ -1099,23 +1131,23 @@ public class TG661JBAPI {
         Message openDevMsg = handler.obtainMessage();
         openDevMsg.what = OPEN_DEV;
         if (openDevRes >= 0) {
-            //取消连续验证
-//                            cancelVerify(handler);
             //设置工作模式
             setDevWorkModel(handler, workType, templModelType);
             devOpen = true;
             devClose = false;
             //发送打开设备的结果:
             openDevMsg.arg1 = 1;
-            //启动后台devService
-//                            if (!isStart) {
-//                                startDevService(context);
-//                            }
         } else {
             openDevMsg.arg1 = -1;
         }
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialogUtil.Instance().disDialog();
+            }
+        });
         handler.sendMessage(openDevMsg);
-        showWaitDialog(-1, "");
+//        showWaitDialog(-1, "");
     }
 
     private void tgCloseDev(Handler handler) {
@@ -1246,6 +1278,9 @@ public class TG661JBAPI {
                 hasTemplName = checkTemplName(templNameID);
                 if (hasTemplName) imgFeaMsg.arg1 = -8;
             }
+        } else if (templSources == EXTERNAL_TEMPL_SOURCES) {
+            if (TextUtils.isEmpty(templNameID))
+                hasTemplName = false;
         }
         //注册前核对当前指静脉是否已经注册
         if (!isCheck && !hasTemplName) {
@@ -1253,6 +1288,7 @@ public class TG661JBAPI {
         }
         //该指静脉已经注册
         if (hasTemplName) {
+            getAP(context).play_registerRepeat();
             imgFeaMsg.arg1 = -8;
         } else if (hasTempl) {
             imgFeaMsg.arg1 = -5;
@@ -1260,7 +1296,6 @@ public class TG661JBAPI {
             if (!isCancelRegister) {
                 if (templIndex == 0) {
                     getAP(context).play_inputDownGently();
-                    Log.d("===HHH", "   templIndex=0 请自然轻放手指  ");
                 } else if (templIndex > 0) {
                     getAP(context).play_inputAgain();
                 }
@@ -1272,10 +1307,16 @@ public class TG661JBAPI {
                         int tgImgExtractFeatureRegRes = getTGFV().TGImgExtractFeatureRegister(imgDataFea,
                                 IMG_W, IMG_H, regFeature);
                         if (tgImgExtractFeatureRegRes == 0) {
+//                            byte[] aimFeatures = null;
+//                            if (templIndex < templSize) {
+//                                Log.d("===LLL","   注册  ");
+//                                imgFeaMsg.arg1 = 10;
+//                                aimFeatures = jointTempl(regFeature);
+//                                extractFeatureRegister(handler, templModelType, templNameID);
+//                            }
                             imgFeaMsg.arg1 = 10;
                             byte[] aimFeatures = jointTempl(regFeature);
                             if (templIndex < templSize) {
-                                Log.d("===HHH", "        templIndex :" + templIndex + "   templSize :" + templSize);
                                 extractFeatureRegister(handler, templModelType, this.templNameID);
                             }
                             if (templSize == templIndex) {
@@ -1374,15 +1415,15 @@ public class TG661JBAPI {
                             imgFeaMsg.arg1 = 9;
                         }
                         //存储图片
-                        tgSaveImg(imgFeaMsg, null, templNameID + templIndex
+                        tgSaveImg(imgFeaMsg, bundle, templNameID + templIndex
                                 , imgDataFea, DevImageMatchLength);
                     } else {
                         imgFeaMsg.arg1 = -9;
                     }
                 }
             }
-            handler.sendMessage(imgFeaMsg);
         }
+        handler.sendMessage(imgFeaMsg);
     }
 
     private void tgGetFeature(Handler handler) {
@@ -1495,41 +1536,41 @@ public class TG661JBAPI {
         handler.sendMessage(resolveCommpareTemplMsg);
     }
 
-    private byte[] exechangeMatch_1Templ(byte[] templData, Handler handler, Message message) {
-        //转换成比对模板
-        byte[] matchTempll = compareTemplSizeData();
-        int tgTmplToMatchTmplRes = getTGFV().TGTmplToMatchTmpl(templData, matchTempll);
-        if (tgTmplToMatchTmplRes == 0) {
-            return matchTempll;
-        } else if (tgTmplToMatchTmplRes == -1) {
-            getAP(context).play_verifyFail();
-            message.arg1 = -1;
-            handler.sendMessage(message);
-            matchTempll = null;
-        }
-        return matchTempll;
-    }
-
     //1:1将模板转换成可比对模板
-    private byte[] matchTempl1_1Data(Handler handler, Message message) {
+    private byte[] matchTempl1_1Data() {
         byte[] match_1Templ = null;
         if (templSources == EXTERNAL_TEMPL_SOURCES) {
             //1:1模板数据外部传入
             if (templData_1 != null) {
-                match_1Templ = exechangeMatch_1Templ(templData_1, handler, message);
+                match_1Templ = templExechangeMatchTempl(templData_1);
             } else {
                 return null;
             }
         } else if (templSources == DIR_TEMPL_SOURCES) {
             //1:1模板数据本地文件夹读取
-            String aimTemplPath = getAimPath() + File.separator + templNameID;
-            //读取模板
-            templData_1 = perfectTemplData();
-            FileUtil.readFile(aimTemplPath, templData_1);
+            String dirPath = getAimPath();
+            File file = new File(dirPath);
+            File[] files = file.listFiles();
+            for (File file1 : files) {
+                String name = file1.getName();
+                if (!name.contains(".dat")) {
+                    name = name + ".dat";
+                }
+                if (name.equals(templNameID)) {
+                    String path = file1.getAbsolutePath();
+                    templData_1 = FileUtil.readFileToArray(new File(path));
+                    //读取模板
+                    templData_1 = perfectTemplData();
+                    FileUtil.readFile(path, templData_1);
+                    break;
+                }
+            }
+//            String aimTemplPath = getAimPath() + File.separator + templNameID;
+//            templData_1 = FileUtil.readFileToArray(new File(aimTemplPath));
             if (templData_1 != null) {
-                match_1Templ = exechangeMatch_1Templ(templData_1, handler, message);
+                match_1Templ = templExechangeMatchTempl(templData_1);
             } else {
-                templData_1 = null;
+//                templData_1 = null;
                 return null;
             }
         }
@@ -1541,10 +1582,11 @@ public class TG661JBAPI {
     //抓取图片
     private byte[] tgDevGetFingerImg(Handler handler, Message message) {
         //message.what = DEV_IMG;
-        byte[] match1_1ImgData = null;
+        byte[] match1_1ImgData;
         if (sImg) {
             match1_1ImgData = new byte[IMG_SIZE + T_SIZE];
             match1_1ImgData[0] = ((byte) 0xfe);
+//            match1_1ImgData = new byte[IMG_SIZE];
         } else {
             match1_1ImgData = new byte[IMG_SIZE];
         }
@@ -1553,12 +1595,10 @@ public class TG661JBAPI {
             message.arg1 = 11;
         } else if (DevImageMatchLength == -1) {
             getAP(context).play_time_out();
-            //match1_1ImgData = null;
             message.arg1 = -1;
             handler.sendMessage(message);
         } else if (DevImageMatchLength == -2) {
             getAP(context).play_verifyFail();
-            //match1_1ImgData = null;
             message.arg1 = -2;
             handler.sendMessage(message);
         } else if (DevImageMatchLength == -3) {
@@ -1568,7 +1608,6 @@ public class TG661JBAPI {
             handler.sendMessage(message);
         } else if (DevImageMatchLength == -4) {
             getAP(context).play_verifyFail();
-            //match1_1ImgData = null;
             message.arg1 = -4;
             handler.sendMessage(message);
         }
@@ -1579,11 +1618,10 @@ public class TG661JBAPI {
         Message msg1_1 = handler.obtainMessage();
         msg1_1.what = FEATURE_COMPARE1_1;
         Bundle match1Bundle = new Bundle();
-        byte[] matchTempl1_1Data = matchTempl1_1Data(handler, msg1_1);
+        byte[] matchTempl1_1Data = matchTempl1_1Data();
         if (matchTempl1_1Data != null) {
             getAP(context).play_inputDownGently();
             byte[] match1_1ImgData = tgDevGetFingerImg(handler, msg1_1);
-            Log.d("===HHH", "    图片的长度 1:1：" + match1_1ImgData.length);
             if (match1_1ImgData != null) {
                 //提取特征
                 byte[] match1_1Feature = new byte[FEATURE_SIZE];
@@ -1674,95 +1712,236 @@ public class TG661JBAPI {
         Message msg = handler.obtainMessage();
         msg.what = FEATURE_COMPARE1_N;
         Bundle bundle = new Bundle();
-        finger1N(handler, msg, bundle);
-    }
-
-    public void finger1N(Handler handler, Message matchNMsg, Bundle matchNBundle) {
-        //获取模板的所有地址
-        String templsPath = getAimPath();
         getAP(context).play_inputDownGently();
-        byte[] match1_NImgData = tgDevGetFingerImg(handler, matchNMsg);
+        byte[] match1_NImgData = tgDevGetFingerImg(handler, msg);
         if (DevImageMatchLength > 0) {
             //提取特征
             byte[] match1_NFeature = new byte[FEATURE_SIZE];
             int tgImgExtractFeatureVerifyNRes = getTGFV().TGImgExtractFeatureVerify(
                     match1_NImgData, IMG_W, IMG_H, match1_NFeature);
             if (tgImgExtractFeatureVerifyNRes == 0) {
-                if (allFingerMatchDatas != null) {
-                    IntByReference intB1 = new IntByReference();
-                    IntByReference intB2 = new IntByReference();
-                    byte[] uuId = new byte[UUID_SIZE];
-                    byte[] updateTempl = perfectTemplData();
-                    int tgFeatureMatchTmpl1NRes = getTGFV().TGFeatureMatchTmpl1N(match1_NFeature,
-                            allFingerMatchDatas, templCount, intB1, uuId, intB2, updateTempl);
-                    if (tgFeatureMatchTmpl1NRes == 0) {
-                        getAP(context).play_verifySuccess();
-                        int templIndex = intB1.getValue();//模板的指针位置
-                        int templScore = intB2.getValue();//验证的分数
-                        matchNMsg.arg1 = 1;
-                        if (backUpdateFingerData) {
-                            //返回可更新的模板数据
-                            matchNBundle.putByteArray(COMPARE_N_TEMPL, updateTempl);
-                        }
-                        //根据返回的指针获取主机中模板文件的名字
-                        String fileName = FileUtil.getFileName(templsPath, templIndex - 1);
-                        if (templSources == DIR_TEMPL_SOURCES) {
-                            matchNBundle.putString(COMPARE_NAME, fileName);
-                        } else if (templSources == EXTERNAL_TEMPL_SOURCES) {
-                            matchNBundle.putInt(INDEX, templIndex);
-                        }
-                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
-                        //存储图片
-                        tgSaveImg(matchNMsg, matchNBundle, fileName, match1_NImgData, DevImageMatchLength);
-                        matchNMsg.setData(matchNBundle);
-                    } else if (tgFeatureMatchTmpl1NRes == 8) {
-                        int templIndex = intB1.getValue();//模板的指针位置
-                        int templScore = intB2.getValue();//验证的分数
-                        getAP(context).play_verifyFail();
-                        matchNMsg.arg1 = 2;
-                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
-                        //存储图片
-                        tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
-                        matchNMsg.setData(matchNBundle);
-                    } else if (tgFeatureMatchTmpl1NRes == -1) {
-                        getAP(context).play_time_out();
-                        matchNMsg.arg1 = 3;
-                        //存储图片
-                        tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
-                    }
-                }
+                //分流比对
+//                excutorsFile(match1_NFeature, DevImageMatchLength, match1_NImgData,
+//                        handler, matchNMsg, matchNBundle);
+                compareN(templCount, READ_COMPARE_COUNT, match1_NFeature,
+                        handler, match1_NImgData);
+//                if (allFingerMatchDatas != null) {
+//
+//
+//                    IntByReference intB1 = new IntByReference();
+//                    IntByReference intB2 = new IntByReference();
+//                    byte[] uuId = new byte[UUID_SIZE];
+//                    byte[] updateTempl = perfectTemplData();
+//                    int tgFeatureMatchTmpl1NRes = getTGFV().TGFeatureMatchTmpl1N(match1_NFeature,
+//                            allFingerMatchDatas, templCount, intB1, uuId, intB2, updateTempl);
+//                    if (tgFeatureMatchTmpl1NRes == 0) {
+//                        getAP(context).play_verifySuccess();
+//                        int templIndex = intB1.getValue();//模板的指针位置
+//                        int templScore = intB2.getValue();//验证的分数
+//                        matchNMsg.arg1 = 1;
+//                        if (backUpdateFingerData) {
+//                            //返回可更新的模板数据
+//                            matchNBundle.putByteArray(COMPARE_N_TEMPL, updateTempl);
+//                        }
+//                        //根据返回的指针获取主机中模板文件的名字
+//                        String fileName = FileUtil.getFileName(templsPath, templIndex - 1);
+//                        if (templSources == DIR_TEMPL_SOURCES) {
+//                            matchNBundle.putString(COMPARE_NAME, fileName);
+//                        } else if (templSources == EXTERNAL_TEMPL_SOURCES) {
+//                            matchNBundle.putInt(INDEX, templIndex);
+//                        }
+//                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
+//                        //存储图片
+//                        tgSaveImg(matchNMsg, matchNBundle, fileName, match1_NImgData, DevImageMatchLength);
+//                        matchNMsg.setData(matchNBundle);
+//                    } else if (tgFeatureMatchTmpl1NRes == 8) {
+//                        int templIndex = intB1.getValue();//模板的指针位置
+//                        int templScore = intB2.getValue();//验证的分数
+//                        getAP(context).play_verifyFail();
+//                        matchNMsg.arg1 = 2;
+//                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
+//                        //存储图片
+//                        tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+//                        matchNMsg.setData(matchNBundle);
+//                    } else if (tgFeatureMatchTmpl1NRes == -1) {
+//                        getAP(context).play_time_out();
+//                        matchNMsg.arg1 = 3;
+//                        //存储图片
+//                        tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+//                    }
+//                }
             } else if (tgImgExtractFeatureVerifyNRes == 1) {
                 getAP(context).play_verifyFail();
-                matchNMsg.arg1 = 4;
+                msg.arg1 = 4;
                 //存储图片
-                tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+                tgSaveImg(msg, bundle, "", match1_NImgData, DevImageMatchLength);
             } else if (tgImgExtractFeatureVerifyNRes == 2) {
                 getAP(context).play_verifyFail();
-                matchNMsg.arg1 = 5;
+                msg.arg1 = 5;
                 //存储图片
-                tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+                tgSaveImg(msg, bundle, "", match1_NImgData, DevImageMatchLength);
             } else if (tgImgExtractFeatureVerifyNRes == 3) {
                 getAP(context).play_verifyFail();
-                matchNMsg.arg1 = 6;
+                msg.arg1 = 6;
                 //存储图片
-                tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+                tgSaveImg(msg, bundle, "", match1_NImgData, DevImageMatchLength);
             } else if (tgImgExtractFeatureVerifyNRes == 4) {
                 getAP(context).play_verifyFail();
-                matchNMsg.arg1 = 7;
+                msg.arg1 = 7;
             } else if (tgImgExtractFeatureVerifyNRes == 5) {
                 getAP(context).play_verifyFail();
-                matchNMsg.arg1 = 8;
+                msg.arg1 = 8;
                 //存储图片
-                tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+                tgSaveImg(msg, bundle, "", match1_NImgData, DevImageMatchLength);
             } else if (tgImgExtractFeatureVerifyNRes == -1) {
                 getAP(context).play_verifyFail();
-                matchNMsg.arg1 = 9;
+                msg.arg1 = 9;
                 //存储图片
-                tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+                tgSaveImg(msg, bundle, "", match1_NImgData, DevImageMatchLength);
             }
         }
-        handler.sendMessage(matchNMsg);
+        handler.sendMessage(msg);
     }
+
+
+    private void compareN(int fingerCount, int readBase, byte[] match1_NFeature,
+                          Handler handler, byte[] imgData) {
+        if (fingerCount > 0 && readBase > 0) {
+            double v = (double) fingerCount / readBase;
+            //四舍五入向上取整，1：N会比对的次数, 整数对上对下取整都是自身
+            int ceil = (int) Math.ceil(v);
+            //四舍五入向下取整
+            int floor = (int) Math.floor(v);
+            int count;
+            if (ceil != floor) {
+                count = ceil;
+            } else {
+                //如果ceil和floor相等，则正好除尽
+                count = floor;
+            }
+            if (count > 0) {
+                k = 0;
+                for (int i = 0; i < count; i++) {
+                    byte[] cellFingerData = null;
+                    int compareFingerCount = 0;
+                    if (i == floor) {
+                        //除不尽，最后一项
+                        compareFingerCount = fingerCount - readBase * i;
+                        if (templModelType == TEMPL_MODEL_3) {
+                            cellFingerData = new byte[compareFingerCount * WAIT_COMPARE_FEATURE_3];
+                        } else if (templModelType == TEMPL_MODEL_6) {
+                            cellFingerData = new byte[compareFingerCount * WAIT_COMPARE_FEATURE_6];
+                        }
+                    } else {
+                        compareFingerCount = readBase;
+                        if (templModelType == TEMPL_MODEL_3) {
+                            cellFingerData = new byte[readBase * WAIT_COMPARE_FEATURE_3];
+                        } else if (templModelType == TEMPL_MODEL_6) {
+                            cellFingerData = new byte[readBase * WAIT_COMPARE_FEATURE_6];
+                        }
+                    }
+                    if (cellFingerData != null) {
+                        System.arraycopy(allFingerMatchDatas, readBase * i,
+                                cellFingerData, 0, cellFingerData.length);
+                        workCompareData(match1_NFeature, cellFingerData, compareFingerCount,
+                                handler, imgData, count);
+                    }
+                }
+            }
+        }
+    }
+
+    //创建线程池
+//    private int cardinal = 2000;//1:N的基数设定为300，提高比对的效率
+//
+//    private void excutorsFile(byte[] newFingerData,
+//                              int imgLength, byte[] imgData,
+//                              Handler handler, Message message,
+//                              Bundle bundle) {
+////        File file = new File(datPath);
+////        if (!file.exists()) {
+////            return null;
+////        } else {
+////            if (file.isDirectory()) {
+////                File[] files = file.listFiles();
+////                if (files.length > 0) {
+////                    int datSize = files.length;
+//
+//        double v = (double) templCount / cardinal;
+//        //四舍五入向上取整，1：N会比对的次数
+//        int ceil = (int) Math.ceil(v);
+//        //四舍五入向下取整
+//        int floor = (int) Math.floor(v);
+//        int value;
+//        if (ceil != floor) {
+//            value = ceil;
+//        } else {
+//            //如果ceil和floor相等，则正好除尽
+//            value = floor;
+//        }
+//        //为线程池添加事件
+//        if (value > 0) {
+//            int count = 0;
+//            Log.d("===LLL", "   value:" + value);
+//            for (int i = 0; i < value; i++) {
+//                byte[] cellFingerData = null;
+//                int srcLength = 0;
+//                if (value == ceil && i == floor) {
+//                    //除不尽，最后一项
+//                    srcLength = templCount - cardinal * i;
+//                    cellFingerData = new byte[srcLength * WAIT_COMPARE_FEATURE_6];
+//                } else {
+//                    srcLength = cardinal;
+//                    cellFingerData = new byte[cardinal * WAIT_COMPARE_FEATURE_6];
+//                }
+//                Log.d("===LLL", "     srcLength ； " + cellFingerData.length);
+//                System.arraycopy(allFingerMatchDatas, cardinal * i,
+//                        cellFingerData, 0, cellFingerData.length);
+//                String aimPath = getAimPath();
+//                byte[] updateTempl = perfectTemplData();
+//
+////                IntByReference intB1 = new IntByReference();
+////                IntByReference intB2 = new IntByReference();
+////                byte[] uuId = new byte[UUID_SIZE];
+////                byte[] updateTempl1 = perfectTemplData();
+////                int tgFeatureMatchTmpl1NRes = getTGFV().TGFeatureMatchTmpl1N(newFingerData,
+////                        cellFingerData, srcLength, intB1, uuId, intB2, updateTempl);
+////                Log.d("===LLL","  N比对结果："+tgFeatureMatchTmpl1NRes);
+//
+//                GetFileTask getContentTask = new GetFileTask(newFingerData, cellFingerData,
+//                        srcLength, aimPath, imgLength, imgData, updateTempl,
+//                        /*handler, */message, bundle, sImg, value);
+//                //添加任务
+//                ecs.submit(getContentTask);
+//                count++;
+//            }
+//            for (int i = 0; i < value; i++) {
+//                try {
+//                    Future<MatchN> take = ecs.take();
+//                    MatchN matchN = take.get();
+//                    int resultCode = matchN.getResultCode();
+//                    if (resultCode == 1) {
+//                        getAP(context).play_verifySuccess();
+//                        break;
+//                    } else {
+//                        if (i == count - 1) {
+//                            if (resultCode == 2) {
+//                                getAP(context).play_verifyFail();
+//                            } else if (resultCode == 3) {
+//                                getAP(context).play_time_out();
+//                            }
+//                        }
+//                    }
+//                    Log.d("===HHH", "   数量：" + count + "  结果码：" + resultCode);
+//
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                } catch (ExecutionException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 
     private void tgGetFVVersion(Handler handler) {
         String templVersionPath = "";
@@ -1904,8 +2083,9 @@ public class TG661JBAPI {
         if (removeFile) {
             removeMsg.arg1 = 1;
             //删除模板后更新缓存中的所有模板数据
-            allFingerMatchDatas = null;
-            initMatchTemplDatas();
+            allFingerMatchDatas = new byte[0];
+//            initMatchTemplDatas();
+            tgInitMatchDatas();
         } else {
             removeMsg.arg1 = -1;
         }
@@ -1920,8 +2100,9 @@ public class TG661JBAPI {
         if (removeAllFile) {
             deleteAllMsg.arg1 = 1;
             //删除模板后更新缓存中的所有模板数据
-            allFingerMatchDatas = null;
-            initMatchTemplDatas();
+            allFingerMatchDatas = new byte[0];
+//            initMatchTemplDatas();
+            tgInitMatchDatas();
         } else {
             deleteAllMsg.arg1 = -1;
         }
@@ -1942,24 +2123,249 @@ public class TG661JBAPI {
 
     /*----------------------封装的SDK内部功能性方法 End----------------------*/
 
+    //更新可比对的数据模板
+    private void readFingerExchangedFinger(int fingerSourceType, int readBase) {
+        int fingerCount;
+        if (fingerSourceType == DIR_TEMPL_SOURCES) {
+            String aimPath = getAimPath();
+            File file = new File(aimPath);
+            File[] files = file.listFiles();
+            templCount = fingerCount = files.length;
+            if (fingerCount > 0 && readBase > 0) {
+                double v = (double) fingerCount / readBase;
+                //四舍五入向上取整，1：N会比对的次数, 整数对上对下取整都是自身
+                int ceil = (int) Math.ceil(v);
+                //四舍五入向下取整
+                int floor = (int) Math.floor(v);
+                int count;
+                if (ceil != floor) {
+                    count = ceil;
+                } else {
+                    //如果ceil和floor相等，则正好除尽
+                    count = floor;
+                }
+                if (count > 0) {
+                    c = 0;
+                    allFingerMatchDatas = templSizeData(fingerCount);
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            TGDialogUtil.Instance().showWaitDialog(context, "数据更新中...");
+                        }
+                    });
+                    for (int i = 0; i < count; i++) {
+                        int startSrc = readBase * i;
+                        int readLength = 0;
+                        if (i == floor) {
+                            //除不尽，最后一项
+                            readLength = fingerCount - readBase * i;
+                        } else {
+                            readLength = readBase;
+                        }
+                        // work(handler, READ_AND_EXCHANGED);
+                        workReadData(files, startSrc, readLength);
+                    }
+                }
+            }
+        } else if (fingerSourceType == EXTERNAL_TEMPL_SOURCES) {
+            allFingerMatchDatas = new byte[0];
+            workReadData(null, -1, -1);
+        }
+    }
+
+    private void readFingerAndExchanged(File[] files, int startRead, int readLength
+            , ReadFingerExchangedResult readFingerExchangedResult) {
+        if (files.length > 0) {
+            File[] iFile = new File[readLength];
+            System.arraycopy(files, startRead, iFile, 0, readLength);
+            byte[] lengthByte = templSizeData(readLength);
+            for (int i = 0; i < readLength; i++) {
+                File file = iFile[i];
+                byte[] bytes = perfectTemplData();
+                FileUtil.readFileToArray(file, bytes);
+                byte[] matchFingerData = templExechangeMatchTempl(bytes);
+                int compareTemplLength = templLength() * i;
+                System.arraycopy(matchFingerData, 0, lengthByte,
+                        compareTemplLength, matchFingerData.length);
+            }
+            readFingerExchangedResult.fingerCompareTemplResult(lengthByte);
+        }
+    }
+
+    private ExecutorService workExecutors;
+    private ExecutorCompletionService<Object> workEsc;
+    private int c = 0;
+
+    private void workReadData(final File[] files, final int startRead, final int readLength) {
+        if (workExecutors == null) {
+            workExecutors = Executors.newCachedThreadPool();
+            workEsc = new ExecutorCompletionService<>(workExecutors);
+        }
+        workEsc.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                getThreadName("更新模板数据");
+                if (templSources == DIR_TEMPL_SOURCES) {
+                    readFingerAndExchanged(files, startRead, readLength,
+                            new ReadFingerExchangedResult() {
+                                @Override
+                                public void fingerCompareTemplResult(final byte[] lengthByte) {
+                                    mActivity.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (lengthByte != null && lengthByte.length > 0) {
+                                                System.arraycopy(lengthByte, 0,
+                                                        allFingerMatchDatas, c,
+                                                        lengthByte.length);
+                                                c = c + lengthByte.length;
+                                                if (c == allFingerMatchDatas.length) {
+                                                    TGDialogUtil.Instance().disDialog();
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                } else if (templSources == EXTERNAL_TEMPL_SOURCES) {
+                    getAllFingerData1();
+                }
+                return null;
+            }
+        });
+    }
+
+    private int k = 0;
+
+    private void workCompareData(final byte[] matchNFeature, final byte[] cellCompareData
+            , final int compareFingerCount, final Handler handler
+            , final byte[] imgData, final int count) {
+        if (workExecutors == null) {
+            workExecutors = Executors.newCachedThreadPool();
+            workEsc = new ExecutorCompletionService<>(executors);
+        }
+        workEsc.submit(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                compareFinger(cellCompareData, compareFingerCount, matchNFeature, new CompareNResult() {
+                    @Override
+                    public void compareResult(final IntByReference intB1, final IntByReference intB2,
+                                              final int tgFeatureMatchTmpl1NRes, final byte[] updateTempl) {
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Message msg = handler.obtainMessage();
+                                msg.what = FEATURE_COMPARE1_N;
+                                Bundle bundle = new Bundle();
+                                Log.d("===LLL", "  验证的结果N:" + tgFeatureMatchTmpl1NRes);
+                                if (tgFeatureMatchTmpl1NRes == 0) {
+                                    getAP(context).play_verifySuccess();
+                                    int templIndex = intB1.getValue();//模板的指针位置
+                                    int templScore = intB2.getValue();//验证的分数
+                                    msg.arg1 = 1;
+                                    if (backUpdateFingerData) {
+                                        //返回可更新的模板数据
+                                        bundle.putByteArray(COMPARE_N_TEMPL, updateTempl);
+                                    }
+                                    //根据返回的指针获取主机中模板文件的名字
+                                    String templsPath = getAimPath();
+                                    String fileName = FileUtil.getFileName(templsPath, templIndex - 1);
+                                    if (templSources == DIR_TEMPL_SOURCES) {
+                                        bundle.putString(COMPARE_NAME, fileName);
+                                    } else if (templSources == EXTERNAL_TEMPL_SOURCES) {
+                                        bundle.putInt(INDEX, templIndex);
+                                    }
+                                    bundle.putInt(COMPARE_N_SCORE, templScore);
+                                    //存储图片
+                                    tgSaveImg(msg, bundle, fileName, imgData, DevImageMatchLength);
+                                    msg.setData(bundle);
+                                } else if (tgFeatureMatchTmpl1NRes == 8) {
+                                    if (k == count - 1) {
+                                        //int templIndex = intB1.getValue();//模板的指针位置
+                                        int templScore = intB2.getValue();//验证的分数
+                                        getAP(context).play_verifyFail();
+                                        msg.arg1 = 2;
+                                        bundle.putInt(COMPARE_N_SCORE, templScore);
+                                        //存储图片
+                                        tgSaveImg(msg, bundle, "", imgData, DevImageMatchLength);
+                                        msg.setData(bundle);
+                                    }
+                                } else if (tgFeatureMatchTmpl1NRes == -1) {
+                                    if (k == count - 1) {
+                                        getAP(context).play_time_out();
+                                        msg.arg1 = 3;
+                                        //存储图片
+                                        tgSaveImg(msg, bundle, "", imgData, DevImageMatchLength);
+                                    }
+                                }
+                                k++;
+                                handler.sendMessage(msg);
+                            }
+                        });
+                    }
+                });
+                return null;
+            }
+        });
+    }
+
+    private void compareFinger(byte[] cellCompareData, int compareFingerCount, byte[] match1_NFeature
+            , CompareNResult compareNResult) {
+        if (allFingerMatchDatas != null && allFingerMatchDatas.length > 0) {
+            IntByReference intB1 = new IntByReference();
+            IntByReference intB2 = new IntByReference();
+            byte[] uuId = new byte[UUID_SIZE];
+            byte[] updateTempl = perfectTemplData();
+            int tgFeatureMatchTmpl1NRes = getTGFV().TGFeatureMatchTmpl1N(match1_NFeature,
+                    cellCompareData, compareFingerCount, intB1, uuId, intB2, updateTempl);
+            if (compareNResult != null) {
+                compareNResult.compareResult(intB1, intB2, tgFeatureMatchTmpl1NRes, updateTempl);
+            }
+        }
+    }
+
+    interface ReadFingerExchangedResult {
+        void fingerCompareTemplResult(byte[] lengthByte);
+    }
+
+    interface CompareNResult {
+        void compareResult(IntByReference intB1, IntByReference intB2, int tgFeatureMatchTmpl1NRes,
+                           byte[] updateTempl);
+    }
+
     //模板数据初始化
     private byte[] allFingerMatchDatas = null;//可比对的指静脉模板数据
     private boolean firstOpen = false;//标记是否是第一次注册模板
 
     private void initMatchTemplDatas() {
         if (templSources == DIR_TEMPL_SOURCES) {
+            allFingerMatchDatas = new byte[0];
             getAllFingerData2();
         } else if (templSources == EXTERNAL_TEMPL_SOURCES) {
+            allFingerMatchDatas = new byte[0];
             getAllFingerData1();
         }
-        if (allFingerMatchDatas != null) {
-            Log.d("===HHH", "模板数据初始化成功,  模板数量：" + templCount);
+        if (allFingerMatchDatas != null && allFingerMatchDatas.length > 0) {
+            Log.d("===LLL", "模板数据初始化成功,  模板数量：" + templCount);
         } else {
             //初始没有模板的情况下赋值
             allFingerMatchDatas = compareTemplSizeData();
             templCount = 1;
             firstOpen = true;
         }
+    }
+
+    //更新代码中缓存的数据
+    private void tgInitMatchDatas() {
+        readFingerExchangedFinger(templSources, READ_COMPARE_COUNT);
+        if (allFingerMatchDatas != null && allFingerMatchDatas.length > 0) {
+            Log.d("===LLL", "模板数据初始化成功,  模板数量：" + templCount);
+        } else {
+            //初始没有模板的情况下赋值
+            allFingerMatchDatas = compareTemplSizeData();
+            templCount = 1;
+            firstOpen = true;
+        }
+//        work(null, INIT_MATCH_DATA);
     }
 
     //更新代码缓存中的模板数据以及数量
@@ -2002,7 +2408,6 @@ public class TG661JBAPI {
         System.arraycopy(matchTempl, 0, newByte, allFingerMatchDatas.length, matchTempl.length);
         templCount = templCount + 1;
         allFingerMatchDatas = newByte;
-        Log.d("===HHH", "   模板的数量  :" + templCount);
     }
 
     //将传递进来的实体数据进行提取,,缓存的是可比对模板的数据
@@ -2017,10 +2422,18 @@ public class TG661JBAPI {
                 byte[] fingerData = allTemplData.get(i).getFingerData();
                 //获取可比对的模板
                 byte[] matchFingerData = templExechangeMatchTempl(fingerData);
-                jointTempls(matchFingerData, i);
+                final byte[] allFingerMatchDatas1 = jointTempls(matchFingerData, i);
+                if (i == templCount - 1) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            allFingerMatchDatas = allFingerMatchDatas1;
+                        }
+                    });
+                }
             }
         }
-        allTemplData = null;
+//        allTemplData = null;
     }
 
     //获取目标文件夹下的所有模板,转换成可比对模板
@@ -2036,10 +2449,18 @@ public class TG661JBAPI {
             for (int i = 0; i < templCount; i++) {
                 byte[] templData = allTemplByteList.get(i);
                 byte[] matchFingerData = templExechangeMatchTempl(templData);
-                jointTempls(matchFingerData, i);
+                final byte[] allFingerMatchDatas1 = jointTempls(matchFingerData, i);
+                if (i == templCount - 1) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            allFingerMatchDatas = allFingerMatchDatas1;
+                        }
+                    });
+                }
             }
         }
-        allTemplByteList = null;
+//        allTemplByteList = null;
     }
 
     //将模板装换成可比对模板
@@ -2067,7 +2488,7 @@ public class TG661JBAPI {
     }
 
     //拼接模板
-    private void jointTempls(byte[] matchFingerData, int index) {
+    private byte[] jointTempls(byte[] matchFingerData, int index) {
         if (matchFingerData != null) {
             int destStart = 0;
             if (templModelType == TEMPL_MODEL_3) {
@@ -2075,20 +2496,19 @@ public class TG661JBAPI {
             } else if (templModelType == TEMPL_MODEL_6) {
                 destStart = WAIT_COMPARE_FEATURE_6 * index;
             }
-            System.arraycopy(matchFingerData, 0, allFingerMatchDatas, destStart, matchFingerData.length);
+            System.arraycopy(matchFingerData, 0, allFingerMatchDatas,
+                    destStart, matchFingerData.length);
         }
+        return allFingerMatchDatas;
     }
 
     //模板的数据长度缓存
     private byte[] templSizeData(int templCount) {
-        Log.d("===HHH", "   模板的数量  ：" + templCount);
         byte[] allFingerData = null;
-        if (allFingerData == null) {
-            if (templModelType == TEMPL_MODEL_3) {
-                allFingerData = new byte[WAIT_COMPARE_FEATURE_3 * templCount];
-            } else if (templModelType == TEMPL_MODEL_6) {
-                allFingerData = new byte[WAIT_COMPARE_FEATURE_6 * templCount];
-            }
+        if (templModelType == TEMPL_MODEL_3) {
+            allFingerData = new byte[WAIT_COMPARE_FEATURE_3 * templCount];
+        } else if (templModelType == TEMPL_MODEL_6) {
+            allFingerData = new byte[WAIT_COMPARE_FEATURE_6 * templCount];
         }
         return allFingerData;
     }
@@ -2127,10 +2547,10 @@ public class TG661JBAPI {
     }
 
     //获取当前线程的名字
-    private void getThreadName() {
+    private void getThreadName(String workName) {
         String name = Thread.currentThread().getName();
         long id = Thread.currentThread().getId();
-        Log.d("===HHH", "   当前线程的名称：" + name + "  id:" + id);
+        Log.d("===HHH", workName + "   当前线程的名称：" + name + "  id:" + id);
     }
 
 
@@ -2153,7 +2573,9 @@ public class TG661JBAPI {
 
     private boolean checkTemplName(String newTemplName) {
         //检查模板文件的名称是否重复
-        newTemplName = newTemplName + ".dat";
+        if (!TextUtils.isEmpty(newTemplName) && !newTemplName.contains(".dat")) {
+            newTemplName = newTemplName + ".dat";
+        }
         String templsPath = getAimPath();
         ArrayList<String> allTemplName = scanAimDirFileName(templsPath);
         if (allTemplName != null && allTemplName.size() > 0) {
@@ -2161,7 +2583,6 @@ public class TG661JBAPI {
                 String templName = allTemplName.get(i);
                 if (templName.equals(newTemplName)) {
                     hasTemplName = true;
-                    getAP(context).play_registerRepeat();
                     break;
                 }
                 if (i == allTemplName.size() - 1 && templName.equals(newTemplName)) {
@@ -2171,8 +2592,6 @@ public class TG661JBAPI {
         }
         return hasTemplName;
     }
-
-    private int v = 0;
 
     //读取所有文件模板
     private ArrayList<byte[]> readAllTempl(String aimPath) {
@@ -2188,7 +2607,6 @@ public class TG661JBAPI {
                         templsByte = new ArrayList<>();
                         for (File file1 : files) {
                             byte[] bytes = perfectTemplData();
-                            v++;
                             String name = file1.getName();
                             long length = file1.length();
 //                            Log.d("===LLL", "   文件:" + name + " 的长度 ：" + length + "   数量：" + v);
@@ -2198,7 +2616,6 @@ public class TG661JBAPI {
 //                        byte[] bytes1 = FileUtil.readFileToArray(file1);
                             templsByte.add(bytes);
                         }
-                        v = 0;
                     }
                 }
             }
@@ -2211,7 +2628,6 @@ public class TG661JBAPI {
         Message imgFeaNMsg = handler.obtainMessage();
         imgFeaNMsg.what = FEATURE_COMPARE1_N;
         getAP(context).play_inputDownGently();
-        Log.d("===HHH", "   检查 请自然轻放手指  ");
         byte[] match1_NImgData = tgDevGetFingerImg(handler, imgFeaNMsg);
         if (DevImageMatchLength > 0) {
             //传出抓取图片的数据
@@ -2281,8 +2697,18 @@ public class TG661JBAPI {
 //        }
     }
 
+
     //对外传图
     private void img(Message msg, Bundle bundle, byte[] imgData, int length) {
+        //String imgPath = this.imgPath + File.separator + imgName + ".jpg";
+//        long l = System.currentTimeMillis();
+//        String iIMG = userFingerDirPath + File.separator + userFingerName + "_" + imgName + "_" + l + ".jpg";
+//        byte[] jpegData = new byte[IMG_W * IMG_H/*imgLength*/];
+//        System.arraycopy(imgData, /*1024 * 256*/208, jpegData, 0, jpegData.length);
+//
+//        //内部测试用
+//        byte[] imgDataBMP = ImgExechangeBMP.instance().imgExechangeBMP(jpegData, jpegData.length, 1, iIMG);
+
 //        msg.arg1 = 0;
         msg.obj = imgData;
         //传出抓取图片的数据
@@ -2290,7 +2716,7 @@ public class TG661JBAPI {
             bundle = new Bundle();
         }
         bundle.putInt("imgLength", length);
-        bundle.putByteArray("imgData", imgData);
+        bundle.putByteArray("imgData", imgData/*imgDataBMP*/);
         msg.setData(bundle);
     }
 
@@ -2300,8 +2726,8 @@ public class TG661JBAPI {
             imgName = imgName.substring(0, imgName.indexOf(".dat"));
         }
         String imgPath = this.imgPath + File.separator + imgName + ".jpg";
-        File file = new File(this.imgPath);
-        if (!file.exists()) file.mkdirs();
+//        long l = System.currentTimeMillis();
+//        String iIMG = userFingerDirPath + File.separator + userFingerName + "_" + imgName + "_" + l + ".jpg";
         byte[] jpegData = new byte[imgLength];
         System.arraycopy(imgData, 1024 * 256, jpegData, 0, imgLength);
         boolean imgSave = FileUtil.writeFile(jpegData, imgPath);
@@ -2324,13 +2750,23 @@ public class TG661JBAPI {
         return aimByte;
     }
 
+//    private String userFingerDirPath;
+
     //存储图片
-    private void tgSaveImg(Message message, Bundle bundle, String fileName,
-                           byte[] imageData, int imgLength) {
+    public void tgSaveImg(Message message, Bundle bundle, String fileName,
+                          byte[] imageData, int imgLength) {
         //传出抓取图片的数据
         if (sImg) {
             //bundle.putInt("imgLength", imgLength);
             //bundle.putByteArray("imgData", imageData);
+//            userFingerDirPath = imgPath + File.separator + userFingerName;
+//            File file = new File(userFingerDirPath);
+//            if (!file.exists()) file.mkdirs();
+//            File[] files = file.listFiles();
+//            if (files.length >= 10) {
+//                bundle.putString("tip", "验证采图的数量已经达到10");
+//                return;
+//            }
             img(message, bundle, imageData, imgLength);
             //存储图片
             if (TextUtils.isEmpty(fileName)) {
@@ -2407,6 +2843,7 @@ public class TG661JBAPI {
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
             int i = process.waitFor();
+            Log.d("===LLL", "    写入su命令  " + i);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {

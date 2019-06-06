@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -25,8 +26,10 @@ import android.widget.TextView;
 
 import com.TG.library.CallBack.CommitCallBack;
 import com.TG.library.api.TG661JBAPI;
+import com.TG.library.api.TG661JBehindAPI;
 import com.TG.library.utils.AlertDialogUtil;
 import com.TG.library.utils.AudioProvider;
+import com.TG.library.utils.RegularUtil;
 import com.TG.library.utils.ToastUtil;
 import com.bumptech.glide.Glide;
 
@@ -56,7 +59,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
     private boolean devStatu;
 
     private AlertDialog waitDialog;
-    private EditText templIDBehind;
+    private EditText templIDBehind, userFingerName;
     private TextView volumeTt, tipTv, devStatus, devModelTv;
     private byte[] imgData;
     private List<byte[]> imgDatas = new ArrayList<>();
@@ -268,7 +271,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         Bundle data = msg.getData();
                         //指静脉模板数据
                         byte[] fingerData = data.getByteArray(TG661JBAPI.FINGER_DATA);
-                        Log.d("===HHH", "   模板数据返回成功  ");
+                        Log.d("===AAA", "   模板数据返回成功 : "+fingerData);
                     } else if (extractFeatureRegisterArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
                     } else if (extractFeatureRegisterArg == 3) {
@@ -490,6 +493,9 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         int templScore = data.getInt(TG661JBAPI.COMPARE_N_SCORE);
                         //非主机文件存储时候才返回这个模板索引
                         int index = data.getInt(TG661JBAPI.INDEX);
+                        String tip = data.getString("tip");
+                        if (!TextUtils.isEmpty(tip))
+                            ToastUtil.toast(BehindActivity.this, tip);
                         //主机文件夹下存储时才返回模板名称
                         String templName = data.getString(TG661JBAPI.COMPARE_NAME);
                         if (autoUpdateStatus) {
@@ -639,7 +645,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     getTemplAlgorVersionBtn.setClickable(true);
                     break;
-                case TG661JBAPI.WAIT_DIALOG:
+                case TG661JBehindAPI.WAIT_DIALOG:
                     int typeDialog = msg.arg1;
                     if (typeDialog == 1) {
                         String tipStr = (String) msg.obj;
@@ -651,7 +657,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         }
                     }
                     break;
-                case TG661JBAPI.OPEN_DEV:
+                case TG661JBehindAPI.OPEN_DEV:
                     int openDevArg = msg.arg1;
                     if (openDevArg == 1) {
                         //初始化获取主机模板列表
@@ -661,7 +667,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("设备打开失败");
                     }
                     break;
-                case TG661JBAPI.CLOSE_DEV:
+                case TG661JBehindAPI.CLOSE_DEV:
                     int closeDevArg = msg.arg1;
                     if (closeDevArg == -1) {
                         tipTv.setText("设备状态:设备关闭失败");
@@ -671,7 +677,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("设备状态:设备已关闭");
                     }
                     break;
-                case TG661JBAPI.WRITE_FILE:
+                case TG661JBehindAPI.WRITE_FILE:
                     //往主机中写入文件
                     int writeHostArg = msg.arg1;
                     if (writeHostArg == -1) {
@@ -689,10 +695,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     byte[] devImgData = (byte[]) msg.obj;
                     if (devImgArg1 == 1 && devImgData != null) {
 //                        tipTv.setText("检测到有指静脉");
-                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength+"  指静脉数据 ："+devImgData);
+                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength + "  指静脉数据 ：" + devImgData);
                     } else {
 //                        tipTv.setText("没检测到指静脉");
-                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength+"  指静脉数据 ："+devImgData);
+                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength + "  指静脉数据 ：" + devImgData);
                     }
                     break;
             }
@@ -723,7 +729,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         //开启设备
         openDev();
         //显示图片
-        tg661JBAPI.setsImg(true);
+//        tg661JBAPI.setsImg(true);
         //监听设备是否有指静脉图像返回
 //        devImgListener();
     }
@@ -762,6 +768,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         Button get1_1 = findViewById(R.id.get1_1);
         Button get1_N = findViewById(R.id.get1_N);
         clearEt = findViewById(R.id.clearEt);
+        userFingerName = findViewById(R.id.userFingerName);
 
         getTemplAlgorVersionBtn = findViewById(R.id.getTemplAlgorVersionBtn);
         CheckBox autoUpdateTempl = findViewById(R.id.autoUpdateTempl);
@@ -880,7 +887,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         if (tg661JBAPI.isDevOpen()) {
             closeDev();
         }
-        loop = false;
     }
 
     public void getTemplList() {
@@ -906,7 +912,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
             //设备工作模式--》后比
             int workType = TG661JBAPI.WORK_BEHIND;
             tg661JBAPI.openDev(handler, BehindActivity.this, workType,
-                    templModelType, TG661JBAPI.DIR_TEMPL_SOURCES);
+                    templModelType, TG661JBAPI.EXTERNAL_TEMPL_SOURCES);
         } else {
             ToastUtil.toast(BehindActivity.this, "设备已经开启");
         }
@@ -944,23 +950,23 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.registerBtnBehind:
                 //注册
                 String templID = templIDBehind.getText().toString().trim();
-                if (TextUtils.isEmpty(templID)) {
-                    ToastUtil.toast(BehindActivity.this, "注册的模板ID不能为空");
-                } else {
-                    //检测注册名只包含字母或数字或中文
+//                if (TextUtils.isEmpty(templID)) {
+//                    ToastUtil.toast(BehindActivity.this, "注册的模板ID不能为空");
+//                } else {
+//                    //检测注册名只包含字母或数字或中文
 //                    boolean b = RegularUtil.strContainsNumOrAlpOrChin(templID);
 //                    if (b) {
-                    devStatu = checkDevStatus();
-                    if (devStatu) {
-                        tg661JBAPI.extractFeatureRegister(handler,
-                                templModelType, templID);
-                        registerBtnBehind.setClickable(false);
-//                        }
-                    } else {
-                        ToastUtil.toast(BehindActivity.this,
-                                "注册的模板名称不可包含数字/字母/中文以外的字符");
-                    }
-                }
+                        devStatu = checkDevStatus();
+                        if (devStatu) {
+                            tg661JBAPI.extractFeatureRegister(handler,
+                                    templModelType, templID);
+                            registerBtnBehind.setClickable(false);
+                        }
+//                    } else {
+//                        ToastUtil.toast(BehindActivity.this,
+//                                "注册的模板名称不可包含数字/字母/中文以外的字符");
+//                    }
+//                }
                 break;
             case R.id.cancelRegisterBtnBehind:
                 //取消注册：调用取消抓图接口并重置上一次抓图已经存在的数据
@@ -977,14 +983,18 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                 } else {
                     devStatu = checkDevStatus();
                     if (devStatu) {
-                        tg661JBAPI.featureCompare1_1(handler, templName,
-                                null, true);
+                        tg661JBAPI.featureCompare1_1(handler, templName, null, true);
                         ver1_1Btn.setClickable(false);
                     }
                 }
                 break;
             case R.id.ver1_NBtn:
                 //1:N验证
+//                String userFinngerName = userFingerName.getText().toString().trim();
+//                if (TextUtils.isEmpty(userFinngerName)) {
+//                    ToastUtil.toast(this, "用户的验证手指名称不可为空");
+//                    return;
+//                }
                 devStatu = checkDevStatus();
                 if (devStatu) {
                     tg661JBAPI.featureCompare1_N(handler, true);
@@ -1119,26 +1129,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         tg661JBAPI.deleteHostIdTempl(handler, datFileName);
     }
 
-    private boolean loop = true;
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            while (loop) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                tg661JBAPI.DevImgListener(handler);
-            }
-        }
-    };
-
-    //监听设备是否有指静脉数据返回
-    private void devImgListener() {
-        new Thread(runnable).start();
-    }
-
     /**
      * 界面显示图片
      */
@@ -1148,6 +1138,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         int imgLength = data.getInt("imgLength");
         byte[] imgData = data.getByteArray("imgData");
         if (imgData != null && imgLength > 0) {
+            Log.i("===AAA", "  imgLength:" + imgLength);
             byte[] jpegData = new byte[imgLength];
             System.arraycopy(imgData, 1024 * 256, jpegData, 0, imgLength);
             Glide.with(BehindActivity.this).load(jpegData).into(iv);

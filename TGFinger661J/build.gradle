@@ -42,7 +42,7 @@ dependencies {
 }
 
 def _BASENAME = "TG661JFinger";
-def _VERSION = "_V1.1.0.190416_beta";
+def _VERSION = "_V1.1.1.190416_beta";
 def _DestinationPath = "src/main/jniLibs"; //生成jar包的位置
 def zipFile = file('build/intermediates/intermediate-jars/release/classes.jar'); //待打包文件位置
 
@@ -62,6 +62,9 @@ task makeJar(type: Jar) {
     from fileTree(dir: 'libs', includes: ['armeabi/libjnidispatch.so'])
     from fileTree(dir: 'libs', includes: ['armeabi/libTG_FV.so'])
     from fileTree(dir: 'libs', includes: ['armeabi/libTGVM661J.so'])
+    from fileTree(dir: 'libs', includes: ['arm64-v8a/libjnidispatch.so'])
+    from fileTree(dir: 'libs', includes: ['arm64-v8a/libTG_FV.so'])
+    from fileTree(dir: 'libs', includes: ['arm64-v8a/libTGVM661J.so'])
     from fileTree(dir: 'libs', includes: ['jna-min.jar'])
     from fileTree(dir: 'libs', includes: ['jna-platform.jar'])
     baseName = _BASENAME + _VERSION

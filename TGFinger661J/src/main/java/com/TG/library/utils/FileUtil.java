@@ -160,7 +160,7 @@ public class FileUtil {
         if (!file.exists())
             return null;
         try {
-            fis = new FileInputStream(file);
+            fis = new FileInputStream(path);
             fis.read(tmpByte);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

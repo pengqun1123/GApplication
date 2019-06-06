@@ -144,6 +144,18 @@ public interface TGXGComAPI extends Library {
 
     int TG_GetVersion(byte[] ver);
 
+    /**
+     * 将解密后的图片转换成BMP
+     *
+     * @param imageData       加密的图片源数据
+     * @param imageWidth      图片的宽度
+     * @param imageHeight     图片的高度
+     * @param upDownSymmetric 是否反转，默认传0
+     * @param bmpData         转换后的图片
+     * @param bmpDataSize     转换后图片的长度
+     * @param bmpSavePath     转换后图片的保存路径
+     * @return
+     */
     int TG_DataToSimpleBMP(byte[] imageData, int imageWidth, int imageHeight, int upDownSymmetric,
                            byte[] bmpData, IntByReference bmpDataSize, String bmpSavePath);
 
