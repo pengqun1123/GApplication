@@ -4,7 +4,6 @@ import android.app.Application;
 import android.util.Log;
 
 import com.TG.library.api.TG661JBAPI;
-import com.TG.library.api.TG661JBehindAPI;
 
 /**
  * Created By pq

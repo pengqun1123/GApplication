@@ -1,6 +1,7 @@
 package com.TG.library.utils;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * Created By pq
@@ -12,7 +13,7 @@ public class ImgExechangeBMP {
 
     private static ImgExechangeBMP imgExechangeBMP = null;
 
-    private static ImgExechangeBMP instance() {
+    public static ImgExechangeBMP instance() {
         if (imgExechangeBMP == null) {
             synchronized (ImgExechangeBMP.class) {
                 if (imgExechangeBMP == null)
@@ -22,8 +23,8 @@ public class ImgExechangeBMP {
         return imgExechangeBMP;
     }
 
-    private byte[] imgExechangeBMP(byte[] imgSource, int imgLength, int flag, String imgSavePath) {
-        decoderBMP(imgSource, imgLength, flag);
+    public byte[] imgExechangeBMP(byte[] imgSource, int imgLength, /*int flag,*/ String imgSavePath) {
+        decoderBMP(imgSource, imgLength, 1/*flag*/);
         byte[] showImgData = DataToSimpleBMP(imgSource, imgSavePath);
         return showImgData;
     }
@@ -129,7 +130,7 @@ public class ImgExechangeBMP {
         System.arraycopy(patte, 0, imgDatas, 54, patte.length);
         System.arraycopy(imgData, 0, imgDatas, 1078, imgData.length);
         boolean imgSave = FileUtil.writeFile(imgDatas, imgSavePath);
-
+        Log.i("===BMP","   BMP存储路径："+imgSavePath);
         return imgDatas;
     }
 }

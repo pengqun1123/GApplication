@@ -280,15 +280,15 @@
                 android:textColorHint="@color/blue_grey"
                 android:textSize="13sp" />
 
-            <ImageView
-                android:id="@+id/clearEt"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:padding="6dp"
-                android:src="@drawable/del_icon"
-                android:visibility="gone" />
+            <!--<ImageView-->
+                <!--android:id="@+id/clearEt"-->
+                <!--android:layout_width="35dp"-->
+                <!--android:layout_height="35dp"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:padding="6dp"-->
+                <!--android:src="@drawable/del_icon"-->
+                <!--android:visibility="gone" />-->
         </RelativeLayout>
 
         <Button
@@ -545,16 +545,16 @@
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <ImageView
-                    android:id="@+id/consoleClearIcon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp"
-                    android:background="@drawable/main_btn_ripple"
-                    android:padding="3dp"
-                    android:src="@drawable/delete_drawable"
-                    tools:ignore="ContentDescription" />
+                <!--<ImageView-->
+                    <!--android:id="@+id/consoleClearIcon"-->
+                    <!--android:layout_width="28dp"-->
+                    <!--android:layout_height="28dp"-->
+                    <!--android:layout_alignParentEnd="true"-->
+                    <!--android:layout_marginEnd="10dp"-->
+                    <!--android:background="@drawable/main_btn_ripple"-->
+                    <!--android:padding="3dp"-->
+                    <!--android:src="@drawable/delete_drawable"-->
+                    <!--tools:ignore="ContentDescription" />-->
             </RelativeLayout>
 
             <android.support.v7.widget.RecyclerView

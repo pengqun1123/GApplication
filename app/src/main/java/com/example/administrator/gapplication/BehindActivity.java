@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +14,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -29,7 +29,6 @@ import com.TG.library.api.TG661JBAPI;
 import com.TG.library.api.TG661JBehindAPI;
 import com.TG.library.utils.AlertDialogUtil;
 import com.TG.library.utils.AudioProvider;
-import com.TG.library.utils.RegularUtil;
 import com.TG.library.utils.ToastUtil;
 import com.bumptech.glide.Glide;
 
@@ -55,7 +54,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
     private Button delAllHostTemplBtn;
     private Button voiceDecreaceBtn;
     private Button getTemplAlgorVersionBtn;
-    private ImageView clearEt;
     private boolean devStatu;
 
     private AlertDialog waitDialog;
@@ -67,6 +65,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
     private int templModelType = TG661JBAPI.TEMPL_MODEL_6;//默认为6模板模式
     private boolean autoUpdateStatus = false;//自动更新模板
     private ImageView iv;
+    private ImageView clearEt;
 
     public void setDevStatus(String status) {
         devStatus.setText(status);
@@ -271,7 +270,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         Bundle data = msg.getData();
                         //指静脉模板数据
                         byte[] fingerData = data.getByteArray(TG661JBAPI.FINGER_DATA);
-                        Log.d("===AAA", "   模板数据返回成功 : "+fingerData);
+                        Log.d("===AAA", "   模板数据返回成功 : " + fingerData);
                     } else if (extractFeatureRegisterArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
                     } else if (extractFeatureRegisterArg == 3) {
@@ -724,8 +723,8 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_behind);
         //后比
-        initView();
         init();
+        initView();
         //开启设备
         openDev();
         //显示图片
@@ -779,9 +778,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         templAdapter = new TemplAdapter(BehindActivity.this);
         templAdapter.setItemClick(this);
         templFileRv.setAdapter(templAdapter);
-
-        //初始化算法----->将算法的数据流传进去
-        tg661JBAPI.initFV(handler, BehindActivity.this, null, false);
 
         //获取当前音量
         String currentVolume = tg661JBAPI.getCurrentVolume(handler);
@@ -868,8 +864,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         //检查权限，如果同意权限后会初始化一次算法；如果不需要权限的，则需要另行初始化算法
         tg661JBAPI.checkPermissions(handler, 0, this);
 //        if (!tg661JBAPI.getisInitFV())
-        //初始化算法
-        tg661JBAPI.initFV(handler, this, null, false);
+//            //初始化算法
+//            tg661JBAPI.initFV(handler, this, null, false);
+        //初始化算法----->将算法的数据流传进去
+//          tg661JBAPI.initFV(handler, BehindActivity.this, null, false);
     }
 
     @Override
@@ -956,12 +954,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 //                    //检测注册名只包含字母或数字或中文
 //                    boolean b = RegularUtil.strContainsNumOrAlpOrChin(templID);
 //                    if (b) {
-                        devStatu = checkDevStatus();
-                        if (devStatu) {
-                            tg661JBAPI.extractFeatureRegister(handler,
-                                    templModelType, templID);
-                            registerBtnBehind.setClickable(false);
-                        }
+                devStatu = checkDevStatus();
+                if (devStatu) {
+                    tg661JBAPI.extractFeatureRegister(handler,
+                            templModelType, templID);
+                    registerBtnBehind.setClickable(false);
+                }
 //                    } else {
 //                        ToastUtil.toast(BehindActivity.this,
 //                                "注册的模板名称不可包含数字/字母/中文以外的字符");
@@ -997,7 +995,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 //                }
                 devStatu = checkDevStatus();
                 if (devStatu) {
-                    tg661JBAPI.featureCompare1_N(handler, true);
+                    tg661JBAPI.featureCompare1_N(handler, true/*, userFinngerName*/);
                     ver1_nBtn.setClickable(false);
                 }
                 break;

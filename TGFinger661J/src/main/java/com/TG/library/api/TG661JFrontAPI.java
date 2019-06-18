@@ -21,6 +21,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.WindowManager;
 
+import com.TG.library.CallBack.Common;
 import com.TG.library.utils.AudioProvider;
 import com.TG.library.utils.DevRootUtil;
 import com.TG.library.utils.FileUtil;
@@ -165,7 +166,8 @@ public class TG661JFrontAPI {
             LogUtils.d("设备没有Root，无法使用");
             return;
         }
-        writeCMD();
+//        writeCMD();
+        writeCMD2();
         createDirPath();
     }
 
@@ -174,6 +176,7 @@ public class TG661JFrontAPI {
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
             int i = process.waitFor();
+            Log.i("===TAG", "    CMD写入的结果：" + i);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -922,9 +925,12 @@ public class TG661JFrontAPI {
             if (checkResult == PackageManager.PERMISSION_DENIED) {
                 //权限没有同意，需要申请该权限
                 Intent intent = new Intent("com.tg.m661j.vein.api");
+                Bundle bundle = new Bundle();
                 intent.addCategory("com.tg.m661j.vein.api");
-                intent.putExtra("type", type);
-                intent.putExtra("workModel", "f");
+//                intent.putExtra("type", type);
+//                intent.putExtra("workModel", "f");
+
+                bundle.putString("flag", Common.TG661JFront);
                 mActivity.startActivity(intent);
                 break;
             }
@@ -933,6 +939,24 @@ public class TG661JFrontAPI {
             saveTemplHost();
         }
     }
+
+    /**
+     * 为661j设备授权，如果设备连接方式为usb-hid模式
+     */
+    private void writeCMD2() {
+        String command = "chmod -R 777 /dev/hidraw0 \nchmod -R 777 /dev/hidraw1 \nchmod -R 777 /dev/hidraw2 \nchmod -R 777 /dev/hidraw3 \nchmod -R 777 /dev/hidraw4";
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
+            int i = process.waitFor();
+            Log.i("===TAG===", "   执行CMD的结果：" + i);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private byte[] upTemplData;
     private int devTmplNumUpRes;
@@ -1746,7 +1770,7 @@ public class TG661JFrontAPI {
     }
 
     //解绑service
-    public void unbindDevService(Context context){
+    public void unbindDevService(Context context) {
         context.unbindService(serviceConnection);
     }
 
@@ -1779,15 +1803,18 @@ public class TG661JFrontAPI {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == RECEIVE_MESSAGE_CODE) {
-                int devServiceArg = msg.arg1;
-                Message tg661JMsg = handler.obtainMessage();
-                tg661JMsg.what = DEV_STATUS;
-                if (devServiceArg == 0) {
-                    tg661JMsg.arg1 = 1;
-                } else if (devServiceArg == -2) {
-                    tg661JMsg.arg1 = -2;
+                Bundle data = msg.getData();
+                if (data != null) {
+                    int devServiceArg = data.getInt("status");
+                    Message tg661JMsg = handler.obtainMessage();
+                    tg661JMsg.what = DEV_STATUS;
+                    if (devServiceArg == 0) {
+                        tg661JMsg.arg1 = 1;
+                    } else if (devServiceArg == -2) {
+                        tg661JMsg.arg1 = -2;
+                    }
+                    handler.sendMessage(tg661JMsg);
                 }
-                handler.sendMessage(tg661JMsg);
             }
         }
     });

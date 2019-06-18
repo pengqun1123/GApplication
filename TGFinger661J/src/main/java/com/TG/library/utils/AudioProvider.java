@@ -64,6 +64,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
     //最大的音量值
     private float streamVolumeMax;
     private final AudioManager mgr;
+    private int playID = -1;
 
     /**
      * 创建SoundPool ，注意 api 等级
@@ -84,7 +85,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
                         .setAudioAttributes(audioAttributes)
                         .build();
             } else { // 5.0 以前
-                soundPool = new SoundPool(16, AudioManager.STREAM_MUSIC, 0);  // 创建SoundPool
+                soundPool = new SoundPool(16, AudioManager.STREAM_SYSTEM, 0);  // 创建SoundPool
             }
             soundPool.setOnLoadCompleteListener(this);  // 设置加载完成监听
         }
@@ -93,9 +94,9 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
     // 构造函数
     public AudioProvider(Context context) {
         mContext = context;
+//        soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         // 使用音乐池播放短小的音乐
         createSoundPoolIfNeeded();
-//        soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
         // 取得当前音量大小
         mgr = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         if (mgr != null) {
@@ -106,7 +107,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
             // 最大音量
             volume = streamVolumeCurrent / streamVolumeMax;
 //                volume = streamVolumeCurrent;
-            Log.d("===哈哈哈", "   初始化 音量值：" + volume);
+            //  Log.d("===哈哈哈", "   初始化 音量值：" + volume);
         }
     }
 
@@ -128,7 +129,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
      * @return
      */
     @TargetApi(Build.VERSION_CODES.FROYO)
-    public boolean muteAudioFocus( boolean bMute) {
+    public boolean muteAudioFocus(boolean bMute) {
         if (mContext == null) {
             Log.d("ANDROID_LAB", "context is null.");
             return false;
@@ -167,6 +168,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
         if (streamVolumeCurrent < streamVolumeMax) {
             streamVolumeCurrent++;
             volume = streamVolumeCurrent / streamVolumeMax;
+            releaseAndCreatePool();
             soundPool.load(mContext, R.raw.success, 1);
             return true;
         } else {
@@ -181,6 +183,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
         } else {
             streamVolumeCurrent--;
             volume = streamVolumeCurrent / streamVolumeMax;
+            releaseAndCreatePool();
             soundPool.load(mContext, R.raw.success, 1);
             return true;
         }
@@ -188,13 +191,31 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 播放采集失败，非同一手指
     public void not_same_finger() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.not_same_finger, 1);
         }
+
+    }
+
+    public void stopPlay(int prePlayID) {
+        if (soundPool != null && prePlayID != -1) {
+            soundPool.stop(prePlayID);
+        }
+    }
+
+    private void releaseAndCreatePool() {
+//        stopPlay(playID);
+        if (soundPool != null) {
+            soundPool.release();
+            soundPool = null;
+        }
+        createSoundPoolIfNeeded();
     }
 
     // 播放叮叮声
     public void success() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.success, 1);
         }
@@ -318,6 +339,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     //滴
     public void play_di() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw1, 1);
         }
@@ -332,6 +354,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     //登记成功
     public void play_checkInSuccess() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw3, 1);
         }
@@ -339,13 +362,16 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 登记失败
     public void play_checkInFail() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw4, 1);
         }
     }
 
+
     // 请再放一次
     public void play_inputAgain() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw5, 1);
         }
@@ -353,6 +379,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 请正确放入手指
     public void play_inputCorrect() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw6, 1);
         }
@@ -360,6 +387,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 请自然轻放手指
     public void play_inputDownGently() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw7, 1);
         }
@@ -367,6 +395,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 验证成功
     public void play_verifySuccess() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw8, 1);
         }
@@ -374,6 +403,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 验证失败
     public void play_verifyFail() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw9, 1);
         }
@@ -381,6 +411,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 请重试
     public void play_retryFeature() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw10, 1);
         }
@@ -388,6 +419,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 删除成功
     public void play_deleteSuccess() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw11, 1);
         }
@@ -395,6 +427,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 删除失败
     public void play_deleteFail() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw12, 1);
         }
@@ -402,6 +435,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 指静脉已满
     public void play_featureFull() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw13, 1);
         }
@@ -409,6 +443,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 登记重复
     public void play_registerRepeat() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw14, 1);
         }
@@ -416,6 +451,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 请抬起手指
     public void play_upLiftFinger() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw15, 1);
         }
@@ -423,6 +459,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 网线未连接
     public void play_notConnectNet() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw16, 1);
         }
@@ -430,6 +467,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 服务器未连接
     public void play_noConnectServer() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw17, 1);
         }
@@ -437,6 +475,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
 
     // 请勿重复认证
     public void play_doNotAuthRepeat() {
+        releaseAndCreatePool();
         if (soundPool != null) {
             soundPool.load(mContext, R.raw.waw18, 1);
         }
@@ -449,8 +488,9 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
      * @param sound 声音在声音池中的id 即load方法的返回值
      */
     public void play(int sound) {
+        releaseAndCreatePool();
         if (soundPool != null) {
-            soundPool.play(sound, volume, volume, 1, 0, 1);
+            playID = soundPool.play(sound, volume, volume, 1, 0, 1);
         }
     }
 
@@ -468,7 +508,7 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
     @Override
     public void onLoadComplete(SoundPool soundPool, int i, int i1) {
         if (soundPool != null) {
-            soundPool.play(i, volume, volume, 1, 0, 1);
+            playID = soundPool.play(i, volume, volume, 1, 0, 1);
         }
     }
 }

@@ -10,6 +10,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.TG.library.CallBack.Common;
 import com.TG.library.CallBack.PermissionCallBack;
@@ -125,6 +126,7 @@ public class TGActivity extends AppCompatActivity {
                     }
                 }
                 if (requestPermission.size() > 0) {
+                    Log.i("===TTT","   权限的数量："+requestPermission.size());
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     alertDialog = builder.create();
                     builder.setCancelable(false);

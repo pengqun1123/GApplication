@@ -13,7 +13,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -69,7 +68,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
     //3模板还是6模板
     private int templType = TG661JFrontAPI.TEMPL_MODEL_3;//默认3模板
     private TG661JFrontAPI tg661JFrontAPI = TG661JFrontAPI.getTg661jFrontApi();
-    private ImageView clearEt;
+//    private ImageView clearEt;
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
@@ -686,7 +685,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
         Button clearAllHostBtn = findViewById(R.id.clearAllHostBtn);
         openContinueVerifyCb = findViewById(R.id.openContinueVerifyCb);
         Button cancelVerifyBtn = findViewById(R.id.cancelVerifyBtn);
-        ImageView consoleClearIcon = findViewById(R.id.consoleClearIcon);
+//        ImageView consoleClearIcon = findViewById(R.id.consoleClearIcon);
         userNameEt = findViewById(R.id.UserNameEt);
         voiceTv = findViewById(R.id.voiceValue);
         keRegTempNum = findViewById(R.id.keRegTempNum);
@@ -695,7 +694,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
         devSN = findViewById(R.id.devSN);
         devWorkModel = findViewById(R.id.devWorkModel);
         tipTv = findViewById(R.id.tipTv);
-        clearEt = findViewById(R.id.clearEt);
+//        clearEt = findViewById(R.id.clearEt);
         RecyclerView datFileRv = findViewById(R.id.datFileRv);
         RecyclerView consoleRv = findViewById(R.id.consoleRv);
         RecyclerView hostDatFileRv = findViewById(R.id.hostDatFileRv);
@@ -728,7 +727,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
         clearAllDevBtn.setOnClickListener(this);
         registerBtn.setOnClickListener(this);
         verifyBtn.setOnClickListener(this);
-        consoleClearIcon.setOnClickListener(this);
+//        consoleClearIcon.setOnClickListener(this);
         upTemplPacBtn.setOnClickListener(this);
         downTemplPacBtn.setOnClickListener(this);
         addVoice.setOnClickListener(this);
@@ -739,7 +738,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
         VerifyBtn1_1.setOnClickListener(this);
         clearAllHostBtn.setOnClickListener(this);
         getSDKVersion.setOnClickListener(this);
-        clearEt.setOnClickListener(this);
+//        clearEt.setOnClickListener(this);
 
         userNameEt.addTextChangedListener(new TextWatcher() {
             @Override
@@ -754,11 +753,11 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (userNameEt.getText().toString().trim().length() > 0) {
-                    clearEt.setVisibility(View.VISIBLE);
-                } else {
-                    clearEt.setVisibility(View.GONE);
-                }
+//                if (userNameEt.getText().toString().trim().length() > 0) {
+//                    clearEt.setVisibility(View.VISIBLE);
+//                } else {
+//                    clearEt.setVisibility(View.GONE);
+//                }
             }
         });
 
@@ -891,10 +890,10 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
                     tipTv.setText("1:N验证");
                 }
                 break;
-            case R.id.consoleClearIcon:
-                consoleTipAdapter.clearData();
-                tipTv.setText("清除日志");
-                break;
+//            case R.id.consoleClearIcon:
+//                consoleTipAdapter.clearData();
+//                tipTv.setText("清除日志");
+//                break;
             case R.id.upTemplPacBtn:
                 devStatus = checkDevStatus();
                 if (devStatus)
@@ -958,9 +957,9 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
                 tg661JFrontAPI.deleteHostAllTempl(handler);
                 tipTv.setText("清除主机中的模板");
                 break;
-            case R.id.clearEt:
-                userNameEt.getText().clear();
-                break;
+//            case R.id.clearEt:
+//                userNameEt.getText().clear();
+//                break;
             case R.id.getSDKVersion:
                 //获取SDK版本号
                 String sdkVersion = tg661JFrontAPI.getSDKVersion();

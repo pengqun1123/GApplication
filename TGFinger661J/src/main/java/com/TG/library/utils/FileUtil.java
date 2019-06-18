@@ -6,6 +6,7 @@ import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -101,12 +103,12 @@ public class FileUtil {
      * @param charset 写入时候所使用的字符集
      */
     public static void writeString(String file, String content, String charset) {
-        try {
-            byte[] data = content.getBytes(charset);
-            writeBytes(file, data);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+//        try {
+//            byte[] data = content.getBytes(charset);
+//            writeBytes(file, data);
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
 
     }
 
@@ -114,14 +116,23 @@ public class FileUtil {
      * 向文件中写入数据
      *
      * @param filePath 目标文件全路径
-     * @param data     要写入的数据
      * @return true表示写入成功  false表示写入失败
      */
-    public static boolean writeBytes(String filePath, byte[] data) {
+    public static boolean writeBytes(String filePath, /*byte[] data*/BufferedReader br) {
+        System.setProperty("file.encoding", "UTF-8");
         try {
             FileOutputStream fos = new FileOutputStream(filePath);
-            fos.write(data);
-            fos.close();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fos, "UTF-8");
+            BufferedWriter bw = new BufferedWriter(outputStreamWriter);
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                Log.i("===LLL", line);
+                bw.write(line + "\r\n");
+            }
+//            bw.write(String.valueOf(data));
+            bw.flush();
+//            fos.write(data);
+//            fos.close();
             return true;
         } catch (Exception e) {
             System.out.println(e.getMessage());

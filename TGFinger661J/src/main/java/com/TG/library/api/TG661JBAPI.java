@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.os.Parcel;
 import android.os.RemoteException;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -23,10 +22,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.TG.library.CallBack.Common;
-import com.TG.library.CallBack.PermissionCallBack;
 import com.TG.library.pojos.FingerBean;
-import com.TG.library.pojos.MatchN;
-import com.TG.library.service.GetFileTask;
 import com.TG.library.utils.AlertDialogUtil;
 import com.TG.library.utils.ArrayUtil;
 import com.TG.library.utils.AudioProvider;
@@ -39,20 +35,24 @@ import com.TG.library.utils.ToastUtil;
 import com.example.mylibrary.R;
 import com.sun.jna.ptr.IntByReference;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 /**
  * Created By pq
@@ -136,9 +136,6 @@ public class TG661JBAPI {
         //创建线程池
         executors = Executors.newCachedThreadPool();
         ecs = new ExecutorCompletionService<Object>(executors);
-
-
-        int startSrc = 0;
     }
 
     //获取代理对象
@@ -189,6 +186,7 @@ public class TG661JBAPI {
     //证书所在的文件夹路径
     private String licenceDir = Environment.getExternalStorageDirectory().getAbsolutePath()
             + File.separator + "TG_VEIN";
+
     //证书所在的路径
     private String licensePath = licenceDir + File.separator + "license.dat";
     //日志的路径
@@ -253,7 +251,7 @@ public class TG661JBAPI {
      *
      * @param sImg
      */
-    public void setsImg(boolean sImg) {
+    private void setsImg(boolean sImg) {
         this.sImg = sImg;
     }
 
@@ -327,7 +325,8 @@ public class TG661JBAPI {
             }
         }
         this.inputStream = inputStream;
-        writeCMD();
+        writeCMD();//USB 节点通信方式
+        //writeCMD2();//USB HID通信方式
         work(handler, INIT_FV);
 //        FV_InitAct(handler);
 //        InitLicense();
@@ -378,6 +377,7 @@ public class TG661JBAPI {
                         if (name.equals("license.dat")) {
                             //存在证书历史,初始化算法,调用算法接口初始化算法
                             FV_InitAct(handler);
+                            break;
                         } else {
                             if (i == licenseList.size() - 1) {
                                 //不存在证书历史，将SDK的证书写入指定文件
@@ -389,6 +389,15 @@ public class TG661JBAPI {
                 } else {
                     //不存在证书，将SDK的证书写入指定文件
                     InputStream LicenseIs = context.getResources().openRawResource(R.raw.license);
+//                    try {
+//                        BufferedReader brIn = new BufferedReader(new InputStreamReader(LicenseIs, "UTF-8"));
+//                        boolean b = FileUtil.writeBytes(licensePath, brIn);
+//                        //初始化算法
+//                        if (b)
+//                            FV_InitAct(handler);
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
                     writeLicenseToFile(LicenseIs);
                 }
             }
@@ -399,7 +408,6 @@ public class TG661JBAPI {
         if (!isInitFV) {
             InitLicense(context);
         }
-
     }
     //算法初始化结束
 
@@ -470,7 +478,7 @@ public class TG661JBAPI {
             }
             //模板数据初始化
             if (allFingerMatchDatas == null)
-////                initMatchTemplDatas();
+//                initMatchTemplDatas();
                 tgInitMatchDatas();
             mActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -1121,7 +1129,6 @@ public class TG661JBAPI {
 
     private void tgOpenDev(Handler handler) {
 //        showWaitDialog(1, "正在打开设备...");
-
         /*
          * 打开设备：默认前比3特征模板的工作模式,不支持连续验证
          * 1：后比工作模式  0：前比工作模式
@@ -1622,7 +1629,7 @@ public class TG661JBAPI {
         if (matchTempl1_1Data != null) {
             getAP(context).play_inputDownGently();
             byte[] match1_1ImgData = tgDevGetFingerImg(handler, msg1_1);
-            if (match1_1ImgData != null) {
+            if (match1_1ImgData != null && DevImageMatchLength > 0) {
                 //提取特征
                 byte[] match1_1Feature = new byte[FEATURE_SIZE];
                 int tgImgExtractFeatureVerifyRes = getTGFV().TGImgExtractFeatureVerify(
@@ -1761,7 +1768,7 @@ public class TG661JBAPI {
 //                        matchNMsg.arg1 = 2;
 //                        matchNBundle.putInt(COMPARE_N_SCORE, templScore);
 //                        //存储图片
-//                        tgSaveImg(matchNMsg, matchNBundle, "", match1_NImgData, DevImageMatchLength);
+//                        tgSaveImg(msg, bundle, "", match1_NImgData, DevImageMatchLength);
 //                        matchNMsg.setData(matchNBundle);
 //                    } else if (tgFeatureMatchTmpl1NRes == -1) {
 //                        getAP(context).play_time_out();
@@ -1823,7 +1830,7 @@ public class TG661JBAPI {
                 k = 0;
                 for (int i = 0; i < count; i++) {
                     byte[] cellFingerData = null;
-                    int compareFingerCount = 0;
+                    int compareFingerCount;
                     if (i == floor) {
                         //除不尽，最后一项
                         compareFingerCount = fingerCount - readBase * i;
@@ -1835,9 +1842,9 @@ public class TG661JBAPI {
                     } else {
                         compareFingerCount = readBase;
                         if (templModelType == TEMPL_MODEL_3) {
-                            cellFingerData = new byte[readBase * WAIT_COMPARE_FEATURE_3];
+                            cellFingerData = new byte[compareFingerCount * WAIT_COMPARE_FEATURE_3];
                         } else if (templModelType == TEMPL_MODEL_6) {
-                            cellFingerData = new byte[readBase * WAIT_COMPARE_FEATURE_6];
+                            cellFingerData = new byte[compareFingerCount * WAIT_COMPARE_FEATURE_6];
                         }
                     }
                     if (cellFingerData != null) {
@@ -2130,40 +2137,42 @@ public class TG661JBAPI {
             String aimPath = getAimPath();
             File file = new File(aimPath);
             File[] files = file.listFiles();
-            templCount = fingerCount = files.length;
-            if (fingerCount > 0 && readBase > 0) {
-                double v = (double) fingerCount / readBase;
-                //四舍五入向上取整，1：N会比对的次数, 整数对上对下取整都是自身
-                int ceil = (int) Math.ceil(v);
-                //四舍五入向下取整
-                int floor = (int) Math.floor(v);
-                int count;
-                if (ceil != floor) {
-                    count = ceil;
-                } else {
-                    //如果ceil和floor相等，则正好除尽
-                    count = floor;
-                }
-                if (count > 0) {
-                    c = 0;
-                    allFingerMatchDatas = templSizeData(fingerCount);
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            TGDialogUtil.Instance().showWaitDialog(context, "数据更新中...");
+            if (files != null && file.length() > 0) {
+                templCount = fingerCount = files.length;
+                if (fingerCount > 0 && readBase > 0) {
+                    double v = (double) fingerCount / readBase;
+                    //四舍五入向上取整，1：N会比对的次数, 整数对上对下取整都是自身
+                    int ceil = (int) Math.ceil(v);
+                    //四舍五入向下取整
+                    int floor = (int) Math.floor(v);
+                    int count;
+                    if (ceil != floor) {
+                        count = ceil;
+                    } else {
+                        //如果ceil和floor相等，则正好除尽
+                        count = floor;
+                    }
+                    if (count > 0) {
+                        c = 0;
+                        allFingerMatchDatas = templSizeData(fingerCount);
+                        mActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                TGDialogUtil.Instance().showWaitDialog(context, "数据更新中...");
+                            }
+                        });
+                        for (int i = 0; i < count; i++) {
+                            int startSrc = readBase * i;
+                            int readLength = 0;
+                            if (i == floor) {
+                                //除不尽，最后一项
+                                readLength = fingerCount - readBase * i;
+                            } else {
+                                readLength = readBase;
+                            }
+                            // work(handler, READ_AND_EXCHANGED);
+                            workReadData(files, startSrc, readLength);
                         }
-                    });
-                    for (int i = 0; i < count; i++) {
-                        int startSrc = readBase * i;
-                        int readLength = 0;
-                        if (i == floor) {
-                            //除不尽，最后一项
-                            readLength = fingerCount - readBase * i;
-                        } else {
-                            readLength = readBase;
-                        }
-                        // work(handler, READ_AND_EXCHANGED);
-                        workReadData(files, startSrc, readLength);
                     }
                 }
             }
@@ -2699,15 +2708,18 @@ public class TG661JBAPI {
 
 
     //对外传图
-    private void img(Message msg, Bundle bundle, byte[] imgData, int length) {
-        //String imgPath = this.imgPath + File.separator + imgName + ".jpg";
+    private void img(Message msg, Bundle bundle, byte[] imgData, int length/*, String imgName*/) {
+//        String imgPath = this.imgPath + File.separator + imgName + ".jpg";
+//        if (imgName.contains(".dat")) {
+//            imgName = imgName.substring(0, imgName.indexOf(".dat"));
+//        }
 //        long l = System.currentTimeMillis();
-//        String iIMG = userFingerDirPath + File.separator + userFingerName + "_" + imgName + "_" + l + ".jpg";
-//        byte[] jpegData = new byte[IMG_W * IMG_H/*imgLength*/];
-//        System.arraycopy(imgData, /*1024 * 256*/208, jpegData, 0, jpegData.length);
-//
+//        String iIMG = userFingerDirPath + File.separator + userFingerName + "_" + imgName + "_" + l + ".bmp";
+//        byte[] jpegData = new byte[IMG_W * IMG_H];
+//        byte[] m = new byte[100208];
+//        System.arraycopy(m/*imgData*/, 208, jpegData, 0, jpegData.length);
 //        //内部测试用
-//        byte[] imgDataBMP = ImgExechangeBMP.instance().imgExechangeBMP(jpegData, jpegData.length, 1, iIMG);
+//        byte[] imgDataBMP = ImgExechangeBMP.instance().imgExechangeBMP(jpegData, jpegData.length, iIMG);
 
 //        msg.arg1 = 0;
         msg.obj = imgData;
@@ -2726,8 +2738,6 @@ public class TG661JBAPI {
             imgName = imgName.substring(0, imgName.indexOf(".dat"));
         }
         String imgPath = this.imgPath + File.separator + imgName + ".jpg";
-//        long l = System.currentTimeMillis();
-//        String iIMG = userFingerDirPath + File.separator + userFingerName + "_" + imgName + "_" + l + ".jpg";
         byte[] jpegData = new byte[imgLength];
         System.arraycopy(imgData, 1024 * 256, jpegData, 0, imgLength);
         boolean imgSave = FileUtil.writeFile(jpegData, imgPath);
@@ -2757,8 +2767,6 @@ public class TG661JBAPI {
                           byte[] imageData, int imgLength) {
         //传出抓取图片的数据
         if (sImg) {
-            //bundle.putInt("imgLength", imgLength);
-            //bundle.putByteArray("imgData", imageData);
 //            userFingerDirPath = imgPath + File.separator + userFingerName;
 //            File file = new File(userFingerDirPath);
 //            if (!file.exists()) file.mkdirs();
@@ -2767,7 +2775,7 @@ public class TG661JBAPI {
 //                bundle.putString("tip", "验证采图的数量已经达到10");
 //                return;
 //            }
-            img(message, bundle, imageData, imgLength);
+            img(message, bundle, imageData, imgLength/*, fileName*/);
             //存储图片
             if (TextUtils.isEmpty(fileName)) {
                 long l = System.currentTimeMillis();
@@ -2791,6 +2799,9 @@ public class TG661JBAPI {
         File licenceFile = new File(licenceDir);
         if (!licenceFile.exists())
             licenceFile.mkdirs();
+        File imgFile = new File(imgPath);
+        if (!imgFile.exists())
+            imgFile.mkdirs();
     }
 
     //写入证书到指定文件
@@ -2843,7 +2854,26 @@ public class TG661JBAPI {
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
             int i = process.waitFor();
-            Log.d("===LLL", "    写入su命令  " + i);
+            Log.i("===LLL", "    写入su命令  " + i);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 为661j设备授权，如果设备连接方式为usb-hid模式
+     */
+    private void writeCMD2() {
+        //String command = "sudo chmod -R 777 /dev/hidraw0 \nchmod -R 777 /dev/hidraw1 \nchmod -R 777 /dev/hidraw2 \nchmod -R 777 /dev/hidraw3 \nchmod -R 777 /dev/hidraw4";
+        String command = "sudo chmod 0666 /dev/hidraw1";
+        //String command = "sudo chmod 777 /dev/hidraw1";
+        try {
+            Process process = Runtime.getRuntime().exec(command/*new String[]{"su", "-c", command}*/);
+            int i = process.waitFor();
+            Log.i("===TAG===", "   执行CMD的结果：" + i);
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -2858,16 +2888,19 @@ public class TG661JBAPI {
             super.handleMessage(msg);
             if (msg.what == RECEIVE_MESSAGE_CODE) {
                 if (handler != null) {
-                    int devServiceArg = msg.arg1;
-                    Message tg661JMsg = handler.obtainMessage();
-                    tg661JMsg.what = DEV_STATUS;
-                    LogUtils.d("接收到的设备状态：" + devServiceArg);
-                    if (devServiceArg == 0) {
-                        tg661JMsg.arg1 = 1;
-                    } else if (devServiceArg == -2) {
-                        tg661JMsg.arg1 = -2;
+                    Bundle data = msg.getData();
+                    if (data != null) {
+                        int devServiceArg = data.getInt("status");
+                        Message tg661JMsg = handler.obtainMessage();
+                        tg661JMsg.what = DEV_STATUS;
+                        LogUtils.d("接收到的设备状态：" + devServiceArg);
+                        if (devServiceArg == 0) {
+                            tg661JMsg.arg1 = 1;
+                        } else if (devServiceArg == -2) {
+                            tg661JMsg.arg1 = -2;
+                        }
+                        handler.sendMessage(tg661JMsg);
                     }
-                    handler.sendMessage(tg661JMsg);
                 }
             }
         }
@@ -2885,6 +2918,7 @@ public class TG661JBAPI {
             //如果设备开启
             Message tg661JMessage = Message.obtain();
             tg661JMessage.what = SEND_MESSAGE_CODE;
+            //Bundle bundle = new Bundle();
             tg661JMessage.obj = getTG661();
             tg661JMessage.replyTo = tg661JMessenger;
             try {

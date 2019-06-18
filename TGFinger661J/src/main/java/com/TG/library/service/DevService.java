@@ -95,19 +95,24 @@ public class DevService extends Service {
         public void run() {
             //如果设备开启，获取设备当前的状态
             int devStatus = tgxg661API.TGGetDevStatus();
-            Log.d("===TAG===", "  DevService 获取设备状态  :"+devStatus);
+            Log.d("===TAG", "  DevService 获取设备状态  :" + devStatus);
             Message devServiceMessage = Message.obtain();
             devServiceMessage.what = SEND_MESSAGE_CODE;
+            Bundle bundle = new Bundle();
             if (devStatus >= 0) {
                 //设备已经连接
-                devServiceMessage.arg1 = 0;
+                // devServiceMessage.arg1 = 0;
+                bundle.putInt("status", 0);
             } else {
                 writeCMD();
+//                writeCMD2();
                 //设备未连接
-                devServiceMessage.arg1 = -2;
+                //devServiceMessage.arg1 = -2;
+                bundle.putInt("status", -2);
             }
             if (tg661JMessennger != null) {
                 try {
+                    devServiceMessage.setData(bundle);
                     tg661JMessennger.send(devServiceMessage);
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -117,7 +122,7 @@ public class DevService extends Service {
         }
     }
 
-    private void writeCMD(){
+    private void writeCMD() {
         String command = "chmod -R 777 /dev/bus/usb";
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
@@ -128,4 +133,22 @@ public class DevService extends Service {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 为661j设备授权，如果设备连接方式为usb-hid模式
+     */
+    private void writeCMD2() {
+        String command = "chmod -R 777 /dev/hidraw0 \nchmod -R 777 /dev/hidraw1 \nchmod -R 777 /dev/hidraw2 \nchmod -R 777 /dev/hidraw3 \nchmod -R 777 /dev/hidraw4";
+        try {
+            Process process = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
+            int i = process.waitFor();
+            Log.d("===TAG===", "   执行CMD的结果：" + i);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
