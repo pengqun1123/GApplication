@@ -1,11 +1,11 @@
-package com.example.administrator.gapplication;
+package com.sd.tgfinger.gapplication;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.TG.library.utils.AudioProvider;
+import com.sd.tgfinger.utils.AudioProvider;
 
 public class Main3Activity extends AppCompatActivity implements View.OnClickListener {
 

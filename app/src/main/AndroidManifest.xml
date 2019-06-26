@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.administrator.gapplication">
+    package="com.sd.tgfinger.gapplication">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
-        android:name="com.example.administrator.GApplication"
+        android:name="com.sd.tgfinger.GApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,21 +16,26 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".Main3Activity" />
+        <activity android:name="com.sd.tgfinger.gapplication.Main3Activity" />
         <activity
-            android:name=".BehindActivity"
+            android:name="com.sd.tgfinger.gapplication.BehindActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
 
         </activity>
         <activity
-            android:name=".FrontActivity"
+            android:name="com.sd.tgfinger.gapplication.FrontActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" >
 
         </activity>
         <activity
-            android:name=".Main4Activity"
+            android:name="com.sd.tgfinger.gapplication.Main4Activity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden">
+
+        </activity>
+        <activity android:name=".BTestActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>

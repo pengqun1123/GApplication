@@ -1,4 +1,4 @@
-package com.example.administrator.gapplication;
+package com.sd.tgfinger.gapplication;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -18,21 +18,21 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.TG.library.CallBack.ActionClickListener;
-import com.TG.library.CallBack.CommitCallBack;
-import com.TG.library.api.TG661JFrontAPI;
-import com.TG.library.utils.AlertDialogUtil;
-import com.TG.library.utils.LogUtils;
-import com.TG.library.utils.RegularUtil;
-import com.TG.library.utils.ToastUtil;
-import com.example.administrator.adapters.ConsoleTipAdapter;
-import com.example.administrator.adapters.HostTemplAdapter;
-import com.example.administrator.adapters.TemplAdapter;
+import com.sd.tgfinger.CallBack.ActionClickListener;
+import com.sd.tgfinger.CallBack.CommitCallBack;
+import com.sd.tgfinger.api.TG661JFrontAPI;
+import com.sd.tgfinger.utils.AlertDialogUtil;
+import com.sd.tgfinger.utils.LogUtils;
+import com.sd.tgfinger.utils.RegularUtil;
+import com.sd.tgfinger.utils.ToastUtil;
+import com.sd.tgfinger.adapters.ConsoleTipAdapter;
+import com.sd.tgfinger.adapters.HostTemplAdapter;
+import com.sd.tgfinger.adapters.TemplAdapter;
+
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -825,6 +825,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
         devOpen = tg661JFrontAPI.isDevOpen();
         if (!devOpen) {
             //默认为3模板模式
+            Log.d("===TAG","   打开设备  ");
             int templModelType = TG661JFrontAPI.TEMPL_MODEL_3;
             tg661JFrontAPI.openDev(handler, FrontActivity.this, templModelType);
         } else {

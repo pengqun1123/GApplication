@@ -1,4 +1,4 @@
-package com.example.administrator.gapplication;
+package com.sd.tgfinger.gapplication;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -6,7 +6,6 @@ import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -24,17 +23,22 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.TG.library.CallBack.CommitCallBack;
-import com.TG.library.api.TG661JBAPI;
-import com.TG.library.api.TG661JBehindAPI;
-import com.TG.library.utils.AlertDialogUtil;
-import com.TG.library.utils.AudioProvider;
-import com.TG.library.utils.ToastUtil;
+import com.sd.tgfinger.CallBack.CommitCallBack;
+import com.sd.tgfinger.CallBack.DevOpenCallBack;
+import com.sd.tgfinger.api.TG661JBAPI;
+import com.sd.tgfinger.api.TG661JBehindAPI;
+import com.sd.tgfinger.utils.AlertDialogUtil;
+import com.sd.tgfinger.utils.AudioProvider;
+import com.sd.tgfinger.utils.FileUtil;
+import com.sd.tgfinger.utils.ToastUtil;
 import com.bumptech.glide.Glide;
 
+
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * 后比Activity
@@ -265,12 +269,20 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     if (extractFeatureRegisterArg == 10) {
                         tipTv.setText("特征提取成功");
                     } else if (extractFeatureRegisterArg == 1) {
-                        getTemplList();
+
                         tipTv.setText("登记成功");
                         Bundle data = msg.getData();
                         //指静脉模板数据
                         byte[] fingerData = data.getByteArray(TG661JBAPI.FINGER_DATA);
-                        Log.d("===AAA", "   模板数据返回成功 : " + fingerData);
+                        if (fingerData != null) {
+                            Log.d("===AAA", "   模板数据返回成功 : " + fingerData);
+                            //此处是以文件夹存储模拟外部数据库存储
+                            //先存储---》
+                            saveTextData(fingerData);
+                            getTemplList();
+                        }
+                        updateExternalData();
+                        getTemplList();
                     } else if (extractFeatureRegisterArg == 2) {
                         tipTv.setText("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
                     } else if (extractFeatureRegisterArg == 3) {
@@ -484,6 +496,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                      * -3:操作取消
                      * -4:入参错误
                      * -5:该指静脉已经注册或模板名字已经注册
+                     * -6:暂无模板数据，请先注册模板
                      */
                     int matchNArg = msg.arg1;
                     if (matchNArg == 1) {
@@ -492,6 +505,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         int templScore = data.getInt(TG661JBAPI.COMPARE_N_SCORE);
                         //非主机文件存储时候才返回这个模板索引
                         int index = data.getInt(TG661JBAPI.INDEX);
+//                        Log.i("===HHH","   index:"+index);
                         String tip = data.getString("tip");
                         if (!TextUtils.isEmpty(tip))
                             ToastUtil.toast(BehindActivity.this, tip);
@@ -555,7 +569,10 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     } else if (matchNArg == -4) {
                         tipTv.setText("入参错误");
                     } else if (matchNArg == -5) {
-                        tipTv.setText("该指静脉已经注册或模板名字已经注册");
+                        tipTv.setText("该指静{" +
+                                "}脉已经注册或模板名字已经注册");
+                    } else if (matchNArg == -6) {
+                        tipTv.setText("暂无模板，请先注册模板");
                     }
                     ver1_nBtn.setClickable(true);
                     break;
@@ -565,12 +582,13 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         getTemplList();
                         tipTv.setText("删除成功");
                         templIDBehind.getText().clear();
-                        tg661JBAPI.setTemplModelType(templModelType);
                         getAp().play_deleteSuccess();
                     } else if (deleteHostIDArg == -1) {
                         tipTv.setText("删除失败");
                         getAp().play_deleteFail();
                     }
+                    //此处是以文件夹存储模拟外部数据库存储
+                    updateExternalData();
                     delAllHostTemplBtn.setClickable(true);
                     break;
                 case TG661JBAPI.DELETE_HOST_ID_TEMPL:
@@ -578,13 +596,14 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     if (deleteHostAllArg == 1) {
                         getTemplList();
                         templIDBehind.getText().clear();
-                        tg661JBAPI.setTemplModelType(templModelType);
                         tipTv.setText("删除成功");
                         getAp().play_deleteSuccess();
                     } else if (deleteHostAllArg == -1) {
                         tipTv.setText("删除失败");
                         getAp().play_deleteFail();
                     }
+                    //此处是以文件夹存储模拟外部数据库存储
+                    updateExternalData();
                     delIDHostTemplBtn.setClickable(true);
                     break;
                 case TG661JBAPI.UPDATE_HOST_TEMPL:
@@ -644,7 +663,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     getTemplAlgorVersionBtn.setClickable(true);
                     break;
-                case TG661JBehindAPI.WAIT_DIALOG:
+                case TG661JBAPI.WAIT_DIALOG:
                     int typeDialog = msg.arg1;
                     if (typeDialog == 1) {
                         String tipStr = (String) msg.obj;
@@ -656,17 +675,21 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         }
                     }
                     break;
-                case TG661JBehindAPI.OPEN_DEV:
+                case TG661JBAPI.OPEN_DEV:
                     int openDevArg = msg.arg1;
                     if (openDevArg == 1) {
                         //初始化获取主机模板列表
+                        //此处是以文件夹存储模拟外部数据库存储
+                        tg661JBAPI.getDevWorkModel(handler);
+                        //tg661JBAPI.setDevWorkModel(handler,TG661JBAPI.WORK_BEHIND,templModelType);
+                        updateExternalData();
                         getTemplList();
                         tipTv.setText("设备打开成功,工作模式设置成功");
                     } else if (openDevArg == -1) {
                         tipTv.setText("设备打开失败");
                     }
                     break;
-                case TG661JBehindAPI.CLOSE_DEV:
+                case TG661JBAPI.CLOSE_DEV:
                     int closeDevArg = msg.arg1;
                     if (closeDevArg == -1) {
                         tipTv.setText("设备状态:设备关闭失败");
@@ -676,7 +699,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("设备状态:设备已关闭");
                     }
                     break;
-                case TG661JBehindAPI.WRITE_FILE:
+                case TG661JBAPI.WRITE_FILE:
                     //往主机中写入文件
                     int writeHostArg = msg.arg1;
                     if (writeHostArg == -1) {
@@ -782,8 +805,6 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         //获取当前音量
         String currentVolume = tg661JBAPI.getCurrentVolume(handler);
         volumeTt.setText(currentVolume);
-        //初始化获取当前特征模式下的模板列表
-        getTemplList();
 
         openDevBtn.setOnClickListener(this);
         closeDevBtn.setOnClickListener(this);
@@ -903,17 +924,55 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private int dataSource = TG661JBAPI.EXTERNAL_TEMPL_SOURCES;
+
     //打开设备
     private void openDev() {
         devOpen = tg661JBAPI.isDevOpen();
         if (!devOpen) {
             //设备工作模式--》后比
             int workType = TG661JBAPI.WORK_BEHIND;
+            dataSource = TG661JBAPI.EXTERNAL_TEMPL_SOURCES;
             tg661JBAPI.openDev(handler, BehindActivity.this, workType,
-                    templModelType, TG661JBAPI.EXTERNAL_TEMPL_SOURCES);
+                    templModelType, dataSource);
         } else {
             ToastUtil.toast(BehindActivity.this, "设备已经开启");
         }
+    }
+
+    //更新外部数据
+    private void updateExternalData() {
+//        if (dataSource == TG661JBAPI.EXTERNAL_TEMPL_SOURCES) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    tg661JBAPI.getAllFingerData2();
+                }
+            }).start();
+//        }
+    }
+
+    //存储
+    private void saveTextData(final byte[] fingerData) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean b = false;
+                if (templModelType == TG661JBAPI.TEMPL_MODEL_3) {
+                    long l = System.currentTimeMillis();
+                    String p1 = tg661JBAPI.getBehind3TemplPath() + File.separator + String.valueOf(l) + ".dat";
+                    b = FileUtil.writeFile(fingerData, p1);
+                } else if (templModelType == TG661JBAPI.TEMPL_MODEL_6) {
+                    long l = System.currentTimeMillis();
+                    String p1 = tg661JBAPI.getBehind6TemplPath() + File.separator + String.valueOf(l) + ".dat";
+                    b = FileUtil.writeFile(fingerData, p1);
+                }
+                if (b) {
+                    Log.i("===DDD", "   存储成功");
+                    tg661JBAPI.getAllFingerData2();
+                }
+            }
+        }).start();
     }
 
     //关闭设备

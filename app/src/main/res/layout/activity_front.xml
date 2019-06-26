@@ -7,8 +7,7 @@
     android:layout_marginLeft="3dp"
     android:layout_marginRight="3dp"
     android:background="@color/white"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"

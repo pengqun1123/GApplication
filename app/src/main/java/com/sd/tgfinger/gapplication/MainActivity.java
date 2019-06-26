@@ -1,4 +1,4 @@
-package com.example.administrator.gapplication;
+package com.sd.tgfinger.gapplication;
 
 
 //public class MainActivity extends AppCompatActivity implements View.OnClickListener,

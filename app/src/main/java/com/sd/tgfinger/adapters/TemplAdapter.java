@@ -1,4 +1,4 @@
-package com.example.administrator.adapters;
+package com.sd.tgfinger.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,8 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.TG.library.utils.LogUtils;
-import com.example.administrator.gapplication.R;
+import com.sd.tgfinger.gapplication.R;
+import com.sd.tgfinger.utils.LogUtils;
+
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.administrator.gapplication;
+package com.sd.tgfinger.gapplication;
 
 //
 //public class Main2Activity extends AppCompatActivity implements TabLayout.OnTabSelectedListener

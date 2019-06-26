@@ -1,4 +1,4 @@
-package com.example.administrator.adapters;
+package com.sd.tgfinger.gapplication;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -11,8 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.TG.library.utils.LogUtils;
-import com.example.administrator.gapplication.R;
+import com.sd.tgfinger.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +21,20 @@ import java.util.List;
  * Created By pq
  * on 2019/3/21
  */
-public class HostTemplAdapter extends RecyclerView.Adapter<HostTemplAdapter.ConsoleHolder> {
+public class TemplAdapter extends RecyclerView.Adapter<TemplAdapter.ConsoleHolder> {
     private List<String> tipLists;
     private Context mContext;
     //    private int mFlag;
-    private HostTemplAdapter.ItemClick itemClick;
+    private TemplAdapter.ItemClick itemClick;
     private String datID;
 
-    public HostTemplAdapter(Context context) {
+    public TemplAdapter(Context context) {
         this.mContext = context;
         tipLists = new ArrayList<>();
 //        mFlag = flag;
     }
 
-    public void setItemClick(HostTemplAdapter.ItemClick itemClick) {
+    public void setItemClick(TemplAdapter.ItemClick itemClick) {
         this.itemClick = itemClick;
     }
 
@@ -75,13 +74,13 @@ public class HostTemplAdapter extends RecyclerView.Adapter<HostTemplAdapter.Cons
 
     @NonNull
     @Override
-    public HostTemplAdapter.ConsoleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new HostTemplAdapter.ConsoleHolder(LayoutInflater.from(parent.getContext())
+    public TemplAdapter.ConsoleHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new TemplAdapter.ConsoleHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.console_tip_item, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NonNull HostTemplAdapter.ConsoleHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull TemplAdapter.ConsoleHolder holder, final int position) {
 //        if (mFlag == 1) {
         holder.consoleClearIcon.setVisibility(View.VISIBLE);
 //        }
@@ -95,7 +94,7 @@ public class HostTemplAdapter extends RecyclerView.Adapter<HostTemplAdapter.Cons
                 if (itemClick != null) {
                     //返回dat文件的名字
                     datID = tipLists.get(position);
-                    itemClick.hostItemSelectFile(datID);
+                    itemClick.itemSelectFile(datID);
                 }
             }
         });
@@ -106,7 +105,7 @@ public class HostTemplAdapter extends RecyclerView.Adapter<HostTemplAdapter.Cons
                 if (itemClick != null) {
                     //返回dat文件的名字
                     datID = tipLists.get(position);
-                    itemClick.hostDelTempl(datID);
+                    itemClick.delTempl(datID);
                 }
             }
         });
@@ -131,9 +130,9 @@ public class HostTemplAdapter extends RecyclerView.Adapter<HostTemplAdapter.Cons
 
     public interface ItemClick {
 
-        void hostItemSelectFile(String datFileName);
+        void itemSelectFile(String datFileName);
 
-        void hostDelTempl(String datFileName);
+        void delTempl(String datFileName);
 
     }
 

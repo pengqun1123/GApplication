@@ -1,4 +1,4 @@
-package com.example.administrator.adapters;
+package com.sd.tgfinger.adapters;
 
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
