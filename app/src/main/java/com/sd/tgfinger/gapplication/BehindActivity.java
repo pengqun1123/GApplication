@@ -1,11 +1,11 @@
 package com.sd.tgfinger.gapplication;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
@@ -23,22 +23,18 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.sd.tgfinger.CallBack.CommitCallBack;
-import com.sd.tgfinger.CallBack.DevOpenCallBack;
 import com.sd.tgfinger.api.TG661JBAPI;
-import com.sd.tgfinger.api.TG661JBehindAPI;
 import com.sd.tgfinger.utils.AlertDialogUtil;
 import com.sd.tgfinger.utils.AudioProvider;
 import com.sd.tgfinger.utils.FileUtil;
 import com.sd.tgfinger.utils.ToastUtil;
-import com.bumptech.glide.Glide;
-
 
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * 后比Activity
@@ -204,7 +200,9 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                      *  （6）-2: 初始化失败,证书字节流不可为null
                      */
                     int initFvArg = msg.arg1;
+                    Log.d("===TAG", " 算法初始化:" + initFvArg);
                     if (initFvArg == 1) {
+                        ToastUtil.toast(BehindActivity.this, "算法初始化成功");
                         tipTv.setText("初始化成功,算法接口有效");
                     } else if (initFvArg == 2) {
                         tipTv.setText("初始化失败,因证书路径错误,算法接口无效");
@@ -680,13 +678,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     if (openDevArg == 1) {
                         //初始化获取主机模板列表
                         //此处是以文件夹存储模拟外部数据库存储
-                        tg661JBAPI.getDevWorkModel(handler);
                         //tg661JBAPI.setDevWorkModel(handler,TG661JBAPI.WORK_BEHIND,templModelType);
                         updateExternalData();
                         getTemplList();
-                        tipTv.setText("设备打开成功,工作模式设置成功");
+                        ToastUtil.toast(BehindActivity.this, "设备打开成功");
                     } else if (openDevArg == -1) {
-                        tipTv.setText("设备打开失败");
+                        ToastUtil.toast(BehindActivity.this, "设备打开失败");
                     }
                     break;
                 case TG661JBAPI.CLOSE_DEV:
@@ -710,6 +707,30 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("写入成功");
                     }
                     break;
+                case TG661JBAPI.SET_DEV_MODEL:
+                    /**
+                     * 1：设置成功
+                     * 2：设置失败，该设备不支持6特征模板注册
+                     * 3：请先删除设备中的三模板
+                     * 4：请先删除设备中的六模板
+                     * -1：设置失败
+                     * -2 ：入参错误
+                     */
+                    int devModelArg = msg.arg1;
+                    if (devModelArg == 1) {
+                        tipTv.setText("设置成功");
+                    } else if (devModelArg == 2) {
+                        tipTv.setText("设置失败，该设备不支持6特征模板注册");
+                    } else if (devModelArg == 3) {
+                        tipTv.setText("请先删除设备中的三模板");
+                    } else if (devModelArg == 4) {
+                        tipTv.setText("请先删除设备中的六模板");
+                    } else if (devModelArg == -1) {
+                        tipTv.setText("设置失败");
+                    } else if (devModelArg == -2) {
+                        tipTv.setText("入参错误");
+                    }
+                    break;
                 case TG661JBAPI.DEV_IMG_LISTENER:
                     //设备是否有图像返回
                     int devImgArg1 = msg.arg1;
@@ -717,10 +738,8 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     byte[] devImgData = (byte[]) msg.obj;
                     if (devImgArg1 == 1 && devImgData != null) {
 //                        tipTv.setText("检测到有指静脉");
-                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength + "  指静脉数据 ：" + devImgData);
                     } else {
 //                        tipTv.setText("没检测到指静脉");
-                        Log.d("===HHH", "   指静脉数据长度：" + devImgLength + "  指静脉数据 ：" + devImgData);
                     }
                     break;
             }
@@ -932,7 +951,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         if (!devOpen) {
             //设备工作模式--》后比
             int workType = TG661JBAPI.WORK_BEHIND;
-            dataSource = TG661JBAPI.EXTERNAL_TEMPL_SOURCES;
+            dataSource = TG661JBAPI.DIR_TEMPL_SOURCES;
             tg661JBAPI.openDev(handler, BehindActivity.this, workType,
                     templModelType, dataSource);
         } else {
@@ -943,12 +962,12 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
     //更新外部数据
     private void updateExternalData() {
 //        if (dataSource == TG661JBAPI.EXTERNAL_TEMPL_SOURCES) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    tg661JBAPI.getAllFingerData2();
-                }
-            }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                tg661JBAPI.getAllFingerData2();
+            }
+        }).start();
 //        }
     }
 
