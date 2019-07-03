@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -31,7 +32,7 @@ import java.io.File;
  */
 public class BTestActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TGAPI tgapi = new TGAPI();
+    private TGAPI tgapi = TGAPI.getTGAPI();
     private TextView tipTv, devStatus;
     @SuppressLint("InlinedApi")
     private String[] perms = new String[]{
@@ -42,6 +43,172 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
     private int readDataType = -1;
     private int templType = -1;
     private TextView volumeTt;
+
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_behind);
+
+        initView();
+//        tgapi.checkPermissions(this, new PermissionCallBack() {
+//            @Override
+//            public void permissionResult(int result) {
+//                showTip("算法初始化结果：" + result);
+//            }
+//        });
+        pers();//权限申请
+
+    }
+
+    private void pers() {
+        int i = ContextCompat.checkSelfPermission(this, perms[0]);
+        if (i == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, perms, 0x11);
+        } else {
+            openDev();
+//            //后比算法初始化
+            TGAPI.getTGAPI().init(this);
+
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, permissions, 0x11);
+        } else {
+//            //后比算法初始化
+            TGAPI.getTGAPI().init(this);
+            openDev();
+        }
+    }
+
+    private void initView() {
+        Button closeDevBtn = findViewById(R.id.closeDevBtn);
+        Button openDevBtn = findViewById(R.id.openDevBtn);
+        Button voiceDecreaceBtn = findViewById(R.id.voiceDecreaceBtn);
+        Button voiceIncreaceBtn = findViewById(R.id.voiceIncreaceBtn);
+        Button cancelRegisterBtnBehind = findViewById(R.id.cancelRegisterBtnBehind);
+        Button registerBtnBehind = findViewById(R.id.registerBtnBehind);
+        Button ver1_NBtn = findViewById(R.id.ver1_NBtn);
+        Button ver1_1Btn = findViewById(R.id.ver1_1Btn);
+        Button getTemplFW = findViewById(R.id.getTemplFW);
+        Button getTemplSN = findViewById(R.id.getTemplSN);
+        Button templTimeBtn = findViewById(R.id.templTimeBtn);
+        Button getTemplAlgorVersionBtn = findViewById(R.id.getTemplAlgorVersionBtn);
+        CheckBox autoUpdateTempl = findViewById(R.id.autoUpdateTempl);
+        volumeTt = findViewById(R.id.volumeTt);
+        devStatus = findViewById(R.id.devStatus);
+        RadioGroup templSumModel = findViewById(R.id.templSumModel);
+        final RadioButton templ3Rb = findViewById(R.id.templ3Rb);
+        final RadioButton templ6Rb = findViewById(R.id.templ6Rb);
+        tipTv = findViewById(R.id.tipTv);
+
+        tgapi.setVolume(this, 1);
+        getCurrentVoice();
+        //默认特征模式为6模板
+        templType = TGAPI.TEMPL_MODEL_6;
+
+        openDevBtn.setOnClickListener(this);
+        closeDevBtn.setOnClickListener(this);
+        voiceDecreaceBtn.setOnClickListener(this);
+        voiceIncreaceBtn.setOnClickListener(this);
+        cancelRegisterBtnBehind.setOnClickListener(this);
+        registerBtnBehind.setOnClickListener(this);
+        ver1_NBtn.setOnClickListener(this);
+        ver1_1Btn.setOnClickListener(this);
+        getTemplFW.setOnClickListener(this);
+        getTemplSN.setOnClickListener(this);
+        templTimeBtn.setOnClickListener(this);
+        getTemplAlgorVersionBtn.setOnClickListener(this);
+        //验证成功后，自动更新模板
+        autoUpdateTempl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+            }
+        });
+        //切换设置3/6特征模板的模式
+        templSumModel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (templ3Rb.getId() == i) {
+                    templType = TGAPI.TEMPL_MODEL_3;
+                    tgapi.setTemplModelType(TGAPI.TEMPL_MODEL_3);
+                    //初始化数据，开启连续验证
+                    readFingerData(3);
+                } else if (templ6Rb.getId() == i) {
+                    templType = TGAPI.TEMPL_MODEL_6;
+                    tgapi.setTemplModelType(TGAPI.TEMPL_MODEL_6);
+                    //初始化数据，开启连续验证
+                    readFingerData(3);
+                }
+            }
+        });
+    }
+
+    private void openDev() {
+        if (!tgapi.isDevOpen()) {
+            alertDialog = AlertDialogUtil.Instance()
+                    .showWaitDialog(this, "设备正在打开...");
+            tgapi.openDev(handler, TGAPI.WORK_BEHIND, TGAPI.TEMPL_MODEL_6);
+        } else {
+            toast("设备已经打开");
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.closeDevBtn:
+                if (tgapi.isDevOpen())
+                    tgapi.closeDev(handler);
+                else
+                    toast("设备已经关闭");
+                break;
+            case R.id.openDevBtn:
+                openDev();
+                break;
+            case R.id.voiceDecreaceBtn:
+                boolean descreaseVolume = tgapi.descreaseVolume();
+                if (descreaseVolume) getCurrentVoice();
+                break;
+            case R.id.voiceIncreaceBtn:
+                boolean increaseVolume = tgapi.increaseVolume();
+                if (increaseVolume) getCurrentVoice();
+                break;
+            case R.id.cancelRegisterBtnBehind:
+                tgapi.cancelRegister(handler);
+                break;
+            case R.id.registerBtnBehind:
+                //注册前读取数据，查重
+                readFingerData(1);
+                break;
+            case R.id.ver1_NBtn:
+                readFingerData(2);
+                break;
+            case R.id.ver1_1Btn:
+                //1:1注册
+                verify1();
+                break;
+            case R.id.getTemplFW:
+//                tgapi.getTemplFW(handler,);
+                break;
+            case R.id.getTemplSN:
+//                tgapi.getTemplSN(handler, );
+                break;
+            case R.id.templTimeBtn:
+//                 tgapi.getTemplTime(handler,);
+                break;
+            case R.id.getTemplAlgorVersionBtn:
+//                tgapi.getTemplVersion(handler,);
+                break;
+        }
+    }
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
@@ -59,6 +226,8 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     if (devStatusArg >= 0) {
                         if (tipTv.getText().toString().contains("断开")) {
                             showTip("设备状态：已连接");
+                            //初始化数据，开启连续验证
+                            readFingerData(3);
                         }
                         devStatus.setText("设备状态:已连接");
                     } else if (devStatusArg == -1) {
@@ -253,6 +422,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     } else if (registerArg == -4) {
                         showTip("设备断开");
                     } else if (registerArg == -5) {
+                        Log.d("===KKK","操作取消  111");
                         showTip("操作取消");
                     } else if (registerArg == -6) {
                         showTip("入参错误");
@@ -302,6 +472,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     } else if (compareNArg == -4) {
                         showTip("设备断开");
                     } else if (compareNArg == -5) {
+                        Log.d("===KKK","操作取消  222");
                         showTip("操作取消");
                     } else if (compareNArg == -6) {
                         showTip("入参错误");
@@ -330,172 +501,6 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
             }
         }
     };
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_behind);
-
-        initView();
-//        tgapi.checkPermissions(this, new PermissionCallBack() {
-//            @Override
-//            public void permissionResult(int result) {
-//                showTip("算法初始化结果：" + result);
-//            }
-//        });
-        pers();//权限申请
-
-    }
-
-    private void pers() {
-        int i = ContextCompat.checkSelfPermission(this, perms[0]);
-        if (i == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, perms, 0x11);
-        } else {
-            openDev();
-            //后比算法初始化
-            TGAPI.getTGAPI().init(handler,this);
-
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(this, permissions, 0x11);
-        } else {
-            //后比算法初始化
-            TGAPI.getTGAPI().init(handler,this);
-            openDev();
-        }
-    }
-
-    private void initView() {
-        Button closeDevBtn = findViewById(R.id.closeDevBtn);
-        Button openDevBtn = findViewById(R.id.openDevBtn);
-        Button voiceDecreaceBtn = findViewById(R.id.voiceDecreaceBtn);
-        Button voiceIncreaceBtn = findViewById(R.id.voiceIncreaceBtn);
-        Button cancelRegisterBtnBehind = findViewById(R.id.cancelRegisterBtnBehind);
-        Button registerBtnBehind = findViewById(R.id.registerBtnBehind);
-        Button ver1_NBtn = findViewById(R.id.ver1_NBtn);
-        Button ver1_1Btn = findViewById(R.id.ver1_1Btn);
-        Button getTemplFW = findViewById(R.id.getTemplFW);
-        Button getTemplSN = findViewById(R.id.getTemplSN);
-        Button templTimeBtn = findViewById(R.id.templTimeBtn);
-        Button getTemplAlgorVersionBtn = findViewById(R.id.getTemplAlgorVersionBtn);
-        CheckBox autoUpdateTempl = findViewById(R.id.autoUpdateTempl);
-        volumeTt = findViewById(R.id.volumeTt);
-        devStatus = findViewById(R.id.devStatus);
-        RadioGroup templSumModel = findViewById(R.id.templSumModel);
-        final RadioButton templ3Rb = findViewById(R.id.templ3Rb);
-        final RadioButton templ6Rb = findViewById(R.id.templ6Rb);
-        tipTv = findViewById(R.id.tipTv);
-
-        tgapi.setVolume(this, 1);
-        getCurrentVoice();
-        //默认特征模式为6模板
-        templType = TGAPI.TEMPL_MODEL_6;
-
-        openDevBtn.setOnClickListener(this);
-        closeDevBtn.setOnClickListener(this);
-        voiceDecreaceBtn.setOnClickListener(this);
-        voiceIncreaceBtn.setOnClickListener(this);
-        cancelRegisterBtnBehind.setOnClickListener(this);
-        registerBtnBehind.setOnClickListener(this);
-        ver1_NBtn.setOnClickListener(this);
-        ver1_1Btn.setOnClickListener(this);
-        getTemplFW.setOnClickListener(this);
-        getTemplSN.setOnClickListener(this);
-        templTimeBtn.setOnClickListener(this);
-        getTemplAlgorVersionBtn.setOnClickListener(this);
-        //验证成功后，自动更新模板
-        autoUpdateTempl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-
-            }
-        });
-        //切换设置3/6特征模板的模式
-        templSumModel.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if (templ3Rb.getId() == i) {
-                    templType = TGAPI.TEMPL_MODEL_3;
-                    tgapi.setTemplModelType(TGAPI.TEMPL_MODEL_3);
-                    //初始化数据，开启连续验证
-                    readFingerData(3);
-                } else if (templ6Rb.getId() == i) {
-                    templType = TGAPI.TEMPL_MODEL_6;
-                    tgapi.setTemplModelType(TGAPI.TEMPL_MODEL_6);
-                    //初始化数据，开启连续验证
-                    readFingerData(3);
-                }
-            }
-        });
-    }
-
-    private void openDev() {
-        if (!tgapi.isDevOpen()) {
-            alertDialog = AlertDialogUtil.Instance()
-                    .showWaitDialog(this, "设备正在打开...");
-            tgapi.openDev(handler, TGAPI.WORK_BEHIND, TGAPI.TEMPL_MODEL_6);
-        } else {
-            toast("设备已经打开");
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.closeDevBtn:
-                if (tgapi.isDevOpen())
-                    tgapi.closeDev(handler);
-                else
-                    toast("设备已经关闭");
-                break;
-            case R.id.openDevBtn:
-                openDev();
-                break;
-            case R.id.voiceDecreaceBtn:
-                boolean descreaseVolume = tgapi.descreaseVolume();
-                if (descreaseVolume) getCurrentVoice();
-                break;
-            case R.id.voiceIncreaceBtn:
-                boolean increaseVolume = tgapi.increaseVolume();
-                if (increaseVolume) getCurrentVoice();
-                break;
-            case R.id.cancelRegisterBtnBehind:
-                tgapi.cancelRegister(handler);
-                break;
-            case R.id.registerBtnBehind:
-                //注册前读取数据，查重
-                readFingerData(1);
-                break;
-            case R.id.ver1_NBtn:
-                readFingerData(2);
-                break;
-            case R.id.ver1_1Btn:
-                //1:1注册
-                verify1();
-                break;
-            case R.id.getTemplFW:
-//                tgapi.getTemplFW(handler,);
-                break;
-            case R.id.getTemplSN:
-//                tgapi.getTemplSN(handler, );
-                break;
-            case R.id.templTimeBtn:
-//                 tgapi.getTemplTime(handler,);
-                break;
-            case R.id.getTemplAlgorVersionBtn:
-//                tgapi.getTemplVersion(handler,);
-                break;
-        }
-    }
-
-
 
     @Override
     protected void onDestroy() {

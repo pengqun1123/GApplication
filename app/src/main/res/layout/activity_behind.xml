@@ -226,7 +226,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="自动更新模板" />
+            android:text="自动更新模板"
+            android:visibility="gone"/>
     </LinearLayout>
 
     <LinearLayout
@@ -244,7 +245,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/getTemplFW"
@@ -263,7 +264,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/templTimeBtn"
