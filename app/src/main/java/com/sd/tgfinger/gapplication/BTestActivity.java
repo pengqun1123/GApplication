@@ -24,6 +24,7 @@ import com.sd.tgfinger.utils.AlertDialogUtil;
 import com.sd.tgfinger.utils.ToastUtil;
 
 import java.io.File;
+import java.util.Arrays;
 
 
 /**
@@ -43,7 +44,22 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
     private int readDataType = -1;
     private int templType = -1;
     private TextView volumeTt;
-
+    private Button closeDevBtn;
+    private Button openDevBtn;
+    private Button voiceDecreaceBtn;
+    private Button voiceIncreaceBtn;
+    private Button cancelRegisterBtnBehind;
+    private Button registerBtnBehind;
+    private Button ver1_nBtn;
+    private Button ver1_1Btn;
+    private Button getTemplFW;
+    private Button getTemplSN;
+    private Button templTimeBtn;
+    private Button getTemplAlgorVersionBtn;
+    private CheckBox autoUpdateTempl;
+    private RadioButton templ3Rb;
+    private RadioButton templ6Rb;
+    private RadioGroup templSumModel;
 
 
     @Override
@@ -87,31 +103,35 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    private boolean is6 = true;
+
     private void initView() {
-        Button closeDevBtn = findViewById(R.id.closeDevBtn);
-        Button openDevBtn = findViewById(R.id.openDevBtn);
-        Button voiceDecreaceBtn = findViewById(R.id.voiceDecreaceBtn);
-        Button voiceIncreaceBtn = findViewById(R.id.voiceIncreaceBtn);
-        Button cancelRegisterBtnBehind = findViewById(R.id.cancelRegisterBtnBehind);
-        Button registerBtnBehind = findViewById(R.id.registerBtnBehind);
-        Button ver1_NBtn = findViewById(R.id.ver1_NBtn);
-        Button ver1_1Btn = findViewById(R.id.ver1_1Btn);
-        Button getTemplFW = findViewById(R.id.getTemplFW);
-        Button getTemplSN = findViewById(R.id.getTemplSN);
-        Button templTimeBtn = findViewById(R.id.templTimeBtn);
-        Button getTemplAlgorVersionBtn = findViewById(R.id.getTemplAlgorVersionBtn);
-        CheckBox autoUpdateTempl = findViewById(R.id.autoUpdateTempl);
+        closeDevBtn = findViewById(R.id.closeDevBtn);
+        openDevBtn = findViewById(R.id.openDevBtn);
+        voiceDecreaceBtn = findViewById(R.id.voiceDecreaceBtn);
+        voiceIncreaceBtn = findViewById(R.id.voiceIncreaceBtn);
+        cancelRegisterBtnBehind = findViewById(R.id.cancelRegisterBtnBehind);
+        registerBtnBehind = findViewById(R.id.registerBtnBehind);
+        ver1_nBtn = findViewById(R.id.ver1_NBtn);
+        ver1_1Btn = findViewById(R.id.ver1_1Btn);
+        getTemplFW = findViewById(R.id.getTemplFW);
+        getTemplSN = findViewById(R.id.getTemplSN);
+        templTimeBtn = findViewById(R.id.templTimeBtn);
+        getTemplAlgorVersionBtn = findViewById(R.id.getTemplAlgorVersionBtn);
+        autoUpdateTempl = findViewById(R.id.autoUpdateTempl);
         volumeTt = findViewById(R.id.volumeTt);
         devStatus = findViewById(R.id.devStatus);
-        RadioGroup templSumModel = findViewById(R.id.templSumModel);
-        final RadioButton templ3Rb = findViewById(R.id.templ3Rb);
-        final RadioButton templ6Rb = findViewById(R.id.templ6Rb);
+        templSumModel = findViewById(R.id.templSumModel);
+        templ3Rb = findViewById(R.id.templ3Rb);
+        templ6Rb = findViewById(R.id.templ6Rb);
         tipTv = findViewById(R.id.tipTv);
 
         tgapi.setVolume(this, 1);
         getCurrentVoice();
         //默认特征模式为6模板
         templType = TGAPI.TEMPL_MODEL_6;
+        tgapi.setTemplModelType(templType);
+        is6 = true;
 
         openDevBtn.setOnClickListener(this);
         closeDevBtn.setOnClickListener(this);
@@ -119,7 +139,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         voiceIncreaceBtn.setOnClickListener(this);
         cancelRegisterBtnBehind.setOnClickListener(this);
         registerBtnBehind.setOnClickListener(this);
-        ver1_NBtn.setOnClickListener(this);
+        ver1_nBtn.setOnClickListener(this);
         ver1_1Btn.setOnClickListener(this);
         getTemplFW.setOnClickListener(this);
         getTemplSN.setOnClickListener(this);
@@ -182,11 +202,15 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                 if (increaseVolume) getCurrentVoice();
                 break;
             case R.id.cancelRegisterBtnBehind:
+                cancelRegisterBtnBehind.setClickable(false);
                 tgapi.cancelRegister(handler);
                 break;
             case R.id.registerBtnBehind:
                 //注册前读取数据，查重
+                templ3Rb.setEnabled(false);
+                templ6Rb.setEnabled(false);
                 readFingerData(1);
+                registerBtnBehind.setClickable(false);
                 break;
             case R.id.ver1_NBtn:
                 readFingerData(2);
@@ -279,6 +303,12 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                             }
                         }
                     }
+//                    try {
+//                        Thread.sleep(200);
+
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
                     break;
                 case TGAPI.WRITE_FILE:
                     //存储数据
@@ -359,6 +389,9 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     } else if (cancelRegisterArg == -1) {
                         showTip("取消注册失败");
                     }
+                    templ3Rb.setEnabled(true);
+                    templ6Rb.setEnabled(true);
+                    cancelRegisterBtnBehind.setClickable(true);
                     break;
                 case TGAPI.EXTRACT_FEATURE_REGISTER:
                     /**
@@ -384,6 +417,11 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                      * -10:登记失败
                      */
                     int registerArg = msg.arg1;
+                    if (registerArg != 1) {
+                        templ3Rb.setEnabled(true);
+                        templ6Rb.setEnabled(true);
+                        readFingerData(3);
+                    }
                     if (registerArg == 1) {
                         showTip("特征提取成功,Output数据有效");
                     } else if (registerArg == 2) {
@@ -398,18 +436,19 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                         showTip("特征提取失败,因\"图像\"质量较差,Output数据无效");
                     } else if (registerArg == 7) {
                         showTip("模板登记重复");
-                        //初始化数据，开启连续验证
-                        readFingerData(3);
                     } else if (registerArg == 8) {
                         showTip("登记成功");
                         Bundle data = msg.getData();
                         if (data != null) {
                             byte[] fingerData = data.getByteArray(TGAPI.FINGER_DATA);
+                            Log.d("===KKK", "   fingerData:" + Arrays.toString(fingerData));
                             if (fingerData != null && fingerData.length > 0) {
+                                if (fingerData[0] != 0) {
+                                    //模拟数据库存储数据
+                                    saveData(fingerData);
+                                }
                                 showTip("接收到注册的模板数据");
                             }
-                            //模拟数据库存储数据
-                            saveData(fingerData);
                         }
                     } else if (registerArg == 9) {
                         showTip("特征融合失败，因\"特征\"数据一致性差，Output数据无效");
@@ -422,7 +461,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     } else if (registerArg == -4) {
                         showTip("设备断开");
                     } else if (registerArg == -5) {
-                        Log.d("===KKK","操作取消  111");
+                        Log.d("===KKK", "操作取消  111");
                         showTip("操作取消");
                     } else if (registerArg == -6) {
                         showTip("入参错误");
@@ -435,6 +474,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     } else if (registerArg == -10) {
                         showTip("登记失败");
                     }
+                    registerBtnBehind.setClickable(true);
                     break;
                 case TGAPI.FEATURE_COMPARE1_N:
                 case TGAPI.CONTINUE_VERIFY:
@@ -472,7 +512,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     } else if (compareNArg == -4) {
                         showTip("设备断开");
                     } else if (compareNArg == -5) {
-                        Log.d("===KKK","操作取消  222");
+                        Log.d("===KKK", "操作取消  222");
                         showTip("操作取消");
                     } else if (compareNArg == -6) {
                         showTip("入参错误");

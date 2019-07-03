@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.sd.tgfinger.api.TGAPI;
+import com.sd.tgfinger.utils.CrashHandler;
 import com.sd.tgfinger.utils.MyActivityManager;
 
 
@@ -23,7 +24,7 @@ public class GApplication extends Application {
         //后比算法初始化
         TGAPI.getTGAPI().init(this);
 
-//        CrashHandler.getInstance().init(this);
+        CrashHandler.getInstance().init(this);
 //        TG661JBehindAPI.getTG661JBehindAPI().startDevService(this);
 //        TG661JBAPI.getTg661JBAPI().startDevService(this);
         TGAPI.getTGAPI().startDevService(this);
