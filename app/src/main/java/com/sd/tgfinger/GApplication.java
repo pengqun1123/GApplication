@@ -22,7 +22,7 @@ public class GApplication extends Application {
         //监听所有activity的生命周期
         registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
         //后比算法初始化
-        TGAPI.getTGAPI().init(this);
+//        TGAPI.getTGAPI().init(this);
 
         CrashHandler.getInstance().init(this);
 //        TG661JBehindAPI.getTG661JBehindAPI().startDevService(this);

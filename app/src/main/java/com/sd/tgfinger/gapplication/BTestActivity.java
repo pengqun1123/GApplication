@@ -83,10 +83,9 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         if (i == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, perms, 0x11);
         } else {
-            openDev();
 //            //后比算法初始化
             TGAPI.getTGAPI().init(this);
-
+            openDev();
         }
     }
 
@@ -102,8 +101,6 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
             openDev();
         }
     }
-
-    private boolean is6 = true;
 
     private void initView() {
         closeDevBtn = findViewById(R.id.closeDevBtn);
@@ -131,7 +128,6 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         //默认特征模式为6模板
         templType = TGAPI.TEMPL_MODEL_6;
         tgapi.setTemplModelType(templType);
-        is6 = true;
 
         openDevBtn.setOnClickListener(this);
         closeDevBtn.setOnClickListener(this);
@@ -293,6 +289,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                             } else if (readDataType == 3) {
                                 toast("数据准备完毕");
                                 //开启连续验证
+//                                tgapi.featureCompare1_N(handler,fingerData,fingerSize);
                                 tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000);
                             }
                         } else {
