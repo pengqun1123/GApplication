@@ -25,8 +25,13 @@ public class GApplication extends Application {
 //        TGAPI.getTGAPI().init(this);
 
         CrashHandler.getInstance().init(this);
+
+        //前比
+//        TG661JFrontAPI.getTg661jFrontApi().startDevService(this);
+
 //        TG661JBehindAPI.getTG661JBehindAPI().startDevService(this);
 //        TG661JBAPI.getTg661JBAPI().startDevService(this);
+        //后比
         TGAPI.getTGAPI().startDevService(this);
     }
 
@@ -71,6 +76,10 @@ public class GApplication extends Application {
 
         @Override
         public void onActivityDestroyed(Activity activity) {
+            //前比
+//            TG661JFrontAPI.getTg661jFrontApi().unbindDevService(GApplication.this);
+
+            //后比
             TGAPI.getTGAPI().unbindDevService(getApplicationContext());
             MyActivityManager.getMyActivityManager().removeAllAct();
         }

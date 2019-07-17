@@ -658,13 +658,14 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
             }
         }
     };
+    private Button openDevBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_front);
         Button closeDevBtn = findViewById(R.id.closeDevBtn);
-        Button openDevBtn = findViewById(R.id.openDevBtn);
+        openDevBtn = findViewById(R.id.openDevBtn);
 
         dev_StatusTv = findViewById(R.id.devStatus);
         devStatusTv = findViewById(R.id.devStatusTv);

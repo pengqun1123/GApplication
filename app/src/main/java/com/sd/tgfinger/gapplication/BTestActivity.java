@@ -289,7 +289,6 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                             } else if (readDataType == 3) {
                                 toast("数据准备完毕");
                                 //开启连续验证
-//                                tgapi.featureCompare1_N(handler,fingerData,fingerSize);
                                 tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000);
                             }
                         } else {
