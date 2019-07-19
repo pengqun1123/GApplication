@@ -101,6 +101,7 @@ public class FrontActivity extends AppCompatActivity implements View.OnClickList
                         tipTv.setText("设备关闭失败");
                     } else if (closeDevArg == 1) {
                         tipTv.setText("设备关闭成功");
+                        dev_StatusTv.setText("已关闭");
                     } else if (closeDevArg == 2) {
                         tipTv.setText("设备已关闭");
                     }

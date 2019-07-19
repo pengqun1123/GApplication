@@ -40,7 +40,6 @@
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <!-- <action android:name="com.tg.m661j.vein.api"/> -->
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

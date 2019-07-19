@@ -155,7 +155,7 @@
         <Button
             android:id="@+id/closeDevBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:padding="3dp"
@@ -166,7 +166,7 @@
         <Button
             android:id="@+id/openDevBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:padding="3dp"
@@ -191,7 +191,7 @@
             <Button
                 android:id="@+id/loseVoice"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="0.4"
                 android:background="@drawable/gray_white_btn_shape"
                 android:text="音量-"
@@ -218,7 +218,7 @@
             <Button
                 android:id="@+id/addVoice"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="0.4"
                 android:background="@drawable/gray_white_btn_shape"
                 android:text="音量+"
@@ -231,7 +231,7 @@
         <Button
             android:id="@+id/clearAllDevBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:padding="3dp"
@@ -242,7 +242,7 @@
         <Button
             android:id="@+id/clearAllHostBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:padding="3dp"
@@ -293,7 +293,7 @@
         <Button
             android:id="@+id/registerBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="0.5"
             android:background="@drawable/gray_white_btn_shape"
             android:text="用户注册"
@@ -321,7 +321,7 @@
             <RadioButton
                 android:id="@+id/rb3"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginStart="6dp"
                 android:gravity="center"
                 android:text="3模板"
@@ -330,7 +330,7 @@
             <RadioButton
                 android:id="@+id/rb6"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginStart="10dp"
                 android:gravity="center"
                 android:text="6模板"
@@ -357,13 +357,13 @@
                 android:layout_weight="0.7"
                 android:textColor="@color/black"
                 android:textSize="12sp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:text="获取SDK版本" />
 
         <Button
             android:id="@+id/cancelVerifyBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="0.7"
             android:background="@drawable/gray_white_btn_shape"
             android:text="取消验证/注册"
@@ -382,7 +382,7 @@
         <Button
             android:id="@+id/getDevInfo"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:text="获取设备信息"
@@ -393,7 +393,7 @@
         <Button
             android:id="@+id/setDevInfo"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:text="设置设备信息"
@@ -404,7 +404,7 @@
         <Button
             android:id="@+id/VerifyBtn1_1"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:text="1:1验证"
@@ -440,7 +440,7 @@
         <Button
             android:id="@+id/upTemplPacBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:text="上传模板包到主机"
@@ -451,7 +451,7 @@
         <Button
             android:id="@+id/downTemplPacBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:text="下载模板包到设备"
@@ -462,7 +462,7 @@
         <Button
             android:id="@+id/verifyBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:text="1:N验证"

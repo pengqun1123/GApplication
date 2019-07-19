@@ -3,10 +3,8 @@ package com.sd.tgfinger;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.sd.tgfinger.api.TGAPI;
-import com.sd.tgfinger.utils.CrashHandler;
 import com.sd.tgfinger.utils.MyActivityManager;
 
 
@@ -21,26 +19,19 @@ public class GApplication extends Application {
         super.onCreate();
         //监听所有activity的生命周期
         registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
-        //后比算法初始化
-//        TGAPI.getTGAPI().init(this);
 
-        CrashHandler.getInstance().init(this);
+//        CrashHandler.getInstance().init(this);
 
         //前比
-//        TG661JFrontAPI.getTg661jFrontApi().startDevService(this);
-
-//        TG661JBehindAPI.getTG661JBehindAPI().startDevService(this);
-//        TG661JBAPI.getTg661JBAPI().startDevService(this);
+//        TG661JFrontAPI.getTg661jFrontApi().startDevService(GApplication.this);
         //后比
-        TGAPI.getTGAPI().startDevService(this);
+        TGAPI.getTGAPI().startDevService(GApplication.this);
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
-//        TG661JBehindAPI.getTG661JBehindAPI().unbindDevService(this);
-//        TG661JBAPI.getTg661JBAPI().unbindDevService(this);
-        Log.d("===KKK", "   执行GApplication的onTerminate方法  ");
+
     }
 
     private ActivityLifecycleCallbacks activityLifecycleCallbacks = new ActivityLifecycleCallbacks() {

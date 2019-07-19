@@ -31,11 +31,24 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="6"
+            android:layout_weight="3"
             android:background="@color/green_cyan"
             android:gravity="center"
             android:padding="6dp"
             android:textColor="@color/amber"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/SDKVersion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="3"
+            android:background="@color/green_cyan"
+            android:gravity="center"
+            android:padding="6dp"
+            android:textColor="@color/brown"
             android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -63,7 +76,7 @@
         <Button
             android:id="@+id/closeDevBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:padding="3dp"
@@ -74,7 +87,7 @@
         <Button
             android:id="@+id/openDevBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="1"
             android:background="@drawable/gray_white_btn_shape"
             android:padding="3dp"
@@ -114,7 +127,7 @@
         <RadioGroup
             android:id="@+id/templSumModel"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="15dp"
             android:orientation="horizontal">
@@ -122,15 +135,14 @@
             <RadioButton
                 android:id="@+id/templ3Rb"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginStart="8dp"
-
                 android:text="3模板" />
 
             <RadioButton
                 android:id="@+id/templ6Rb"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_marginStart="10dp"
                 android:checked="true"
                 android:text="6模板" />
@@ -159,7 +171,8 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/templIDBehind"
@@ -189,14 +202,14 @@
         <Button
             android:id="@+id/cancelRegisterBtnBehind"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="0.6"
             android:text="取消注册/验证" />
 
         <Button
             android:id="@+id/registerBtnBehind"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="0.6"
             android:text="注册" />
     </LinearLayout>
@@ -210,15 +223,15 @@
         <Button
             android:id="@+id/ver1_1Btn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="1:1验证"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/ver1_NBtn"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
             android:layout_weight="1"
             android:text="1:N验证" />
 
@@ -228,7 +241,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="自动更新模板"
-            android:visibility="gone"/>
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout
@@ -246,18 +259,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/getTemplFW"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="获取模板固件号" />
 
                 <Button
                     android:id="@+id/getTemplSN"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="获取模板序列号" />
             </LinearLayout>
 
@@ -265,18 +278,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/templTimeBtn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="模板的时间" />
 
                 <Button
                     android:id="@+id/getTemplAlgorVersionBtn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="获取模板算法版本号" />
 
             </LinearLayout>
@@ -285,18 +298,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/delIDHostTemplBtn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="删除主机指定模板" />
 
                 <Button
                     android:id="@+id/delAllHostTemplBtn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="删除主机所有模板" />
 
             </LinearLayout>
@@ -305,18 +318,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/getDevModel"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="获取设备模式" />
 
                 <Button
                     android:id="@+id/getSDKVersion"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="获取SDK版本" />
 
             </LinearLayout>
@@ -346,13 +359,13 @@
                 <Button
                     android:id="@+id/getImgFeature"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="提取特征" />
 
                 <Button
                     android:id="@+id/getFeatureTempl"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="特征融合模板" />
 
             </LinearLayout>
@@ -373,13 +386,13 @@
                 <Button
                     android:id="@+id/get1_1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="1:1" />
 
                 <Button
                     android:id="@+id/get1_N"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:text="1:N" />
 
             </LinearLayout>
@@ -399,7 +412,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"

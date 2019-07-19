@@ -9,14 +9,15 @@
 
     <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:id="@+id/frontBtn"
         android:text="前比Demo"/>
 
     <Button
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:id="@+id/behindBtn"
+        android:visibility="gone"
         android:text="后比Demo"/>
 
 </LinearLayout>

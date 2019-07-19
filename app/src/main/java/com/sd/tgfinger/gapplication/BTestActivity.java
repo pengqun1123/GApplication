@@ -33,7 +33,7 @@ import java.util.Arrays;
  */
 public class BTestActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private TGAPI tgapi = TGAPI.getTGAPI();
+    private TGAPI tgapi;
     private TextView tipTv, devStatus;
     @SuppressLint("InlinedApi")
     private String[] perms = new String[]{
@@ -43,7 +43,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
 
     private int readDataType = -1;
     private int templType = -1;
-    private TextView volumeTt;
+    private TextView volumeTt,SDKVersion;
     private Button closeDevBtn;
     private Button openDevBtn;
     private Button voiceDecreaceBtn;
@@ -67,15 +67,11 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_behind);
 
+        tgapi = TGAPI.getTGAPI();
         initView();
-//        tgapi.checkPermissions(this, new PermissionCallBack() {
-//            @Override
-//            public void permissionResult(int result) {
-//                showTip("算法初始化结果：" + result);
-//            }
-//        });
         pers();//权限申请
-
+        String sdkVersion = tgapi.getSDKVersion();
+        SDKVersion.setText(sdkVersion);
     }
 
     private void pers() {
@@ -83,8 +79,8 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         if (i == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, perms, 0x11);
         } else {
-//            //后比算法初始化
-            TGAPI.getTGAPI().init(this);
+            //后比算法初始化
+            TGAPI.getTGAPI().init(this, null);
             openDev();
         }
     }
@@ -97,7 +93,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
             ActivityCompat.requestPermissions(this, permissions, 0x11);
         } else {
 //            //后比算法初始化
-            TGAPI.getTGAPI().init(this);
+            TGAPI.getTGAPI().init(this, null);
             openDev();
         }
     }
@@ -117,6 +113,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         getTemplAlgorVersionBtn = findViewById(R.id.getTemplAlgorVersionBtn);
         autoUpdateTempl = findViewById(R.id.autoUpdateTempl);
         volumeTt = findViewById(R.id.volumeTt);
+        SDKVersion = findViewById(R.id.SDKVersion);
         devStatus = findViewById(R.id.devStatus);
         templSumModel = findViewById(R.id.templSumModel);
         templ3Rb = findViewById(R.id.templ3Rb);
@@ -541,6 +538,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        tgapi.closeDev(handler);
         if (alertDialog != null && alertDialog.isShowing()) {
             alertDialog.dismiss();
             alertDialog = null;

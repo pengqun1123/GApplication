@@ -1,1 +1,1 @@
-include ':app','TGFinger661J'
+include ':app', ':tg1application','TGFinger661J'
