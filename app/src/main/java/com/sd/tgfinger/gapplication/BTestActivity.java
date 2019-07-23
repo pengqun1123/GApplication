@@ -196,10 +196,11 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.cancelRegisterBtnBehind:
                 cancelRegisterBtnBehind.setClickable(false);
-                tgapi.cancelRegister(handler);
+                tgapi.cancelRegisterGetImg(handler);
                 break;
             case R.id.registerBtnBehind:
                 //注册前读取数据，查重
+                templSumModel.setEnabled(false);
                 templ3Rb.setEnabled(false);
                 templ6Rb.setEnabled(false);
                 readFingerData(1);
@@ -280,16 +281,20 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                         int fingerSize = bundle.getInt(TGAPI.FINGER_SIZE);
                         if (fingerData != null && fingerData.length > 0) {
                             if (readDataType == 1) {
+                                Log.d("===KKK","  执行注册");
                                 tgapi.extractFeatureRegister(handler, fingerData, fingerSize);
                             } else if (readDataType == 2) {
+                                Log.d("===KKK","  执行单次验证");
                                 tgapi.featureCompare1_N(handler, fingerData, fingerSize);
                             } else if (readDataType == 3) {
+                                Log.d("===KKK","  执行连续验证");
                                 toast("数据准备完毕");
                                 //开启连续验证
                                 tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000);
                             }
                         } else {
                             if (readDataType == 1) {
+                                Log.d("===KKK","  执行注册");
                                 tgapi.extractFeatureRegister(handler, null, 0);
                             } else if (readDataType == 2) {
                                 toast("暂无模板数据，请先注册模板");
@@ -384,6 +389,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     }
                     templ3Rb.setEnabled(true);
                     templ6Rb.setEnabled(true);
+                    templSumModel.setEnabled(true);
                     cancelRegisterBtnBehind.setClickable(true);
                     break;
                 case TGAPI.EXTRACT_FEATURE_REGISTER:
@@ -413,6 +419,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                     if (registerArg != 1) {
                         templ3Rb.setEnabled(true);
                         templ6Rb.setEnabled(true);
+                        templSumModel.setEnabled(true);
                         readFingerData(3);
                     }
                     if (registerArg == 1) {
