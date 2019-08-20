@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.sd.tgfinger.CallBack.CommitCallBack;
 import com.sd.tgfinger.api.TG661JBAPI;
+import com.sd.tgfinger.api.TG661JBehindAPI;
 import com.sd.tgfinger.utils.AlertDialogUtil;
 import com.sd.tgfinger.utils.AudioProvider;
 import com.sd.tgfinger.utils.FileUtil;
@@ -62,7 +63,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
     private byte[] imgData;
     private List<byte[]> imgDatas = new ArrayList<>();
 
-    private int templModelType = TG661JBAPI.TEMPL_MODEL_6;//默认为6模板模式
+    private int templModelType = TG661JBehindAPI.TEMPL_MODEL_6;//默认为6模板模式
     private boolean autoUpdateStatus = false;//自动更新模板
     private ImageView iv;
     private ImageView clearEt;
@@ -79,7 +80,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case TG661JBAPI.DEV_STATUS:
+                case TG661JBehindAPI.DEV_STATUS:
                     /*
                      * 设备状态：
                      *  1：设备状态：已连接
@@ -104,7 +105,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     registerBtnBehind.setClickable(true);
                     break;
-//                case TG661JBAPI.DEV_IMG:
+//                case TG661JBehindAPI.DEV_IMG:
 //                    /*
 //                     * 后比注册
 //                     * 返回值 imgArg
@@ -159,7 +160,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 //                        tipTv.setText("特征提取失败,因参数不合法,Output数据无效");
 //                    }
 //                    break;
-                case TG661JBAPI.CANCEL_REGISTER:
+                case TG661JBehindAPI.CANCEL_REGISTER:
                     /*
                      * 取消设备抓图
                      * 返回值 cancelImgArg
@@ -174,7 +175,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                     }
                     registerBtnBehind.setClickable(true);
                     break;
-                case TG661JBAPI.FEATURE_FUSION:
+                case TG661JBehindAPI.FEATURE_FUSION:
                     int fusionArg = msg.arg1;
 //                    if (fusionArg == 1) {
 //
@@ -188,7 +189,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
 //
 //                    }
                     break;
-                case TG661JBAPI.INIT_FV:
+                case TG661JBehindAPI.INIT_FV:
                     /*
                      * 初始化算法接口
                      * 返回值:initFvArg
@@ -216,7 +217,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         tipTv.setText("初始化失败,证书字节流不可为null");
                     }
                     break;
-                case TG661JBAPI.DEV_WORK_MODEL:
+                case TG661JBehindAPI.DEV_WORK_MODEL:
                     /*
                      * 获取工作模式：
                      * 返回值：devWorkModelArg
@@ -236,7 +237,7 @@ public class BehindActivity extends AppCompatActivity implements View.OnClickLis
                         devModelTv.setText("获取工作模式失败");
                     }
                     break;
-                case TG661JBAPI.EXTRACT_FEATURE_REGISTER:
+                case TG661JBehindAPI.EXTRACT_FEATURE_REGISTER:
                     /*
                      * 从图片中提取特征(注册的时候专用)
                      * 返回值:extractFeatureRegisterArg

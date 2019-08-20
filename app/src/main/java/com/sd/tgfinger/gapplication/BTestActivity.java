@@ -43,7 +43,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
 
     private int readDataType = -1;
     private int templType = -1;
-    private TextView volumeTt,SDKVersion;
+    private TextView volumeTt, SDKVersion;
     private Button closeDevBtn;
     private Button openDevBtn;
     private Button voiceDecreaceBtn;
@@ -174,6 +174,9 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    //取消抓图的标记 0:正常取消抓图 1:注册取消抓图 2:验证取消抓图
+    private int cancelGetImgType = 0;
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -196,6 +199,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                 break;
             case R.id.cancelRegisterBtnBehind:
                 cancelRegisterBtnBehind.setClickable(false);
+                cancelGetImgType = 2;
                 tgapi.cancelRegisterGetImg(handler);
                 break;
             case R.id.registerBtnBehind:
@@ -203,8 +207,16 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                 templSumModel.setEnabled(false);
                 templ3Rb.setEnabled(false);
                 templ6Rb.setEnabled(false);
-                readFingerData(1);
                 registerBtnBehind.setClickable(false);
+                if (tgapi.isContinueVerify()) {
+                    //处于连续验证状态,先调用取消抓图接口，获取已注册的数据查重，，再调用注册接口
+                    cancelGetImgType = 1;
+                    Log.d("===KKK"," cancelGetImgType: "+cancelGetImgType);
+                    tgapi.cancelRegisterGetImg(handler);
+                } else {
+                    //没有处于验证中，获取已注册的数据查重，调用注册接口
+                    readFingerData(1);
+                }
                 break;
             case R.id.ver1_NBtn:
                 readFingerData(2);
@@ -246,6 +258,10 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                             showTip("设备状态：已连接");
                             //初始化数据，开启连续验证
                             readFingerData(3);
+                            templSumModel.setEnabled(true);
+                            templ3Rb.setEnabled(true);
+                            templ6Rb.setEnabled(true);
+                            registerBtnBehind.setClickable(true);
                         }
                         devStatus.setText("设备状态:已连接");
                     } else if (devStatusArg == -1) {
@@ -281,32 +297,26 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                         int fingerSize = bundle.getInt(TGAPI.FINGER_SIZE);
                         if (fingerData != null && fingerData.length > 0) {
                             if (readDataType == 1) {
-                                Log.d("===KKK","  执行注册");
+                                Log.d("===KKK", "  执行注册111");
                                 tgapi.extractFeatureRegister(handler, fingerData, fingerSize);
                             } else if (readDataType == 2) {
-                                Log.d("===KKK","  执行单次验证");
-                                tgapi.featureCompare1_N(handler, fingerData, fingerSize);
+                                Log.d("===KKK", "  执行单次验证");
+                                tgapi.featureCompare1_N(handler, fingerData, fingerSize,true);
                             } else if (readDataType == 3) {
-                                Log.d("===KKK","  执行连续验证");
+                                Log.d("===KKK", "  执行连续验证");
                                 toast("数据准备完毕");
-                                //开启连续验证
-                                tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000);
+                                //开启连续验证,true表示大特征
+                                tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000,true);
                             }
                         } else {
                             if (readDataType == 1) {
-                                Log.d("===KKK","  执行注册");
+                                Log.d("===KKK", "  执行注册222");
                                 tgapi.extractFeatureRegister(handler, null, 0);
                             } else if (readDataType == 2) {
                                 toast("暂无模板数据，请先注册模板");
                             }
                         }
                     }
-//                    try {
-//                        Thread.sleep(200);
-
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
                     break;
                 case TGAPI.WRITE_FILE:
                     //存储数据
@@ -331,31 +341,6 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                         showTip("指静脉设备关闭失败");
                     }
                     break;
-//                case TGAPI.SET_DEV_MODEL:
-//                    /**
-//                     * 设置设备的工作模式
-//                     * 1：设置成功
-//                     * 2：设置失败，该设备不支持6特征模板注册
-//                     * 3：请先删除设备中的三模板
-//                     * 4：请先删除设备中的六模板
-//                     * -1：设置失败
-//                     * -2 ：入参错误
-//                     */
-//                    int setModelArg = msg.arg1;
-//                    if (setModelArg == 1) {
-//                        tipTv.setText("设置成功");
-//                    } else if (setModelArg == 2) {
-//                        tipTv.setText("设置失败，该设备不支持6特征模板注册");
-//                    } else if (setModelArg == 3) {
-//                        tipTv.setText("请先删除设备中的三模板");
-//                    } else if (setModelArg == 4) {
-//                        tipTv.setText("请先删除设备中的六模板");
-//                    } else if (setModelArg == -1) {
-//                        tipTv.setText("设置失败");
-//                    } else if (setModelArg == -2) {
-//                        tipTv.setText("入参错误");
-//                    }
-//                    break;
                 case TGAPI.DEV_WORK_MODEL:
                     /**
                      * 1:前比3特征模板
@@ -381,16 +366,26 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                      */
                     int cancelRegisterArg = msg.arg1;
                     if (cancelRegisterArg == 1) {
-                        showTip("取消注册成功");
-                        //初始化数据，开启连续验证
-                        readFingerData(3);
+                        if (cancelGetImgType == 1) {
+                            showTip("取消连续验证成功");
+                            //初始化数据，注册
+                            readFingerData(1);
+                        } else if (cancelGetImgType == 2) {
+                            showTip("取消注册成功");
+                            //初始化数据，开启连续验证
+                            readFingerData(3);
+                            templ3Rb.setEnabled(true);
+                            templ6Rb.setEnabled(true);
+                            templSumModel.setEnabled(true);
+                            cancelRegisterBtnBehind.setClickable(true);
+                        }
                     } else if (cancelRegisterArg == -1) {
                         showTip("取消注册失败");
+                        templ3Rb.setEnabled(true);
+                        templ6Rb.setEnabled(true);
+                        templSumModel.setEnabled(true);
+                        cancelRegisterBtnBehind.setClickable(true);
                     }
-                    templ3Rb.setEnabled(true);
-                    templ6Rb.setEnabled(true);
-                    templSumModel.setEnabled(true);
-                    cancelRegisterBtnBehind.setClickable(true);
                     break;
                 case TGAPI.EXTRACT_FEATURE_REGISTER:
                     /**
