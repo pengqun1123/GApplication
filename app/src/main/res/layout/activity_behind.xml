@@ -226,7 +226,7 @@
             android:layout_height="60dp"
             android:layout_weight="1"
             android:text="1:1验证"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/ver1_NBtn"
