@@ -169,7 +169,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
         if (!tgapi.isDevOpen()) {
             alertDialog = AlertDialogUtil.Instance()
                     .showWaitDialog(this, "设备正在打开...");
-            tgapi.openDev(handler, TGAPI.WORK_BEHIND, TGAPI.TEMPL_MODEL_6);
+            tgapi.openDev(handler, TGAPI.WORK_BEHIND, TGAPI.TEMPL_MODEL_6, true);
         } else {
             toast("设备已经打开");
         }
@@ -225,7 +225,8 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
             case R.id.ver1_1Btn:
                 //1:1注册
                 String dataPath = tgapi.moniExter6Path + File.separator + "1566370752907.dat";
-                LogUtils.d("1:1的数据路径:"+dataPath);
+                LogUtils.d("1:1的数据路径:" + dataPath);
+                this.readDataType = 4;
                 tgapi.readDataFromHost(handler, dataPath);
                 break;
             case R.id.getTemplFW:
@@ -245,6 +246,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
 
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
+
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -299,26 +301,27 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                         byte[] fingerData = bundle.getByteArray(TGAPI.DATA);
                         int fingerSize = bundle.getInt(TGAPI.FINGER_SIZE);
                         //以下注销时测试1:1的验证代码，简单测试
-                        /*if (fingerSize == 1) {
-                            verify1(fingerData);
-                        } else*/
-                            if (fingerData != null && fingerData.length > 0) {
+//                        if (fingerSize == 1 && readDataType == 4) {
+//                            verify1(fingerData);
+//                        } else
+                        if (fingerData != null && fingerData.length > 0) {
                             if (readDataType == 1) {
                                 Log.d("===KKK", "  执行注册111");
-                                tgapi.extractFeatureRegister(handler, fingerData, fingerSize,true);
+                                tgapi.extractFeatureRegister(handler, fingerData, fingerSize, false);
                             } else if (readDataType == 2) {
                                 Log.d("===KKK", "  执行单次验证");
-                                tgapi.featureCompare1_N(handler, fingerData, fingerSize, true);
+
+                                tgapi.featureCompare1_N(handler, fingerData, fingerSize, false);
                             } else if (readDataType == 3) {
                                 Log.d("===KKK", "  执行连续验证");
                                 toast("数据准备完毕");
                                 //开启连续验证,true表示大特征
-                                tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000, true);
+                                tgapi.continueVerifyN(handler, fingerData, fingerSize, 1000, false);
                             }
                         } else {
                             if (readDataType == 1) {
                                 Log.d("===KKK", "  执行注册222");
-                                tgapi.extractFeatureRegister(handler, null, 0,true);
+                                tgapi.extractFeatureRegister(handler, null, 0, false);
                             } else if (readDataType == 2) {
                                 toast("暂无模板数据，请先注册模板");
                             }
@@ -497,7 +500,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                         if (data != null) {
                             //获取比对的分数，比对模板的位置，比对的后可更新的模板数据
                             int score = data.getInt(TGAPI.COMPARE_SCORE);
-                            LogUtils.d("分数:"+score);
+                            LogUtils.d("分数:" + score);
                             int index = data.getInt(TGAPI.INDEX);
                             byte[] updateFinger = data.getByteArray(TGAPI.UPDATE_FINGER);
                             showTip("特征比对（1：N）成功，Output数据有效:" + score);
@@ -535,7 +538,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                             byte[] updateFinger = data.getByteArray(TGAPI.UPDATE_FINGER);
                             showTip("特征比对（1：1）成功，Output数据有效:" + score);
                         }
-                    }else if (compare1Arg == -1) {
+                    } else if (compare1Arg == -1) {
                         showTip("特征比对（1：1）失败，因参数不合法，Output数据无效");
                     } else if (compare1Arg == -2) {
                         Bundle data = msg.getData();
@@ -589,7 +592,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void verify1(byte[] singleFinger) {
-        tgapi.featureCompare1_1(handler, singleFinger, true);
+        tgapi.featureCompare1_1(handler, singleFinger, false);
     }
 
     private void getTNstr(Message msg, int type) {
