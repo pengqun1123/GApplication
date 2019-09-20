@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created By pq
@@ -108,9 +109,21 @@ public class FileUtil {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
         return null;
+    }
 
+    public static byte[] readBytes(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            int len = fis.available();
+            byte[] buffer = new byte[len];
+            fis.read(buffer);
+            fis.close();
+            return buffer;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -346,6 +359,31 @@ public class FileUtil {
         }
         return fileName;
     }
+
+    /**
+     * 获取指定路径下所有文件的名字
+     *
+     * @param path 路径
+     */
+    public static List<String> getAllFileName(String path) {
+        List<String> allFileName = new ArrayList<>();
+        File file = new File(path);
+        if (!file.exists()) {
+            return allFileName;
+        } else {
+            if (file.isDirectory()) {
+                File[] files = file.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    String name = files[i].getName();
+                    allFileName.add(name);
+                }
+                return allFileName;
+            } else {
+                return allFileName;
+            }
+        }
+    }
+
 
     /**
      * 更新指定文件夹下的文件

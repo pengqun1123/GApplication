@@ -20,6 +20,7 @@ public class GApplication extends Application {
         //监听所有activity的生命周期
         registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
 
+
 //        CrashHandler.getInstance().init(this);
 
         //前比

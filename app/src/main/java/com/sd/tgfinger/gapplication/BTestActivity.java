@@ -191,7 +191,7 @@ public class BTestActivity extends AppCompatActivity implements View.OnClickList
                 openDev();
                 break;
             case R.id.voiceDecreaceBtn:
-                boolean descreaseVolume = tgapi.descreaseVolume();
+                boolean descreaseVolume = tgapi.decreaseVolume();
                 if (descreaseVolume) getCurrentVoice();
                 break;
             case R.id.voiceIncreaceBtn:

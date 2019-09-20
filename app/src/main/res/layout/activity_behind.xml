@@ -172,7 +172,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <EditText
                 android:id="@+id/templIDBehind"
@@ -184,18 +184,16 @@
                 android:inputType="text"
                 android:padding="3dp"
                 android:textColor="@color/blue"
-                android:textSize="13sp"
-                android:visibility="visible" />
+                android:textSize="13sp" />
 
-            <ImageView
-                android:id="@+id/clearEt"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:padding="6dp"
-                android:src="@drawable/del_icon"
-                android:visibility="visible" />
+            <!--<ImageView-->
+                <!--android:id="@+id/clearEt"-->
+                <!--android:layout_width="35dp"-->
+                <!--android:layout_height="35dp"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:padding="6dp"-->
+                <!--android:src="@drawable/del_icon" />-->
 
         </RelativeLayout>
 
@@ -334,15 +332,15 @@
 
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/iv"
-                android:layout_width="500dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center"
-                android:padding="15dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/iv_03"
-                android:visibility="gone" />
+            <!--<ImageView-->
+                <!--android:id="@+id/iv"-->
+                <!--android:layout_width="500dp"-->
+                <!--android:layout_height="200dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:padding="15dp"-->
+                <!--android:scaleType="centerInside"-->
+                <!--android:src="@drawable/iv_03"-->
+                <!--android:visibility="gone" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"

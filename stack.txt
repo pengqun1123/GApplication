@@ -1,0 +1,763 @@
+ACTIVITY MANAGER PENDING INTENTS (dumpsys activity intents)
+  * PendingIntentRecord{2cc719c com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{65217a5 com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{2c6877a android broadcastIntent}
+  * PendingIntentRecord{e2b0b2b android broadcastIntent}
+  * PendingIntentRecord{f0c0ba5 com.estrongs.android.pop startActivity (whitelist: +30s0ms)}
+  * PendingIntentRecord{3fd0b88 android broadcastIntent}
+  * PendingIntentRecord{f718921 android broadcastIntent}
+  * PendingIntentRecord{ba5a146 com.android.calendar broadcastIntent}
+  * PendingIntentRecord{ecd2f07 com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{81b5834 com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{4bc965d android broadcastIntent}
+  * PendingIntentRecord{30a8bd2 android broadcastIntent}
+  * PendingIntentRecord{883b4a3 android broadcastIntent}
+  * PendingIntentRecord{a2fc3a0 com.android.quicksearchbox startActivity}
+  * PendingIntentRecord{c6e4014 android startActivity}
+  * PendingIntentRecord{1b13b59 com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{861931e android startActivity}
+  * PendingIntentRecord{392f7ff android startActivity}
+  * PendingIntentRecord{b5d79cc com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{1b13415 android broadcastIntent}
+  * PendingIntentRecord{38fc32a com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{e29151b com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{9ce66b8 android broadcastIntent}
+  * PendingIntentRecord{a7dfc91 com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{3bee7f6 android broadcastIntent}
+  * PendingIntentRecord{139e7f7 android broadcastIntent}
+  * PendingIntentRecord{a5f3664 com.sohu.inputmethod.sogou broadcastIntent}
+  * PendingIntentRecord{4bf0bf6 com.estrongs.android.pop startActivity (whitelist: +30s0ms)}
+  * PendingIntentRecord{274d0cd android startActivity}
+  * PendingIntentRecord{b25b59c com.estrongs.android.pop startActivity (whitelist: +30s0ms)}
+  * PendingIntentRecord{f3d4a67 android startActivity}
+  * PendingIntentRecord{ee98d82 android broadcastIntent}
+
+ACTIVITY MANAGER BROADCAST STATE (dumpsys activity broadcasts)
+  Historical broadcasts [foreground]:
+  #0: BroadcastRecord{71b0c93 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #1: BroadcastRecord{10b54d0 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #2: BroadcastRecord{e8aacc9 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #3: BroadcastRecord{e26ffce u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #4: BroadcastRecord{fdfdeef u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #5: BroadcastRecord{418edfc u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #6: BroadcastRecord{4084c85 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #7: BroadcastRecord{2b74ada u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #8: BroadcastRecord{f757b0b u0 android.hardware.usb.action.USB_DEVICE_ATTACHED}
+    act=android.hardware.usb.action.USB_DEVICE_ATTACHED flg=0x10000010 (has extras)
+    extras: Bundle[{device=UsbDevice[mName=/dev/bus/usb/002/015,mVendorId=1317,mProductId=42156,mClass=0,mSubclass=0,mProtocol=0,mManufacturerName=Linux 3.10.14 with dwc2-gadget,mProductName=HID Gadget,mVersion=2.0,mSerialNumber=null,mConfigurations=[
+UsbConfiguration[mId=1,mName=null,mAttributes=224,mMaxPower=1,mInterfaces=[
+UsbInterface[mId=0,mAlternateSetting=0,mName=HID Interface,mClass=3,mSubclass=0,mProtocol=1,mEndpoints=[
+UsbEndpoint[mAddress=129,mAttributes=3,mMaxPacketSize=64,mInterval=1]
+UsbEndpoint[mAddress=1,mAttributes=3,mMaxPacketSize=64,mInterval=1]]]]}]
+  #9: BroadcastRecord{604ede8 u0 android.hardware.usb.action.USB_DEVICE_ATTACHED}
+    act=android.hardware.usb.action.USB_DEVICE_ATTACHED flg=0x10000010 (has extras)
+    extras: Bundle[{device=UsbDevice[mName=/dev/bus/usb/002/015,mVendorId=1317,mProductId=42156,mClass=0,mSubclass=0,mProtocol=0,mManufacturerName=Linux 3.10.14 with dwc2-gadget,mProductName=HID Gadget,mVersion=2.0,mSerialNumber=null,mConfigurations=[
+UsbConfiguration[mId=1,mName=null,mAttributes=224,mMaxPower=1,mInterfaces=[
+UsbInterface[mId=0,mAlternateSetting=0,mName=HID Interface,mClass=3,mSubclass=0,mProtocol=1,mEndpoints=[
+UsbEndpoint[mAddress=129,mAttributes=3,mMaxPacketSize=64,mInterval=1]
+UsbEndpoint[mAddress=1,mAttributes=3,mMaxPacketSize=64,mInterval=1]]]]}]
+  #10: BroadcastRecord{a062c01 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #11: BroadcastRecord{fcf3aa6 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #12: BroadcastRecord{17ebce7 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #13: BroadcastRecord{22f0094 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #14: BroadcastRecord{6a8873d u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #15: BroadcastRecord{5245b32 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #16: BroadcastRecord{ef04083 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #17: BroadcastRecord{8459200 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #18: BroadcastRecord{41b5a39 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #19: BroadcastRecord{638f87e u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #20: BroadcastRecord{16c61df u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #21: BroadcastRecord{271ce2c u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #22: BroadcastRecord{94e60f5 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #23: BroadcastRecord{a681e8a u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #24: BroadcastRecord{5f3cfb u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #25: BroadcastRecord{243a118 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #26: BroadcastRecord{2711771 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #27: BroadcastRecord{1b19956 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #28: BroadcastRecord{3daadd7 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #29: BroadcastRecord{5db6c4 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #30: BroadcastRecord{52eb9ad u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #31: BroadcastRecord{a45f4e2 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #32: BroadcastRecord{9325073 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #33: BroadcastRecord{ae17b30 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #34: BroadcastRecord{caa43a9 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #35: BroadcastRecord{2d27d2e u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #36: BroadcastRecord{55780cf u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #37: BroadcastRecord{e9b1a5c u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #38: BroadcastRecord{93a7165 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #39: BroadcastRecord{58d3e3a u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #40: BroadcastRecord{f55aeb u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #41: BroadcastRecord{6ed8048 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #42: BroadcastRecord{fe5bee1 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #43: BroadcastRecord{8010406 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #44: BroadcastRecord{a4cbac7 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #45: BroadcastRecord{7e58f4 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #46: BroadcastRecord{59e681d u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #47: BroadcastRecord{b995a92 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #48: BroadcastRecord{8d03c63 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #49: BroadcastRecord{aa21060 u-1 android.intent.action.TIME_TICK}
+    act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  #50: act=android.intent.action.TIME_TICK flg=0x50000014 (has extras)
+    0 dispatch +86ms finish
+    enq=2019-07-18 05:08:00 disp=2019-07-18 05:08:00 fin=2019-07-18 05:08:00
+    extras: Bundle[{android.intent.extra.ALARM_COUNT=1}]
+  ...
+
+  Historical broadcasts [background]:
+  #0: BroadcastRecord{23e6919 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #1: BroadcastRecord{aee8dde u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #2: BroadcastRecord{e803bbf u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #3: BroadcastRecord{387d28c u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #4: BroadcastRecord{7437dd5 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #5: BroadcastRecord{fd1a9ea u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #6: BroadcastRecord{306d4db u-1 android.hardware.usb.action.USB_DEVICE_DETACHED}
+    act=android.hardware.usb.action.USB_DEVICE_DETACHED flg=0x10 (has extras)
+    extras: Bundle[{device=UsbDevice[mName=/dev/bus/usb/002/014,mVendorId=1317,mProductId=42156,mClass=0,mSubclass=0,mProtocol=0,mManufacturerName=Linux 3.10.14 with dwc2-gadget,mProductName=HID Gadget,mVersion=2.0,mSerialNumber=null,mConfigurations=[
+UsbConfiguration[mId=1,mName=null,mAttributes=224,mMaxPower=1,mInterfaces=[
+UsbInterface[mId=0,mAlternateSetting=0,mName=HID Interface,mClass=3,mSubclass=0,mProtocol=1,mEndpoints=[
+UsbEndpoint[mAddress=129,mAttributes=3,mMaxPacketSize=64,mInterval=1]
+UsbEndpoint[mAddress=1,mAttributes=3,mMaxPacketSize=64,mInterval=1]]]]}]
+  #7: BroadcastRecord{b258b78 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #8: BroadcastRecord{64b2251 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #9: BroadcastRecord{e187ab6 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #10: BroadcastRecord{493e3b7 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #11: BroadcastRecord{8e3e724 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #12: BroadcastRecord{34e928d u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #13: BroadcastRecord{f298c42 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #14: BroadcastRecord{a790453 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #15: BroadcastRecord{a5190 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #16: BroadcastRecord{e9eca89 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #17: BroadcastRecord{58592af u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #18: BroadcastRecord{eeaf6bc u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #19: BroadcastRecord{2a08645 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #20: BroadcastRecord{5a0619a u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #21: BroadcastRecord{a22aacb u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #22: BroadcastRecord{4cec2a8 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #23: BroadcastRecord{14841c1 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #24: BroadcastRecord{c12fd66 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #25: BroadcastRecord{2f28a7 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #26: BroadcastRecord{aa16154 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #27: BroadcastRecord{d5638fd u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #28: BroadcastRecord{3c189f2 u0 android.intent.action.PACKAGE_REPLACED}
+    act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #29: BroadcastRecord{49ba843 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #30: BroadcastRecord{a5d3ec0 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=false, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10062, android.intent.extra.DATA_REMOVED=false, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  #31: BroadcastRecord{b5267f9 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.user_handle=0}]
+  #32: BroadcastRecord{15a533e u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.user_handle=0}]
+  #33: BroadcastRecord{8c6859f u0 android.intent.action.UID_REMOVED}
+    act=android.intent.action.UID_REMOVED flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10061, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #34: BroadcastRecord{13786ec u0 android.intent.action.PACKAGE_FULLY_REMOVED}
+    act=android.intent.action.PACKAGE_FULLY_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10061, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #35: BroadcastRecord{6488ab5 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10061, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #36: BroadcastRecord{424654a u-1 com.android.server.action.NETWORK_STATS_UPDATED}
+    act=com.android.server.action.NETWORK_STATS_UPDATED flg=0x40000010
+  #37: BroadcastRecord{b97dcbb u0 android.intent.action.UID_REMOVED}
+    act=android.intent.action.UID_REMOVED flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10061, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #38: BroadcastRecord{88c25d8 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10061, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #39: BroadcastRecord{4441d31 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10061, android.intent.extra.user_handle=0}]
+  #40: BroadcastRecord{6cb8c16 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10061, android.intent.extra.user_handle=0}]
+  #41: BroadcastRecord{85d8997 u0 android.intent.action.UID_REMOVED}
+    act=android.intent.action.UID_REMOVED flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10060, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #42: BroadcastRecord{189c784 u0 android.intent.action.PACKAGE_FULLY_REMOVED}
+    act=android.intent.action.PACKAGE_FULLY_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10060, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #43: BroadcastRecord{68c5b6d u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10060, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #44: BroadcastRecord{ec53a2 u-1 com.android.server.action.NETWORK_STATS_UPDATED}
+    act=com.android.server.action.NETWORK_STATS_UPDATED flg=0x40000010
+  #45: BroadcastRecord{7672833 u0 android.intent.action.UID_REMOVED}
+    act=android.intent.action.UID_REMOVED flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10060, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #46: BroadcastRecord{f9dd7f0 u0 android.intent.action.PACKAGE_REMOVED}
+    act=android.intent.action.PACKAGE_REMOVED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10060, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #47: BroadcastRecord{1a04169 u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10060, android.intent.extra.user_handle=0}]
+  #48: BroadcastRecord{56007ee u0 android.intent.action.PACKAGE_ADDED}
+    act=android.intent.action.PACKAGE_ADDED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.UID=10060, android.intent.extra.user_handle=0}]
+  #49: BroadcastRecord{c62148f u0 android.intent.action.UID_REMOVED}
+    act=android.intent.action.UID_REMOVED flg=0x4000010 (has extras)
+    extras: Bundle[{android.intent.extra.REMOVED_FOR_ALL_USERS=true, android.intent.extra.DONT_KILL_APP=false, android.intent.extra.UID=10059, android.intent.extra.DATA_REMOVED=true, android.intent.extra.user_handle=0}]
+  #50: act=android.intent.action.PACKAGE_REPLACED dat=package:com.example.administrator.gapplication flg=0x4000010 (has extras)
+    +76ms dispatch +7ms finish
+    enq=2019-07-18 05:05:02 disp=2019-07-18 05:05:02 fin=2019-07-18 05:05:02
+    extras: Bundle[{android.intent.extra.UID=10062, android.intent.extra.REPLACING=true, android.intent.extra.user_handle=0}]
+  ...
+
+  Sticky broadcasts for user -1:
+  * Sticky action android.intent.action.SERVICE_STATE
+  * Sticky action android.media.ACTION_SCO_AUDIO_STATE_UPDATED
+  * Sticky action android.intent.action.BATTERY_CHANGED
+  * Sticky action android.telephony.action.CARRIER_CONFIG_CHANGED
+  * Sticky action android.intent.action.ANY_DATA_STATE
+  * Sticky action android.provider.Telephony.SPN_STRINGS_UPDATED
+  * Sticky action android.net.ethernet.ETHERNET_STATE_CHANGED
+  * Sticky action android.net.nsd.STATE_CHANGED
+  * Sticky action android.hardware.usb.action.USB_STATE
+  * Sticky action android.intent.action.SIM_STATE_CHANGED
+  * Sticky action android.media.INTERNAL_RINGER_MODE_CHANGED_ACTION
+  * Sticky action android.media.SCO_AUDIO_STATE_CHANGED
+  * Sticky action android.os.UpdateLock.UPDATE_LOCK_CHANGED
+  * Sticky action android.media.MASTER_MUTE_CHANGED_ACTION
+  * Sticky action wifi_scan_available
+  * Sticky action android.intent.action.DP_PLUGGED
+  * Sticky action android.intent.action.HDMI_PLUGGED
+  * Sticky action android.media.RINGER_MODE_CHANGED
+
+ACTIVITY MANAGER CONTENT PROVIDERS (dumpsys activity providers)
+  Published single-user content providers (by class):
+  * ContentProviderRecord{da0831c u0 com.android.providers.settings/.SettingsProvider}
+    proc=ProcessRecord{f6c0c4a 448:system/1000}
+    singleton=true
+    authority=settings
+    11 connections, 0 external handles
+      -> 625:com.android.systemui/u0a19 s1/1 u0/0 +1h50m41s768ms
+      -> 619:com.android.phone/1001 s1/1 u0/0 +1h50m41s673ms
+      -> 1059:com.android.launcher3/u0a39 s1/1 u0/0 +1h50m39s570ms
+      -> 1247:com.sohu.inputmethod.sogou/u0a51 s1/1 u0/0 +1h50m36s961ms
+      -> 1791:com.android.defcontainer/u0a5 s1/1 u0/0 +1h44m35s306ms
+      -> 1861:android.process.acore/u0a1 s1/1 u0/0 +1h44m34s575ms
+      -> 1484:com.sohu.inputmethod.sogou:classic/u0a51 s1/1 u0/0 +1h31m18s784ms
+      -> 4373:com.estrongs.android.pop/u0a32 s1/1 u0/0 +1h26m50s638ms
+      -> 7330:com.android.packageinstaller/u0a13 s1/1 u0/0 +48m33s158ms
+      -> 9616:com.android.mtp/u0a7 s1/1 u0/0 +9m14s762ms
+      -> 9780:com.android.rk/1000 s1/1 u0/0 +4m54s197ms
+  * ContentProviderRecord{8f28b25 u0 com.android.providers.telephony/.HbpcdLookupProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    singleton=true
+    authority=hbpcd_lookup
+  * ContentProviderRecord{948b4fa u0 com.android.providers.telephony/.TelephonyProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    singleton=true
+    authority=telephony
+  * ContentProviderRecord{e756aab u0 com.android.providers.telephony/.SmsProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    singleton=true
+    authority=sms
+  * ContentProviderRecord{9c0b508 u0 android/com.android.server.am.DumpHeapProvider}
+    proc=ProcessRecord{f6c0c4a 448:system/1000}
+    singleton=true
+    authority=com.android.server.heapdump
+  * ContentProviderRecord{a65b4a1 u0 com.android.providers.telephony/.MmsSmsProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    singleton=true
+    authority=mms-sms
+  * ContentProviderRecord{fdd26c6 u0 com.android.providers.telephony/.MmsProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    singleton=true
+    authority=mms
+
+  Published user 0 content providers (by class):
+  * ContentProviderRecord{61e0687 u0 com.android.documentsui/.RecentsProvider}
+    proc=ProcessRecord{43019b4 7367:com.android.documentsui/u0a6}
+    authority=com.android.documentsui.recents
+  * ContentProviderRecord{587f9dd u0 com.android.phone/.IccProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    authority=icc
+  * ContentProviderRecord{6f4e952 u0 com.android.providers.media/.MediaProvider}
+    proc=ProcessRecord{cca8423 7389:android.process.media/u0a7}
+    authority=media
+  * ContentProviderRecord{c8f1d20 u0 com.sohu.inputmethod.sogou/com.sogou.androidtool.provider.MobileToolContentProvider}
+    proc=ProcessRecord{7642b1b 1247:com.sohu.inputmethod.sogou/u0a51}
+    authority=com.sogou.mobiletool.provider
+  * ContentProviderRecord{a8f56d9 u0 com.android.providers.contacts/.VoicemailContentProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=com.android.voicemail
+  * ContentProviderRecord{a373f7f u0 com.svox.pico/.providers.SettingsProvider}
+    proc=ProcessRecord{a18eb4c 1885:com.svox.pico/u0a46}
+    authority=com.svox.pico.providers.SettingsProvider
+  * ContentProviderRecord{d158795 u0 com.android.gallery3d/.filtershow.provider.SharedImageProvider}
+    proc=ProcessRecord{3b850aa 1815:com.android.gallery3d/1000}
+    authority=com.android.gallery3d.filtershow.provider.SharedImageProvider
+  * ContentProviderRecord{b8a549b u0 com.android.gallery3d/com.android.photos.data.PhotoProvider}
+    proc=ProcessRecord{3b850aa 1815:com.android.gallery3d/1000}
+    authority=com.android.gallery3d.photoprovider
+  * ContentProviderRecord{a8f7038 u0 com.android.providers.blockednumber/.BlockedNumberProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=com.android.blockednumber
+  * ContentProviderRecord{6940811 u0 com.android.providers.media/.MediaDocumentsProvider}
+    proc=ProcessRecord{cca8423 7389:android.process.media/u0a7}
+    authority=com.android.providers.media.documents
+  * ContentProviderRecord{5a2cd76 u0 com.estrongs.android.pop/.app.FileContentProvider}
+    proc=ProcessRecord{df374a6 4373:com.estrongs.android.pop/u0a32}
+    authority=com.estrongs.files
+  * ContentProviderRecord{2f9f77 u0 com.android.providers.downloads/.DownloadProvider}
+    proc=ProcessRecord{cca8423 7389:android.process.media/u0a7}
+    authority=downloads
+  * ContentProviderRecord{3e757e4 u0 com.android.providers.contacts/.CallLogProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=call_log
+  * ContentProviderRecord{4a0144d u0 com.android.packageinstaller/.wear.WearPackageIconProvider}
+    proc=ProcessRecord{ee64b02 7330:com.android.packageinstaller/u0a13}
+    authority=com.google.android.packageinstaller.wear.provider
+  * ContentProviderRecord{874bc13 u0 com.android.providers.contacts/.debug.DumpFileProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=com.android.contacts.dumpfile
+  * ContentProviderRecord{4b40e50 u0 com.android.mtp/.MtpDocumentsProvider}
+    proc=ProcessRecord{ee6a849 9616:com.android.mtp/u0a7}
+    authority=com.android.mtp.documents
+  * ContentProviderRecord{f2154e u0 com.sohu.inputmethod.sogou/com.sogou.datashare.MultiProcessContentProvider}
+    proc=ProcessRecord{7642b1b 1247:com.sohu.inputmethod.sogou/u0a51}
+    authority=com.sohu.inputmethod.sogou.multiprovider
+  * ContentProviderRecord{1e5066f u0 com.sohu.inputmethod.sogou/com.sogou.androidtool.downloads.DownloadProvider}
+    proc=ProcessRecord{f53bf7c 1484:com.sohu.inputmethod.sogou:classic/u0a51}
+    authority=sogou_sdk_downloads_appmarket
+  * ContentProviderRecord{e88005 u0 com.android.providers.contacts/.ContactMetadataProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=com.android.contacts.metadata
+  * ContentProviderRecord{2de385a u0 com.android.gallery3d/.provider.GalleryProvider}
+    proc=ProcessRecord{3b850aa 1815:com.android.gallery3d/1000}
+    authority=com.android.gallery3d.provider
+  * ContentProviderRecord{d659a8b u0 com.android.providers.userdictionary/.UserDictionaryProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=user_dictionary
+  * ContentProviderRecord{bdb5768 u0 com.sohu.inputmethod.sogou/com.huawei.hwid.openapi.update.OtaFileProvider}
+    proc=ProcessRecord{7642b1b 1247:com.sohu.inputmethod.sogou/u0a51}
+    authority=com.sohu.inputmethod.sogou.hwid.sdk.otafileprovider
+  * ContentProviderRecord{3761781 u0 com.android.providers.contacts/.ShadowCallLogProvider}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=call_log_shadow
+  * ContentProviderRecord{3378026 u0 com.android.phone/.PhoneSearchIndexablesProvider}
+    proc=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    authority=com.android.phone
+  * ContentProviderRecord{b115467 u0 com.android.providers.contacts/.ContactsProvider2}
+    proc=ProcessRecord{54489e 1861:android.process.acore/u0a1}
+    authority=contacts;com.android.contacts
+  * ContentProviderRecord{cc28214 u0 com.android.providers.downloads/.DownloadStorageProvider}
+    proc=ProcessRecord{cca8423 7389:android.process.media/u0a7}
+    authority=com.android.providers.downloads.documents
+  * ContentProviderRecord{1ebaabd u0 com.android.launcher3/.LauncherProvider}
+    proc=ProcessRecord{a8b78b2 1059:com.android.launcher3/u0a39}
+    authority=com.android.launcher3.settings
+  * ContentProviderRecord{7d4d003 u0 com.sohu.inputmethod.sogou/android.support.v4.content.FileProvider}
+    proc=ProcessRecord{7642b1b 1247:com.sohu.inputmethod.sogou/u0a51}
+    authority=com.sohu.inputmethod.sogou.provider
+
+ACTIVITY MANAGER URI PERMISSIONS (dumpsys activity permissions)
+  (nothing)
+
+ACTIVITY MANAGER SERVICES (dumpsys activity services)
+  User 0 active services:
+  * ServiceRecord{24fab80 u0 com.android.bluetooth/.hid.HidService}
+    app=null
+    created=-1h50m40s775ms started=false connections=1
+    Connections:
+      act=android.bluetooth.IBluetoothInputDevice -> 625:com.android.systemui/u0a19
+  * ServiceRecord{4185ff8 u0 com.sohu.inputmethod.sogou/.SogouIME}
+    app=ProcessRecord{7642b1b 1247:com.sohu.inputmethod.sogou/u0a51}
+    created=-1h50m37s280ms started=false connections=1
+    Connections:
+      act=android.view.InputMethod -> 448:system/1000
+  * ServiceRecord{60a32a6 u0 com.android.systemui/.keyguard.KeyguardService}
+    app=ProcessRecord{e4691c5 625:com.android.systemui/u0a19}
+    created=-1h50m41s533ms started=false connections=1
+    Connections:
+      flg=0x100 -> 448:system/1000
+  * ServiceRecord{af2cf74 u0 com.android.systemui/.ImageWallpaper}
+    app=ProcessRecord{e4691c5 625:com.android.systemui/u0a19}
+    created=-1h50m41s570ms started=false connections=1
+    Connections:
+      act=android.service.wallpaper.WallpaperService -> 448:system/1000
+  * ServiceRecord{2105df7 u0 com.sohu.inputmethod.sogou/com.sogou.androidtool.support.SupportService}
+    app=ProcessRecord{f53bf7c 1484:com.sohu.inputmethod.sogou:classic/u0a51}
+    created=-1h50m19s26ms started=true connections=0
+  * ServiceRecord{91da404 u0 android.rockchip.update.service/.RKUpdateService}
+    app=ProcessRecord{72d35b9 1183:android.rockchip.update.service/1000}
+    created=-1h50m36s606ms started=true connections=0
+  * ServiceRecord{ab46dfe u0 com.android.bluetooth/.a2dp.A2dpService}
+    app=null
+    created=-1h50m41s987ms started=false connections=1
+    Connections:
+      act=android.bluetooth.IBluetoothA2dp -> 448:system/1000
+  * ServiceRecord{e04d389 u0 com.android.rk/.CopyService}
+    app=ProcessRecord{9360b8d 9780:com.android.rk/1000}
+    created=-4m54s139ms started=true connections=1
+    Connections:
+       -> 9780:com.android.rk/1000
+  * ServiceRecord{b2baa40 u0 com.android.systemui/.SystemUIService}
+    app=ProcessRecord{e4691c5 625:com.android.systemui/u0a19}
+    created=-1h50m41s963ms started=true connections=0
+  * ServiceRecord{3995e96 u0 android/.hardware.location.GeofenceHardwareService}
+    app=ProcessRecord{f6c0c4a 448:system/1000}
+    created=-1h50m41s552ms started=false connections=1
+    Connections:
+       -> 448:system/1000
+  * ServiceRecord{63d1a75 u0 com.sohu.inputmethod.sogou/com.sogou.udp.push.PushService}
+    app=ProcessRecord{8ca695f 1614:com.sohu.inputmethod.sogou:push_service/u0a51}
+    created=-1h45m34s909ms started=true connections=0
+  * ServiceRecord{1424f6f u0 com.android.server.telecom/.components.BluetoothPhoneService}
+    app=ProcessRecord{f6c0c4a 448:system/1000}
+    created=-1h50m41s647ms started=true connections=0
+  * ServiceRecord{2dd893d u0 com.estrongs.android.pop/com.estrongs.android.ui.notification.ESTaskService}
+    app=ProcessRecord{df374a6 4373:com.estrongs.android.pop/u0a32}
+    created=-1h26m50s684ms started=false connections=1
+    Connections:
+       -> 4373:com.estrongs.android.pop/u0a32
+  * ServiceRecord{beb6e9b u0 com.android.server.telecom/.components.TelecomService}
+    app=ProcessRecord{f6c0c4a 448:system/1000}
+    created=-1h50m42s111ms started=false connections=1
+    Connections:
+      act=com.android.ITelecomService -> 448:system/1000
+  * ServiceRecord{f4b65d9 u0 com.android.smspush/.WapPushManager}
+    app=ProcessRecord{8c3ffac 1041:com.android.smspush/u0a54}
+    created=-1h50m39s802ms started=false connections=2
+    Connections:
+      act=com.android.internal.telephony.IWapPushManager -> 619:com.android.phone/1001
+      act=com.android.internal.telephony.IWapPushManager -> 619:com.android.phone/1001
+  * ServiceRecord{61a1128 u0 com.android.location.fused/.FusedLocationService}
+    app=ProcessRecord{f6c0c4a 448:system/1000}
+    created=-1h50m41s556ms started=false connections=1
+    Connections:
+      act=com.android.location.service.FusedLocationProvider -> 448:system/1000
+  * ServiceRecord{717fc06 u0 android/com.android.server.content.SyncJobService}
+    app=ProcessRecord{f6c0c4a 448:system/1000}
+    created=-1h50m41s441ms started=true connections=0
+  * ServiceRecord{e8ede90 u0 com.android.defcontainer/.DefaultContainerService}
+    app=ProcessRecord{e627475 1791:com.android.defcontainer/u0a5}
+    created=-4m54s143ms started=false connections=1
+    Connections:
+       -> 9780:com.android.rk/1000
+  * ServiceRecord{6265520 u0 com.android.phone/.TelephonyDebugService}
+    app=ProcessRecord{70b09b5 619:com.android.phone/1001}
+    created=-1h50m41s298ms started=true connections=0
+  * ServiceRecord{29b4773 u0 android.ext.services/.notification.Ranker}
+    app=ProcessRecord{6e56c0a 959:android.ext.services/u0a8}
+    created=-1h50m42s442ms started=false connections=1
+    Connections:
+      act=android.service.notification.NotificationRankerService -> 448:system/1000
+  * ServiceRecord{563c7b u0 com.android.bluetooth/.pan.PanService}
+    app=null
+    created=-1h50m40s773ms started=false connections=1
+    Connections:
+      act=android.bluetooth.IBluetoothPan -> 625:com.android.systemui/u0a19
+
+ACTIVITY MANAGER RECENT TASKS (dumpsys activity recents)
+  Recent tasks:
+  * Recent #0: TaskRecord{d476a98 #61 A=com.android.rk U=0 StackId=1 sz=1}
+  * Recent #1: TaskRecord{372e2f1 #2 I=com.android.launcher3/.Launcher U=0 StackId=0 sz=1}
+  * Recent #2: TaskRecord{763ed6 #59 A=com.example.administrator.gapplication U=0 StackId=-1 sz=0}
+  * Recent #3: TaskRecord{9022557 #52 A=com.android.packageinstaller U=0 StackId=-1 sz=0}
+  * Recent #4: TaskRecord{5949844 #6 A=com.android.systemui U=0 StackId=0 sz=1}
+  * Recent #5: TaskRecord{f41bd2d #1 I=com.android.settings/.FallbackHome U=0 StackId=-1 sz=0}
+
+ACTIVITY MANAGER ACTIVITIES (dumpsys activity activities)
+Display #0 (activities from top to bottom):
+  Stack #1:
+  mFullscreen=true
+  mBounds=null
+    Task id #61
+    mFullscreen=true
+    mBounds=null
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+      TaskRecord{d476a98 #61 A=com.android.rk U=0 StackId=1 sz=1}
+      Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.android.rk/.RockExplorer (has extras) }
+        Hist #0: ActivityRecord{34ad5f4 u0 com.android.rk/.RockExplorer t61}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10200000 cmp=com.android.rk/.RockExplorer bnds=[400,682][530,873] (has extras) }
+          ProcessRecord{9360b8d 9780:com.android.rk/1000}
+
+    Running activities (most recent first):
+      TaskRecord{d476a98 #61 A=com.android.rk U=0 StackId=1 sz=1}
+        Run #0: ActivityRecord{34ad5f4 u0 com.android.rk/.RockExplorer t61}
+
+    mResumedActivity: ActivityRecord{34ad5f4 u0 com.android.rk/.RockExplorer t61}
+
+  Stack #0:
+  mFullscreen=true
+  mBounds=null
+    Task id #2
+    mFullscreen=true
+    mBounds=null
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+      TaskRecord{372e2f1 #2 I=com.android.launcher3/.Launcher U=0 StackId=0 sz=1}
+      Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.Launcher }
+        Hist #0: ActivityRecord{c227b8f u0 com.android.launcher3/.Launcher t2}
+          Intent { act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.Launcher }
+          ProcessRecord{a8b78b2 1059:com.android.launcher3/u0a39}
+
+    Task id #6
+    mFullscreen=true
+    mBounds=null
+    mMinWidth=-1
+    mMinHeight=-1
+    mLastNonFullscreenBounds=null
+      TaskRecord{5949844 #6 A=com.android.systemui U=0 StackId=0 sz=1}
+      Intent { flg=0x10804000 cmp=com.android.systemui/.recents.RecentsActivity bnds=[64,1088][736,2080] }
+        Hist #0: ActivityRecord{9a2415a u0 com.android.systemui/.recents.RecentsActivity t6}
+          Intent { flg=0x10804000 cmp=com.android.systemui/.recents.RecentsActivity bnds=[64,1088][736,2080] }
+          ProcessRecord{e4691c5 625:com.android.systemui/u0a19}
+
+    Running activities (most recent first):
+      TaskRecord{372e2f1 #2 I=com.android.launcher3/.Launcher U=0 StackId=0 sz=1}
+        Run #1: ActivityRecord{c227b8f u0 com.android.launcher3/.Launcher t2}
+      TaskRecord{5949844 #6 A=com.android.systemui U=0 StackId=0 sz=1}
+        Run #0: ActivityRecord{9a2415a u0 com.android.systemui/.recents.RecentsActivity t6}
+
+  mFocusedActivity: ActivityRecord{34ad5f4 u0 com.android.rk/.RockExplorer t61}
+  mFocusedStack=ActivityStack{46f7262 stackId=1, 1 tasks} mLastFocusedStack=ActivityStack{46f7262 stackId=1, 1 tasks}
+  mSleepTimeout=false
+  mCurTaskIdForUser={0=62}
+  mUserStackInFront={}
+  mActivityContainers={0=ActivtyContainer{0}A, 1=ActivtyContainer{1}A}
+  mLockTaskModeState=NONE mLockTaskPackages (userId:packages)=
+    0:[]
+ mLockTaskModeTasks[]
+
+ACTIVITY MANAGER RUNNING PROCESSES (dumpsys activity processes)
+  Isolated process list (sorted by uid):
+    Isolated # 0: ProcessRecord{219bff3 674:WebViewLoader-armeabi-v7a/1037}
+
+  UID states:
+    UID 1000: UidRecord{664f4b0 1000 P  procs:6}
+    UID 1001: UidRecord{ba9ff29 1001 P  procs:1}
+    UID 1037: UidRecord{5d652ae 1037 CE bg:+1h50m41s964ms idle procs:1}
+    UID u0a1: UidRecord{a06684f u0a1 CE bg:+1h44m34s682ms idle procs:1}
+    UID u0a5: UidRecord{49cabdc u0a5 T  procs:1}
+    UID u0a6: UidRecord{b3a64e5 u0a6 CE bg:+48m31s703ms idle procs:1}
+    UID u0a7: UidRecord{b8ebba u0a7 CE bg:+1h42m48s508ms idle procs:2}
+    UID u0a8: UidRecord{26b3a6b u0a8 SB procs:1}
+    UID u0a11: UidRecord{d36a9c8 u0a11 CE bg:+1h44m34s777ms idle procs:1}
+    UID u0a13: UidRecord{b16a61 u0a13 CE bg:+14m55s824ms idle procs:1}
+    UID u0a19: UidRecord{1fa0986 u0a19 P  procs:1}
+    UID u0a32: UidRecord{a011247 u0a32 CE bg:+3m47s815ms idle procs:1}
+    UID u0a39: UidRecord{ff09a74 u0a39 HO bg:+4m53s883ms idle procs:1}
+    UID u0a46: UidRecord{2394b9d u0a46 CE bg:+1h44m34s416ms idle procs:1}
+    UID u0a48: UidRecord{fdd3812 u0a48 CE bg:+3m43s87ms idle procs:1}
+    UID u0a51: UidRecord{8328be3 u0a51 IB procs:3}
+    UID u0a54: UidRecord{8b6e9e0 u0a54 IF procs:1}
+
+  UID validation:
+    UID 1001: UidRecord{4640499 1001 P  procs:0}
+    UID 1037: UidRecord{f52c35e 1037 CE idle procs:0}
+    UID u0a1: UidRecord{678033f u0a1 CE idle procs:0}
+    UID u0a5: UidRecord{3d0c40c u0a5 T  procs:0}
+    UID u0a6: UidRecord{8e75155 u0a6 CE idle procs:0}
+    UID u0a7: UidRecord{203b76a u0a7 CE idle procs:0}
+    UID u0a8: UidRecord{373945b u0a8 SB procs:0}
+    UID u0a11: UidRecord{8cc14f8 u0a11 CE idle procs:0}
+    UID u0a13: UidRecord{d18add1 u0a13 CE idle procs:0}
+    UID u0a19: UidRecord{91de036 u0a19 P  procs:0}
+    UID u0a32: UidRecord{bcd1b37 u0a32 CE idle procs:0}
+    UID u0a39: UidRecord{82988a4 u0a39 HO idle procs:0}
+    UID u0a46: UidRecord{429560d u0a46 CE idle procs:0}
+    UID u0a48: UidRecord{8dfc9c2 u0a48 CE idle procs:0}
+    UID u0a51: UidRecord{4ce33d3 u0a51 IB procs:0}
+    UID u0a54: UidRecord{7c88b10 u0a54 IF procs:0}
+
+  Process LRU list (sorted by oom_adj, 24 total, non-act at 3, non-svc at 3):
+    PERS #23: sys   F/ /P  trm: 0 448:system/1000 (fixed)
+    PERS #22: pers  F/ /P  trm: 0 619:com.android.phone/1001 (fixed)
+    PERS #21: pers  F/ /P  trm: 0 625:com.android.systemui/u0a19 (fixed)
+    PERS #19: pers  F/ /P  trm: 0 1005:com.cghs.stresstest/1000 (fixed)
+    Proc # 0: fore  T/A/T  trm: 0 9780:com.android.rk/1000 (top-activity)
+    Proc # 1: vis   F/ /T  trm: 0 1791:com.android.defcontainer/u0a5 (service)
+        com.android.defcontainer/.DefaultContainerService<=Proc{9780:com.android.rk/1000}
+    Proc #20: vis   F/ /SB trm: 0 959:android.ext.services/u0a8 (service)
+        android.ext.services/.notification.Ranker<=Proc{448:system/1000}
+    Proc #18: vis   F/ /IF trm: 0 1041:com.android.smspush/u0a54 (service)
+        com.android.smspush/.WapPushManager<=Proc{619:com.android.phone/1001}
+    Proc # 9: prcp  B/ /IB trm: 0 1247:com.sohu.inputmethod.sogou/u0a51 (service)
+        com.sohu.inputmethod.sogou/.SogouIME<=Proc{448:system/1000}
+    Proc # 2: home  B/ /HO trm: 0 1059:com.android.launcher3/u0a39 (home)
+    Proc # 5: cch   B/ /CE trm: 0 1861:android.process.acore/u0a1 (cch-empty)
+    Proc # 4: cch   B/ /CE trm: 0 4373:com.estrongs.android.pop/u0a32 (cch-empty)
+    Proc # 3: cch   B/ /CE trm: 0 1026:com.android.printspooler/u0a48 (cch-empty)
+    Proc # 8: cch+2 B/ /S  trm: 0 1484:com.sohu.inputmethod.sogou:classic/u0a51 (cch-started-services)
+    Proc # 7: cch+2 B/ /CE trm: 0 1885:com.svox.pico/u0a46 (cch-empty)
+    Proc # 6: cch+2 B/ /CE trm: 0 1841:com.android.musicfx/u0a11 (cch-empty)
+    Proc #12: cch+4 B/ /CE trm: 0 9616:com.android.mtp/u0a7 (cch-empty)
+    Proc #11: cch+4 B/ /CE trm: 0 1074:com.android.keychain/1000 (cch-empty)
+    Proc #10: cch+4 B/ /CE trm: 0 1815:com.android.gallery3d/1000 (cch-empty)
+    Proc #17: cch+6 B/ /S  trm: 0 1183:android.rockchip.update.service/1000 (cch-started-services)
+    Proc #16: cch+6 B/ /S  trm: 0 1614:com.sohu.inputmethod.sogou:push_service/u0a51 (cch-started-services)
+    Proc #15: cch+6 B/ /CE trm: 0 7367:com.android.documentsui/u0a6 (cch-empty)
+    Proc #14: cch+6 B/ /CE trm: 0 7389:android.process.media/u0a7 (cch-empty)
+    Proc #13: cch+6 B/ /CE trm: 0 7330:com.android.packageinstaller/u0a13 (cch-empty)
+
+  mStartedUsers:
+    User #0: state=RUNNING_UNLOCKED
+  mStartedUserArray: [0]
+  mUserLru: [0]
+  mHomeProcess: ProcessRecord{a8b78b2 1059:com.android.launcher3/u0a39}
+  mPreviousProcess: ProcessRecord{e4691c5 625:com.android.systemui/u0a19}
+  mConfiguration: {1.0 dualscreenflag=DISABLE ?mcc?mnc [zh_CN] ldltr sw800dp w800dp h1208dp 160dpi xlrg port finger -keyb/v/h -nav/h s.4}
+  mWakefulness=Awake
+  mSleepTokens=[]
+  mSleeping=false mLockScreenShown=LOCK_SCREEN_HIDDEN
+  mShuttingDown=false mTestPssMode=false

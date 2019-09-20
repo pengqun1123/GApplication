@@ -38,6 +38,11 @@
         <activity android:name=".BTestActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
+
+        </activity>
+        <activity android:name=".TestActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
