@@ -32,7 +32,6 @@ public class Main4Activity extends AppCompatActivity implements View.OnClickList
                 startActivity(new Intent(Main4Activity.this, FrontActivity.class));
                 break;
             case R.id.behindBtn:
-                startActivity(new Intent(Main4Activity.this, BehindActivity.class));
                 break;
         }
     }

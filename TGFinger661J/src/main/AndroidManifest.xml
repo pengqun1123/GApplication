@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.mylibrary">
+    package="com.sd.tgfinger">
 
     <!-- 声明使用USB -->
     <uses-feature
@@ -15,21 +15,9 @@
             android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
             android:resource="@xml/usbserial" />
         <!---->
-        <activity
-            android:name="com.TG.library.activitys.TGActivity"
-            android:theme="@style/tgActivityStyle"
-            android:windowSoftInputMode="stateHidden"
-            tools:ignore="InnerclassSeparator">
-            <intent-filter>
-                <action android:name="com.tg.m661j.vein.api" />
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-                <category android:name="com.tg.m661j.vein.api"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
 
         <service
-            android:name="com.TG.library.service.DevService"
+            android:name="com.sd.tgfinger.service.DevService"
             android:enabled="true"
             android:exported="true"
             tools:ignore="InnerclassSeparator">

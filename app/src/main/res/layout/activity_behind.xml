@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:orientation="vertical"
-    tools:context="com.sd.tgfinger.gapplication.BehindActivity">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,47 +25,115 @@
             android:textSize="15sp"
             android:textStyle="bold|italic" />
 
-        <TextView
-            android:id="@+id/devStatus"
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_height="match_parent"
             android:layout_weight="3"
-            android:background="@color/green_cyan"
-            android:gravity="center"
-            android:padding="6dp"
-            android:textColor="@color/amber"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/SDKVersion"
+            <TextView
+                android:id="@+id/devStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/green_cyan"
+                android:gravity="center"
+                android:padding="1dp"
+                android:textColor="@color/amber"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/devFw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/green_cyan"
+                android:gravity="center"
+                android:padding="1dp"
+                android:textColor="@color/amber"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_height="match_parent"
             android:layout_weight="3"
             android:background="@color/green_cyan"
-            android:gravity="center"
-            android:padding="6dp"
-            android:textColor="@color/brown"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/SDKVersion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/green_cyan"
+                android:gravity="center"
+                android:padding="1dp"
+                android:textColor="@color/brown"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/FvVersion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@color/green_cyan"
+                android:gravity="center"
+                android:padding="1dp"
+                android:textColor="@color/brown"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
     </LinearLayout>
 
-
-    <TextView
-        android:id="@+id/tipTv"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/user_name_et_shape"
-        android:ellipsize="end"
-        android:gravity="center"
-        android:hint="状态提示信息"
-        android:textColor="@color/red"
-        android:textColorHint="@color/teal"
-        android:textSize="20sp"
-        android:textStyle="bold|italic" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="25dp"
+            android:layout_height="match_parent"
+            android:background="@color/sao_pink_purple"
+            android:gravity="center"
+            android:text="@string/connect_status"
+            android:textColor="@color/white"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/connectStatusTv"
+            android:layout_width="100dp"
+            android:layout_height="55dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/user_name_et_shape"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/red"
+            android:textColorHint="@color/teal"
+            android:textSize="15sp"
+            android:textStyle="bold|italic" />
+
+        <TextView
+            android:id="@+id/tipTv"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/user_name_et_shape"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:hint="状态提示信息"
+            android:textColor="@color/red"
+            android:textColorHint="@color/teal"
+            android:textSize="20sp"
+            android:textStyle="bold|italic" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -100,6 +167,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <Button
@@ -137,7 +205,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_marginStart="8dp"
-                android:text="3模板" />
+                android:text="3模板"
+                android:visibility="gone" />
 
             <RadioButton
                 android:id="@+id/templ6Rb"
@@ -147,6 +216,25 @@
                 android:checked="true"
                 android:text="6模板" />
         </RadioGroup>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switchVoice"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="静音"
+            android:textSize="15sp" />
+
+        <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/cbVerify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:checked="false"
+            android:text="@string/continu_verify"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/userFingerName"
@@ -184,16 +272,17 @@
                 android:inputType="text"
                 android:padding="3dp"
                 android:textColor="@color/blue"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <!--<ImageView-->
-                <!--android:id="@+id/clearEt"-->
-                <!--android:layout_width="35dp"-->
-                <!--android:layout_height="35dp"-->
-                <!--android:layout_alignParentEnd="true"-->
-                <!--android:layout_centerVertical="true"-->
-                <!--android:padding="6dp"-->
-                <!--android:src="@drawable/del_icon" />-->
+            <!--android:id="@+id/clearEt"-->
+            <!--android:layout_width="35dp"-->
+            <!--android:layout_height="35dp"-->
+            <!--android:layout_alignParentEnd="true"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:padding="6dp"-->
+            <!--android:src="@drawable/del_icon" />-->
 
         </RelativeLayout>
 
@@ -224,13 +313,14 @@
             android:layout_height="60dp"
             android:layout_weight="1"
             android:text="1:1验证"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/ver1_NBtn"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
+            android:visibility="visible"
             android:text="1:N验证" />
 
         <CheckBox
@@ -333,14 +423,14 @@
             </LinearLayout>
 
             <!--<ImageView-->
-                <!--android:id="@+id/iv"-->
-                <!--android:layout_width="500dp"-->
-                <!--android:layout_height="200dp"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:padding="15dp"-->
-                <!--android:scaleType="centerInside"-->
-                <!--android:src="@drawable/iv_03"-->
-                <!--android:visibility="gone" />-->
+            <!--android:id="@+id/iv"-->
+            <!--android:layout_width="500dp"-->
+            <!--android:layout_height="200dp"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:padding="15dp"-->
+            <!--android:scaleType="centerInside"-->
+            <!--android:src="@drawable/iv_03"-->
+            <!--android:visibility="gone" />-->
 
             <LinearLayout
                 android:layout_width="match_parent"

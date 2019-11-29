@@ -18,12 +18,6 @@
 
         <activity android:name="com.sd.tgfinger.gapplication.Main3Activity" />
         <activity
-            android:name="com.sd.tgfinger.gapplication.BehindActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden">
-
-        </activity>
-        <activity
             android:name="com.sd.tgfinger.gapplication.FrontActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden" >
@@ -40,7 +34,12 @@
             android:windowSoftInputMode="stateHidden">
 
         </activity>
-        <activity android:name=".TestActivity"
+        <activity android:name="com.sd.tgfinger.activity.TestActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden">
+
+        </activity>
+        <activity android:name="com.sd.tgfinger.activity.TGB1TestActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -49,6 +48,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name="com.sd.tgfinger.utils.FingerService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedService">
+            <intent-filter>
+                <action android:name="com.finger.FingerService.action" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

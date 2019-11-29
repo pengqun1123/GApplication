@@ -1,11 +1,11 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 25
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 27
+        minSdkVersion 17
+        targetSdkVersion 25
         versionCode 1
         versionName "1.0"
 
@@ -34,8 +34,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -44,7 +44,7 @@ dependencies {
 }
 
 def _BASENAME = "TG661JFinger";
-def _VERSION = "_V1.1.1.190416_beta";
+def _VERSION = "_V1.1.2.191118_beta";
 def _DestinationPath = "src/main/jniLibs"; //生成jar包的位置
 def zipFile = file('build/intermediates/intermediate-jars/release/classes.jar'); //待打包文件位置
 
@@ -57,16 +57,19 @@ task makeJar(type: Jar) {
     from fileTree(dir: 'src/main', includes: ['assets/**']) //将assets目录打入jar包
     from fileTree(dir: 'src/main/res', includes: ['drawable/**'])
     from fileTree(dir: 'src/main/res', includes: ['drawable-v24/**'])
-    from fileTree(dir: 'src/main/res', includes: ['layout/**'])
+//    from fileTree(dir: 'src/main/res', includes: ['layout/**'])
     from fileTree(dir: 'src/main/res', includes: ['raw/**'])
     from fileTree(dir: 'src/main/res', includes: ['values/**'])
     from fileTree(dir: 'src/main', includes: ['AndroidManifest.xml'])
-    from fileTree(dir: 'libs', includes: ['armeabi/libjnidispatch.so'])
-    from fileTree(dir: 'libs', includes: ['armeabi/libTG_FV.so'])
     from fileTree(dir: 'libs', includes: ['armeabi/libTGVM661J.so'])
-    from fileTree(dir: 'libs', includes: ['arm64-v8a/libjnidispatch.so'])
-    from fileTree(dir: 'libs', includes: ['arm64-v8a/libTG_FV.so'])
+    from fileTree(dir: 'libs', includes: ['armeabi/libTGFVProcessAPI.so'])
+    from fileTree(dir: 'libs', includes: ['armeabi/libjnidispatch.so'])
     from fileTree(dir: 'libs', includes: ['arm64-v8a/libTGVM661J.so'])
+    from fileTree(dir: 'libs', includes: ['arm64-v8a/libTGFVProcessAPI.so'])
+    from fileTree(dir: 'libs', includes: ['arm64-v8a/libjnidispatch.so'])
+    from fileTree(dir: 'libs', includes: ['armeabi-v7a/libTGVM661J.so'])
+    from fileTree(dir: 'libs', includes: ['armeabi-v7a/libTGFVProcessAPI.so'])
+    from fileTree(dir: 'libs', includes: ['armeabi-v7a/libjnidispatch.so'])
     from fileTree(dir: 'libs', includes: ['jna-min.jar'])
     from fileTree(dir: 'libs', includes: ['jna-platform.jar'])
     baseName = _BASENAME + _VERSION
