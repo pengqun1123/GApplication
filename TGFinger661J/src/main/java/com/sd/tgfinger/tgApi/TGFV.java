@@ -123,21 +123,21 @@ public interface TGFV extends Library {
      */
     int TGFeaturesFusionTmpl(byte[] features, int featureSize, byte[] tmpl);
 
-    /**
-     * Function:
-     * 模板解析为比对模板：
-     * （1）将"模板"解析为"比对模板"
-     * Input：
-     * （1）unsigned char* tmpl："模板"缓存区指针（缓存区 35008 Bytes）/3特征 17408
-     * Output：
-     * （1）unsigned char* matchTmpl："比对模板"缓存区指针（缓存区34784 Bytes）
-     * Return：
-     * （1） 0：模板解析成功， Output数据有效
-     * （2）-1：模板解析失败，因参数不合法，Output数据无效
-     * Others：
-     * （1）将"模板"解析成"比对模板"，"比对模板"用于特征比对。
-     */
-    int TGTmplToMatchTmpl(byte[] tmpl, byte[] matchTmpl);
+//    /**
+//     * Function:
+//     * 模板解析为比对模板：
+//     * （1）将"模板"解析为"比对模板"
+//     * Input：
+//     * （1）unsigned char* tmpl："模板"缓存区指针（缓存区 35008 Bytes）/3特征 17408
+//     * Output：
+//     * （1）unsigned char* matchTmpl："比对模板"缓存区指针（缓存区34784 Bytes）
+//     * Return：
+//     * （1） 0：模板解析成功， Output数据有效
+//     * （2）-1：模板解析失败，因参数不合法，Output数据无效
+//     * Others：
+//     * （1）将"模板"解析成"比对模板"，"比对模板"用于特征比对。
+//     */
+//    int TGTmplToMatchTmpl(byte[] tmpl, byte[] matchTmpl);
 
     /**
      * Function:
@@ -193,68 +193,68 @@ public interface TGFV extends Library {
                              IntByReference matchIndex, /*byte[] matchUUID,*/
                              IntByReference matchScore, byte[] updateTmpl);
 
-    /**
-     * Function:
-     * 获取模板的算法版本号：
-     * （1）从"模板"里面获取该"模板"生成时对应的算法版本号
-     * Input：
-     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
-     * Output：
-     * （1）char * verInfo：从"模板"获取到的算法版本号缓存区指针（缓存区 5 Bytes）
-     * Return：
-     * （1） 0：获取成功， Output数据有效
-     * （2）-1：获取失败，参数错误，Output数据无效
-     * Others：
-     * （1）如果版本为VA.B.C.D，则获取"ABCD"，算法版本号为字符串形式，共4个有效字符
-     */
-    int TGGetAPIVerFromTmpl(byte[] tmpl, byte[] verInfo);
-
-    /**
-     * Function:
-     * 获取模板的SN号：
-     * （1）从"模板"里面获取该"模板"生成时对应的设备SN号
-     * Input：
-     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
-     * Output：
-     * （1）char * SNInfo：从"模板"获取到的设备SN号缓存区指针（缓存区 17 Bytes）
-     * Return：
-     * （1） 0：获取成功， Output数据有效
-     * （2）-1：获取失败，参数错误，Output数据无效
-     * Others：
-     * （1）如果版本为XXXXXXXXXXXXXXXX，则获取"XXXXXXXXXXXXXXXX"，设备SN号为字符串形式，共16个有效字符
-     */
-    int TGGetSNFromTmpl(byte[] tmpl, byte[] SNInfo);
-
-    /**
-     * Function:
-     * 获取模板的FW号：
-     * （1）从"模板"里面获取该"模板"生成时对应的设备FW号
-     * Input：
-     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
-     * Output：
-     * （1）char * FWInfo：从"模板"获取到的设备FW号缓存区指针（缓存区 17 Bytes）
-     * Return：
-     * （1） 0：获取成功， Output数据有效
-     * （2）-1：获取失败，参数错误，Output数据无效
-     * Others：
-     * （1）如果版本为XXXXXXXXXXXXXXXX，则获取"XXXXXXXXXXXXXXXX"，设备FW号为字符串形式，共16个有效字符
-     */
-    int TGGetFWFromTmpl(byte[] tmpl, byte[] FWInfo);
-
-    /**
-     * Function:
-     * 获取模板的时间：
-     * （1）从"模板"里面获取该"模板"生成时对应的时间
-     * Input：
-     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
-     * Output：
-     * （1）char * timeInfo：从"模板"获取到的时间数据缓存区指针（缓存区 15 Bytes）
-     * Return：
-     * （1） 0：获取成功， Output数据有效
-     * （2）-1：获取失败，参数错误，Output数据无效
-     * Others：
-     * （1）如果时间为2018-04-19 15:20:32，则获取"20180419152032"，时间为字符串形式，共14个有效字符
-     */
-    int TGGetTimeFromTmpl(byte[] tmpl, byte[] timeInfo);
+//    /**
+//     * Function:
+//     * 获取模板的算法版本号：
+//     * （1）从"模板"里面获取该"模板"生成时对应的算法版本号
+//     * Input：
+//     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
+//     * Output：
+//     * （1）char * verInfo：从"模板"获取到的算法版本号缓存区指针（缓存区 5 Bytes）
+//     * Return：
+//     * （1） 0：获取成功， Output数据有效
+//     * （2）-1：获取失败，参数错误，Output数据无效
+//     * Others：
+//     * （1）如果版本为VA.B.C.D，则获取"ABCD"，算法版本号为字符串形式，共4个有效字符
+//     */
+//    int TGGetAPIVerFromTmpl(byte[] tmpl, byte[] verInfo);
+//
+//    /**
+//     * Function:
+//     * 获取模板的SN号：
+//     * （1）从"模板"里面获取该"模板"生成时对应的设备SN号
+//     * Input：
+//     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
+//     * Output：
+//     * （1）char * SNInfo：从"模板"获取到的设备SN号缓存区指针（缓存区 17 Bytes）
+//     * Return：
+//     * （1） 0：获取成功， Output数据有效
+//     * （2）-1：获取失败，参数错误，Output数据无效
+//     * Others：
+//     * （1）如果版本为XXXXXXXXXXXXXXXX，则获取"XXXXXXXXXXXXXXXX"，设备SN号为字符串形式，共16个有效字符
+//     */
+//    int TGGetSNFromTmpl(byte[] tmpl, byte[] SNInfo);
+//
+//    /**
+//     * Function:
+//     * 获取模板的FW号：
+//     * （1）从"模板"里面获取该"模板"生成时对应的设备FW号
+//     * Input：
+//     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
+//     * Output：
+//     * （1）char * FWInfo：从"模板"获取到的设备FW号缓存区指针（缓存区 17 Bytes）
+//     * Return：
+//     * （1） 0：获取成功， Output数据有效
+//     * （2）-1：获取失败，参数错误，Output数据无效
+//     * Others：
+//     * （1）如果版本为XXXXXXXXXXXXXXXX，则获取"XXXXXXXXXXXXXXXX"，设备FW号为字符串形式，共16个有效字符
+//     */
+//    int TGGetFWFromTmpl(byte[] tmpl, byte[] FWInfo);
+//
+//    /**
+//     * Function:
+//     * 获取模板的时间：
+//     * （1）从"模板"里面获取该"模板"生成时对应的时间
+//     * Input：
+//     * （1）unsigned char* tmpl："模板"数据缓存区指针(缓存区 17632 Bytes)
+//     * Output：
+//     * （1）char * timeInfo：从"模板"获取到的时间数据缓存区指针（缓存区 15 Bytes）
+//     * Return：
+//     * （1） 0：获取成功， Output数据有效
+//     * （2）-1：获取失败，参数错误，Output数据无效
+//     * Others：
+//     * （1）如果时间为2018-04-19 15:20:32，则获取"20180419152032"，时间为字符串形式，共14个有效字符
+//     */
+//    int TGGetTimeFromTmpl(byte[] tmpl, byte[] timeInfo);
 
 }

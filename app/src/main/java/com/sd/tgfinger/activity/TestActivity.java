@@ -9,6 +9,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -26,7 +28,9 @@ import com.sd.tgfinger.CallBack.DevFwCallBack;
 import com.sd.tgfinger.CallBack.DevOpenCallBack;
 import com.sd.tgfinger.CallBack.DevStatusCallBack;
 import com.sd.tgfinger.CallBack.FVVersionCallBack;
+import com.sd.tgfinger.CallBack.FingerVerifyResultListener;
 import com.sd.tgfinger.CallBack.FvInitCallBack;
+import com.sd.tgfinger.CallBack.OnStartDevStatusServiceListener;
 import com.sd.tgfinger.CallBack.ReadDataCallBack;
 import com.sd.tgfinger.CallBack.RegisterCallBack;
 import com.sd.tgfinger.CallBack.Verify1_1CallBack;
@@ -34,7 +38,6 @@ import com.sd.tgfinger.CallBack.Verify1_NCallBack;
 import com.sd.tgfinger.gapplication.R;
 import com.sd.tgfinger.pojos.Msg;
 import com.sd.tgfinger.tgApi.Constant;
-import com.sd.tgfinger.tgApi.TGBApi;
 import com.sd.tgfinger.tgApi.tgb1.TGB1API;
 import com.sd.tgfinger.utils.AlertDialogUtil;
 import com.sd.tgfinger.utils.FileUtil;
@@ -44,6 +47,8 @@ import com.sd.tgfinger.utils.ToastUtil;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created By pq
@@ -51,14 +56,14 @@ import java.util.List;
  * 小特征示例demo
  */
 public class TestActivity extends AppCompatActivity implements DevOpenCallBack, DevStatusCallBack,
-        View.OnClickListener {
+        View.OnClickListener, FingerVerifyResultListener {
 
-    private TextView tipTv, devStatus, FvVersion;
+    private TextView tipTv, devStatus, connectStatusTv, FvVersion;
     @SuppressLint("InlinedApi")
     private String[] perms = new String[]{
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-    private AlertDialog alertDialog;
+//    private AlertDialog alertDialog;
 
     private int readDataType = -1;
     private int templType = -1;
@@ -83,6 +88,10 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
     private byte[] finger6Data;
     private Integer finger6Size;
     private EditText et;
+    private SwitchCompat switchVoice;
+    private AppCompatCheckBox cbVerify;
+    private Timer timer;
+    private MyTask myTask;
 
 
     @Override
@@ -91,10 +100,18 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         setContentView(R.layout.activity_behind);
 
         tgapi = TGB1API.getTGAPI();
+        timer = new Timer();
+        myTask = new MyTask();
         initView();
         pers();//权限申请
         String sdkVersion = tgapi.getSDKVersion();
         SDKVersion.setText(sdkVersion);
+
+//        tgapi.setSoundPlay(this);
+        //保持屏幕常亮
+        if (tgapi != null)
+            tgapi.keepScreenLight(this);
+
     }
 
     private void pers() {
@@ -126,6 +143,7 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                     showTip("初始化成功");
                     openDev();
 //                    fvVersion();
+
                 }
             }
         });
@@ -163,13 +181,43 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         if (!tgapi.isDevOpen()) {
             //初始化准备数据
             readData();
-            alertDialog = AlertDialogUtil.Instance()
-                    .showWaitDialog( this,"设备正在打开...");
-            tgapi.openDev(Constant.WORK_BEHIND, Constant.TEMPL_MODEL_6, true,
-                    this, this);
+//            alertDialog = AlertDialogUtil.Instance()
+//                    .showWaitDialog(this, "设备正在打开...");
+//            LogUtils.d("打开设备：调用  11");
+            boolean sound = true;
+            tgapi.openDev(Constant.WORK_BEHIND, Constant.TEMPL_MODEL_6,
+                    sound, this, this);
+            if (sound) {
+                switchVoice.setChecked(false);
+            } else {
+                switchVoice.setChecked(true);
+            }
         } else {
             toast("设备已经打开");
         }
+    }
+
+    private void closeDev() {
+        if (tgapi.isDevOpen())
+            tgapi.closeDev(new DevCloseCallBack() {
+                @Override
+                public void devCloseResult(Msg msg) {
+                    Integer result = msg.getResult();
+                    LogUtils.d("关闭设备：" + result);
+                    toast(msg.getTip());
+                    dismissDialog();
+                    showTip(msg.getTip());
+                    connectStatusTv.setText(msg.getTip());
+                    //解绑Service
+                    //后比
+                    if (isRegisterService) {
+                        tgapi.unbindDevService(TestActivity.this);
+                        isRegisterService = false;
+                    }
+                }
+            });
+        else
+            toast("设备已经关闭");
     }
 
     private void getCurrentVoice() {
@@ -186,10 +234,10 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
     }
 
     private void dismissDialog() {
-        if (alertDialog != null && alertDialog.isShowing()) {
-            alertDialog.dismiss();
-            alertDialog = null;
-        }
+//        if (alertDialog != null && alertDialog.isShowing()) {
+//            alertDialog.dismiss();
+//            alertDialog = null;
+//        }
     }
 
     private AlertDialog alertDialog1;
@@ -237,12 +285,15 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         volumeTt = findViewById(R.id.volumeTt);
         SDKVersion = findViewById(R.id.SDKVersion);
         devStatus = findViewById(R.id.devStatus);
+        connectStatusTv = findViewById(R.id.connectStatusTv);
         templSumModel = findViewById(R.id.templSumModel);
         templ3Rb = findViewById(R.id.templ3Rb);
         templ6Rb = findViewById(R.id.templ6Rb);
         tipTv = findViewById(R.id.tipTv);
         FvVersion = findViewById(R.id.FvVersion);
         et = findViewById(R.id.templIDBehind);
+        switchVoice = findViewById(R.id.switchVoice);
+        cbVerify = findViewById(R.id.cbVerify);
 
         tgapi.setVolume(this, 1);
         getCurrentVoice();
@@ -262,6 +313,12 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         getTemplSN.setOnClickListener(this);
         templTimeBtn.setOnClickListener(this);
         getTemplAlgorVersionBtn.setOnClickListener(this);
+
+        //设置静音和连续验证的状态
+        statusSetting();
+    }
+
+    private void statusSetting() {
         //验证成功后，自动更新模板
         autoUpdateTempl.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -277,7 +334,7 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                     templType = Constant.TEMPL_MODEL_3;
                     tgapi.setTemplModelType(Constant.TEMPL_MODEL_3);
                     //初始化数据，开启连续验证
-                    //readFingerData(3);
+//                    readFingerData(3);
                     readData();
 
                 } else if (templ6Rb.getId() == i) {
@@ -286,6 +343,34 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                     //初始化数据，开启连续验证
                     //readFingerData(3);
                     readData();
+                }
+            }
+        });
+        switchVoice.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b) {
+                    tgapi.setSound(false);
+                } else {
+                    tgapi.setSound(true);
+                }
+            }
+        });
+        cbVerify.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (tgapi.isDevOpen()) {
+                    if (isChecked) {
+                        isCheck = true;
+                        isCancelVerify = false;
+                        ver1_nBtn.setVisibility(View.GONE);
+                    } else {
+                        isCheck = false;
+                        pauseFingerVerify();
+                        ver1_nBtn.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    ToastUtil.toast(TestActivity.this, "请先打开设备");
                 }
             }
         });
@@ -298,18 +383,7 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.closeDevBtn:
-                if (tgapi.isDevOpen())
-                    tgapi.closeDev(new DevCloseCallBack() {
-                        @Override
-                        public void devCloseResult(Msg msg) {
-                            Integer result = msg.getResult();
-                            LogUtils.d("关闭设备：" + result);
-                            toast(msg.getTip());
-                            dismissDialog();
-                        }
-                    });
-                else
-                    toast("设备已经关闭");
+                closeDev();
                 break;
             case R.id.openDevBtn:
                 openDev();
@@ -325,12 +399,13 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
             case R.id.cancelRegisterBtnBehind:
                 cancelRegisterBtnBehind.setClickable(false);
                 cancelGetImgType = 2;
-                tgapi.cancelRegisterGetImg( new CancelImgCallBack() {
+                tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
                     @Override
                     public void cancelImgCallBack(Msg msg) {
                         Integer result = msg.getResult();
                         LogUtils.d("取消注册的：" + result);
                         toast(msg.getTip());
+                        cancelRegisterBtnBehind.setClickable(true);
                     }
                 });
                 break;
@@ -383,6 +458,15 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                     if (result == 1) {
                         //验证分数
                         score = msg.getScore();
+                    } else if (result == -3) {
+                        tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
+                            @Override
+                            public void cancelImgCallBack(Msg msg) {
+                                Integer result = msg.getResult();
+                                LogUtils.d("取消注册的：" + result);
+                                toast(msg.getTip());
+                            }
+                        });
                     }
                     showTip(msg.getTip() + score);
                 }
@@ -431,9 +515,18 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                     showTip(msg.getTip() + " 分数:" + score);
                     //当比对分数大于某个设定的值，可更新指静脉模板
                     //eg：
-                    if (score >= 80) {
-                        updateFingerData(index, updateFingerData);
-                    }
+                    //更新库中的模板
+                    updateFingerData(index, updateFingerData);
+                } else if (result == -3) {
+                    showTip(msg.getTip());
+                    tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
+                        @Override
+                        public void cancelImgCallBack(Msg msg) {
+                            Integer result = msg.getResult();
+                            LogUtils.d("取消注册的：" + result);
+                            toast(msg.getTip());
+                        }
+                    });
                 } else {
                     showTip(msg.getTip());
                 }
@@ -452,6 +545,12 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
 
     //注册
     private void register() {
+        pauseFingerVerify();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         LogUtils.d("  指静脉数量：" + finger6Size);
         tgapi.extractFeatureRegister(finger6Data, finger6Size, new RegisterCallBack() {
             @Override
@@ -462,8 +561,23 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                 if (result == 8) {
                     toast(msg.getTip());
                     byte[] fingerData = msg.getFingerData();
+                    //将指静脉数据存储到文件夹
                     fingerData(fingerData, finger6Data,
                             finger6Size, Constant.MONI_EXTER_6_PATH);
+                    //将指静脉数据存到数据库
+//                    FingerDataUtil.getInstance().insertOrReplaceFinger(fingerData);
+                    if (isCheck) {
+                        isCancelVerify = false;
+                    }
+                } else if (result == -3) {
+                    tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
+                        @Override
+                        public void cancelImgCallBack(Msg msg) {
+                            Integer result = msg.getResult();
+                            LogUtils.d("取消注册的：" + result);
+                            toast(msg.getTip());
+                        }
+                    });
                 }
             }
         });
@@ -483,24 +597,57 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         return cellDataSpace;
     }
 
+    private boolean isRegisterService = false;
+
     @Override
     public void devOpenResult(Msg msg) {
         //打开设备的结果
         Integer result = msg.getResult();
-        LogUtils.d("设备打开：" + result);
+        LogUtils.d("设备状态：" + result);
         if (result == 1) {
             getDevFw();
             toast("设备打开成功");
             showTip(msg.getTip());
+            connectStatusTv.setText("设备连接成功");
             dismissDialog();
+            //后比
+            tgapi.startDevService(this, new OnStartDevStatusServiceListener() {
+                @Override
+                public void startDevServiceStatus(Boolean aBoolean) {
+                    if (aBoolean) {
+                        isRegisterService = true;
+                    }
+                }
+            });
+        }
+    }
+
+    private boolean isCheck = false;
+    private boolean isCancelGetImg = false;
+
+    @Override
+    public void devStatus(Msg msg) {
+        if (connectStatusTv != null)
+            connectStatusTv.setText(msg.getTip());
+        if (msg.getResult() == 1) {
+            if (!isStartLoopVerify && isCheck) {
+                taskSchedule();
+            }
+        } else {
+            if (!isCancelGetImg)
+                pauseFingerVerify();
         }
     }
 
     @Override
-    public void devStatus(Msg msg) {
-        Integer result = msg.getResult();
-        LogUtils.d("设备的状态：" + result);
-
+    public void fingerVerifyResult(int res, String msg, int score,
+                                   int index, Long fingerId, byte[] updateFinger) {
+        if (res == 1) {
+            ToastUtil.toast(this, getString(R.string.verify_success));
+        } else {
+            if (res == -1 || res == -2)
+                ToastUtil.toast(this, getString(R.string.verify_fail));
+        }
     }
 
     private void saveData(byte[] saveData, String savePath) {
@@ -528,12 +675,99 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         return cellFingerData;
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (tgapi != null)
+            tgapi.clearScreenLight(this);
+        pauseFingerVerify();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         finger6Data = null;
         finger6Size = 0;
+        isStartLoopVerify = false;
+    }
+
+
+    private void taskSchedule() {
+        if (!isCancelVerify) {
+            LogUtils.d("启动FingerService  111");
+            timer.schedule(myTask, 700, 700);
+        }
+    }
+
+    private Boolean isCancelVerify = false;
+    private Boolean isStartLoopVerify = false;
+
+    private void pauseFingerVerify() {
+        isCancelVerify = true;
+        tgapi.setSound(true);
+        if (tgapi != null) {
+            tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
+                @Override
+                public void cancelImgCallBack(Msg msg) {
+                    if (msg.getResult() == 1) {
+                        isCancelGetImg = true;
+                        LogUtils.d("取消抓图");
+                    }
+                }
+            });
+        }
+    }
+
+    private class MyTask extends TimerTask {
+
+        @Override
+        public void run() {
+            isStartLoopVerify = true;
+            LogUtils.d("  是否验证：" + isCancelVerify);
+            if (!isCancelVerify) {
+                tgapi.setSound(false);
+                tgapi.featureCompare1_N(finger6Data, finger6Size, new Verify1_NCallBack() {
+                    @Override
+                    public void verify1_NCallBack(Msg msg) {
+                        Integer result = msg.getResult();
+                        LogUtils.d("验证的结果:" + result);
+                        if (result == 1) {
+                            tgapi.getAP(TestActivity.this).play_verifySuccess();
+                            //比对的分数
+                            Integer score = msg.getScore();
+                            //比对模板对应的位置
+                            Integer index = msg.getIndex();
+                            //可更新的模板数据
+                            byte[] updateFingerData = msg.getFingerData();
+                            showTip(msg.getTip() + " 分数:" + score);
+                            //当比对分数大于某个设定的值，可更新指静脉模板
+                            //eg：
+                            //更新库中的模板
+                            updateFingerData(index, updateFingerData);
+                        } else if (result == -3) {
+                            tgapi.getAP(TestActivity.this).play_time_out();
+                            showTip(msg.getTip());
+                            tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
+                                @Override
+                                public void cancelImgCallBack(Msg msg) {
+                                    Integer result = msg.getResult();
+                                    LogUtils.d("取消注册的：" + result);
+                                    toast(msg.getTip());
+                                }
+                            });
+                        } else {
+                            tgapi.getAP(TestActivity.this).play_verifyFail();
+                            showTip(msg.getTip());
+                        }
+                    }
+                });
+            }
+        }
     }
 
 }

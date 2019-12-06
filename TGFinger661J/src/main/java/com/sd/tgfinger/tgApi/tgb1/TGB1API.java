@@ -2,6 +2,7 @@ package com.sd.tgfinger.tgApi.tgb1;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.sd.tgfinger.CallBack.CancelImgCallBack;
 import com.sd.tgfinger.CallBack.DataSaveCallBack;
@@ -54,6 +56,8 @@ import com.sd.tgfinger.pojos.RegisterResult;
 import com.sd.tgfinger.pojos.VerifyNBean;
 import com.sd.tgfinger.pojos.VerifyResult;
 import com.sd.tgfinger.tgApi.Constant;
+import com.sd.tgfinger.tgApi.bigFeature.TGB2API;
+import com.sd.tgfinger.tgApi.bigFeature.TGB2Constant;
 import com.sd.tgfinger.tgexecutor.TgExecutor;
 import com.sd.tgfinger.utils.AudioProvider;
 import com.sd.tgfinger.utils.DevRootUtil;
@@ -69,6 +73,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.Executor;
 
 /**
@@ -145,7 +150,7 @@ public class TGB1API {
     private DevStatusCallBack devStatusCallBack;
     private DevOpenCallBack devOpenCallBack;
     //SDK的当前版本号
-    private static final String SDK_VERSION = "1.2.5_191114_Beta";
+    private static final String SDK_VERSION = "1.4.5_191130_Beta";
 
     /**
      * 获取SDK的版本
@@ -196,6 +201,30 @@ public class TGB1API {
         return String.valueOf(streamVolumeMax);
     }
     /*设备音量相关的调节结束*/
+
+    /*保持屏幕常亮*/
+
+    /**
+     * 因为平板亮屏幕和熄屏会给设备上电和断电，频繁的上电和断电容易损伤设备
+     * 因此，多出这两个方法
+     * 保持屏幕常量
+     * 在onResume方法中调用
+     */
+    public void keepScreenLight(Activity activity) {
+        if (activity != null) {
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
+    /**
+     * 取消屏幕常亮
+     * 在onPause方法中调用
+     */
+    public void clearScreenLight(Activity activity) {
+        if (activity != null) {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
 
     /*以下是开启设备连接状态的服务*/
 
@@ -273,10 +302,14 @@ public class TGB1API {
         }
     });
 
+    private static final int MIN_CLICK_DELAY_TIME = 2000;
+    private long lastTime = 0;
+
     private void sendDevStatusToView(Message msg) {
         Bundle data = msg.getData();
         if (data != null) {
             int devServiceArg = data.getInt(Constant.STATUS);
+            int exeResult = data.getInt(TGB2Constant.EXE_CMD);
             LogUtils.d("接收到的设备状态：" + devServiceArg);
             if (devServiceArg == 0) {
                 if (devStatusCallBack != null)
@@ -286,10 +319,15 @@ public class TGB1API {
                     LogUtils.d("设备连接已断开。。。");
                     devStatusCallBack.devStatus(new Msg(-2, "设备已断开,重新连接中"));
                 }
+                long currentTime = Calendar.getInstance().getTimeInMillis();
                 this.isLink = false;
                 this.devOpen = false;
-                openDev(TGB1API.this.workType,TGB1API.this.templModelType,
-                        TGB1API.this.sound, TGB1API.this.devOpenCallBack,devStatusCallBack);
+                if (TGB1API.this.devOpenCallBack != null && devStatusCallBack != null
+                        /*&& exeResult == 0 */ && (currentTime - lastTime) > MIN_CLICK_DELAY_TIME) {
+                    lastTime = currentTime;
+                    openDev(TGB1API.this.workType, TGB1API.this.templModelType, TGB1API.this.sound,
+                            TGB1API.this.devOpenCallBack, devStatusCallBack);
+                }
             }
         }
     }
@@ -318,13 +356,16 @@ public class TGB1API {
         this.mContext = context;
         this.inputStream = inputStream;
         //检测设备是否已经root，通信节点初始化，初始化算法
-        Boolean devIsRoot = checkDevIsRoot();
-        if (devIsRoot) {
+//        Boolean devIsRoot = checkDevIsRoot();
+        int i = writeCMD();
+//        if (i == 0) {
+            createAimDirs();
             InitLicense(fvInitCallBack);
-        } else {
-            //CMD();
-            fvInitCallBack.fvInitResult(new Msg(-2, context.getString(R.string.device_no_root)));
-        }
+//        } else {
+//            if (fvInitCallBack != null) {
+//                fvInitCallBack.fvInitResult(new Msg(-2, "hid权限获取失败"));
+//            }
+//        }
     }
 
     /**
@@ -364,8 +405,8 @@ public class TGB1API {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    writeCMD();
-                    createAimDirs();
+//                    writeCMD();
+//                    createAimDirs();
                     final Msg msg = tgOpenDev();
                     myHandler.post(new Runnable() {
                         @Override
@@ -779,66 +820,66 @@ public class TGB1API {
 
     //获取模板生成的时间
     private void tgGetTemplTime(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[Constant.TIME_SIZE];
-        int tgGetSNFromTmplRes = getTGFV().TGGetTimeFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String time = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, time));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
+//        byte[] snData = new byte[Constant.TIME_SIZE];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetTimeFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String time = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, time));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
     }
 
     //获取模板的FW固件号
     private void tgGetTemplFW(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[17];
-        int tgGetSNFromTmplRes = getTGFV().TGGetFWFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String fw = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, fw));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
+//        byte[] snData = new byte[17];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetFWFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String fw = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, fw));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
     }
 
     //获取模板的SN号
     private void tgGetTemplSN(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[17];
-        int tgGetSNFromTmplRes = getTGFV().TGGetSNFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String sn = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, sn));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
+//        byte[] snData = new byte[17];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetSNFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String sn = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, sn));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
     }
 
     //获取模板算法的版本
     private void tgGetFVVersion(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[5];
-        int tgGetSNFromTmplRes = getTGFV().TGGetAPIVerFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String snVersion = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, snVersion));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
+//        byte[] snData = new byte[5];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetAPIVerFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String snVersion = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, snVersion));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
     }
 
     private void tgAloneFinger1N(byte[] fingerTemplData, int fingerSize, Boolean isSound, final VerifyMsg verifyMsg) {
@@ -1022,7 +1063,7 @@ public class TGB1API {
                 IntByReference intByReference = new IntByReference();
                 byte[] updateTempl = perfectTemplData();
                 int match1Res = getTGFV().TGFeatureMatchTmpl11(fingerFeatureData, templData,
-                            updateTempl, intByReference);
+                        updateTempl, intByReference);
                 if (match1Res == 0) {
                     res = 1;
                     //1:1验证分数
@@ -1598,32 +1639,32 @@ public class TGB1API {
     }
 
     //所有模板全部解析，执行
-    public byte[] resolveAllTempl(byte[] fingerTemplData, int fingerSize) {
-        byte[] matchData = comparableTemplData(fingerSize);
-        for (int i = 0; i < fingerSize; i++) {
-            //将模板一一解析
-            byte[] finger = null;
-            if (templModelType == Constant.TEMPL_MODEL_3) {
-                finger = new byte[Constant.PERFECT_FEATURE_3];
-            } else if (templModelType == Constant.TEMPL_MODEL_6) {
-                finger = new byte[Constant.PERFECT_FEATURE_6];
-            }
-            int fingerLength = 0;
-            if (templModelType == Constant.TEMPL_MODEL_3) {
-                fingerLength = Constant.PERFECT_FEATURE_3;
-            } else if (templModelType == Constant.TEMPL_MODEL_6) {
-                fingerLength = Constant.PERFECT_FEATURE_6;
-            }
-            System.arraycopy(fingerTemplData, fingerLength * i, finger, 0, fingerLength);
-            byte[] waitTempDatas = resolveTempl(finger);
-            if (waitTempDatas != null) {
-                int i1 = waitTempDatas.length * i;
-                System.arraycopy(waitTempDatas, 0,
-                        matchData, i1, waitTempDatas.length);
-            }
-        }
-        return matchData;
-    }
+//    public byte[] resolveAllTempl(byte[] fingerTemplData, int fingerSize) {
+//        byte[] matchData = comparableTemplData(fingerSize);
+//        for (int i = 0; i < fingerSize; i++) {
+//            //将模板一一解析
+//            byte[] finger = null;
+//            if (templModelType == Constant.TEMPL_MODEL_3) {
+//                finger = new byte[Constant.PERFECT_FEATURE_3];
+//            } else if (templModelType == Constant.TEMPL_MODEL_6) {
+//                finger = new byte[Constant.PERFECT_FEATURE_6];
+//            }
+//            int fingerLength = 0;
+//            if (templModelType == Constant.TEMPL_MODEL_3) {
+//                fingerLength = Constant.PERFECT_FEATURE_3;
+//            } else if (templModelType == Constant.TEMPL_MODEL_6) {
+//                fingerLength = Constant.PERFECT_FEATURE_6;
+//            }
+//            System.arraycopy(fingerTemplData, fingerLength * i, finger, 0, fingerLength);
+//            byte[] waitTempDatas = resolveTempl(finger);
+//            if (waitTempDatas != null) {
+//                int i1 = waitTempDatas.length * i;
+//                System.arraycopy(waitTempDatas, 0,
+//                        matchData, i1, waitTempDatas.length);
+//            }
+//        }
+//        return matchData;
+//    }
 
     //1:N验证抽取类
     private VerifyNBean tgTempl1_N(byte[] fingerFeature, byte[] fingerTemplData,
@@ -1663,6 +1704,8 @@ public class TGB1API {
         for (int i = 0; i < templTypeSize; i++) {
             //取消注册的终止跳出符
             if (isCancelRegister) {
+                //操作取消
+                registerResult = new RegisterResult(-5, null);
                 break;
             }
             if (templIndex == 0 && TGB1API.this.isLink && TGB1API.this.sound) {
@@ -1763,31 +1806,31 @@ public class TGB1API {
     }
 
     //解析模板 ==>大特征解析模板专用
-    private byte[] resolveTempl(byte[] oldMatchTemplData) {
-        /**
-         *      （1） 1：模板解析成功， Output数据有效
-         *      （2）-1：模板解析失败，因参数不合法，Output数据无效
-         *      -2:待解析的模板数据为null
-         */
-        //将模板解析为比对模板，实际上就是去掉前208位
-        if (oldMatchTemplData != null) {
-            byte[] matchTemplData = null;
-            if (templModelType == Constant.TEMPL_MODEL_3) {
-                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_3];
-            } else if (templModelType == Constant.TEMPL_MODEL_6) {
-                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_6];
-            }
-            int tgTmplToMatchTmplRes = getTGFV().TGTmplToMatchTmpl(oldMatchTemplData
-                    , matchTemplData);
-            if (tgTmplToMatchTmplRes == 0) {
-                return matchTemplData;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
+//    private byte[] resolveTempl(byte[] oldMatchTemplData) {
+//        /**
+//         *      （1） 1：模板解析成功， Output数据有效
+//         *      （2）-1：模板解析失败，因参数不合法，Output数据无效
+//         *      -2:待解析的模板数据为null
+//         */
+//        //将模板解析为比对模板，实际上就是去掉前208位
+//        if (oldMatchTemplData != null) {
+//            byte[] matchTemplData = null;
+//            if (templModelType == Constant.TEMPL_MODEL_3) {
+//                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_3];
+//            } else if (templModelType == Constant.TEMPL_MODEL_6) {
+//                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_6];
+//            }
+//            int tgTmplToMatchTmplRes = getTGFV().TGTmplToMatchTmpl(oldMatchTemplData
+//                    , matchTemplData);
+//            if (tgTmplToMatchTmplRes == 0) {
+//                return matchTemplData;
+//            } else {
+//                return null;
+//            }
+//        } else {
+//            return null;
+//        }
+//    }
 
     //获取完整模板的大小
     private byte[] perfectTemplData() {
@@ -2085,6 +2128,7 @@ public class TGB1API {
     //调用算法接口初始化算法
     private int FV_InitAct() {
         int tgInitFVProcessRes = getTGFV().TGInitFVProcess(Constant.LICENSE_PATH);
+        Log.e("", "算法初始化值：" + tgInitFVProcessRes);
         if (tgInitFVProcessRes == 0) {
             tgInitFVProcessRes = 1;
         } else if (tgInitFVProcessRes == 1) {
@@ -2208,22 +2252,26 @@ public class TGB1API {
     /**
      * 修改系统USB权限
      */
-    private void writeCMD() {
+    private int writeCMD() {
         String command1 = "chmod -R 777 /dev/*";
         String command = "chmod -R 777 /dev/bus/usb/*";
         String command2 = "chmod -R 777 /dev/hidraw0 \nchmod -R 777 /dev/hidraw1" +
                 " \nchmod -R 777 /dev/hidraw2 \nchmod -R 777 /dev/hidraw3 \nchmod -R 777 /dev/hidraw4";
+        String command3 = "chmod -R 777 /dev/hidraw*";
         try {
             Runtime runtime = Runtime.getRuntime();
-            Process process = runtime.exec(new String[]{"su", "-c", command});
+            Process process = runtime.exec(new String[]{"su", "-c", command3});
             int i = process.waitFor();
-            process = runtime.exec(new String[]{"su", "-c", command2});
-            int i1 = process.waitFor();
-            LogUtils.i("CDM写入su1111命令:" + i + "  hidraw :" + i1);
+//            process = runtime.exec(new String[]{"su", "-c", command2});
+//            int i1 = process.waitFor();
+            LogUtils.i("TGB1API    CDM写入su1111命令:" + i);
+            return i;
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return -1;
         }
     }
 

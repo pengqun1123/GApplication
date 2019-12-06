@@ -51,7 +51,8 @@ public final class Constant {
     public static final int FEATURE_SIZE =
 //            6016;//这个是大特征的大小
 //            2384;//这个是算法V3.0.0.4的特征大小
-            1152;//这个是算法V3.0.0.51的特征大小
+//            1152;//这个是算法V3.0.0.51的特征大小
+            1024;//这个是算法V3.0.0.9的特征大小
     //UUID的byte占位大小
     public static final int UUID_SIZE = 33;
     //算法版本
@@ -65,10 +66,12 @@ public final class Constant {
     //特征模板
     public static final int PERFECT_FEATURE_3 =
 //            17632;//大特征的大小
-            3248;//3特征  小特征的大小
+//            3248;//3特征  小特征的大小
+            3072;//3特征  小特征的大小
     public static final int PERFECT_FEATURE_6 =
 //            35008;//大特征的大小
-            6464;//6特征
+//            6464;//6特征
+            6144;//6特征
 
     //可比对的特征大小
     public static final int WAIT_COMPARE_FEATURE_6 = 34784;//6特征

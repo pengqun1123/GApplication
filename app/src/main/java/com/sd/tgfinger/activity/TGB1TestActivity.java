@@ -211,7 +211,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
                     //解绑Service
                     //后比
                     if (isRegisterService) {
-                        TGB2API.getTGAPI().unbindDevService(TGB1TestActivity.this);
+                        tgapi.unbindDevService(TGB1TestActivity.this);
                         isRegisterService = false;
                     }
                 }
@@ -359,11 +359,18 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
         cbVerify.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    isCheck = true;
-                    isCancelVerify = false;
+                if (tgapi.isDevOpen()) {
+                    if (isChecked) {
+                        isCheck = true;
+                        isCancelVerify = false;
+                        ver1_nBtn.setVisibility(View.GONE);
+                    } else {
+                        isCheck = false;
+                        pauseFingerVerify();
+                        ver1_nBtn.setVisibility(View.VISIBLE);
+                    }
                 } else {
-                    pauseFingerVerify();
+                    ToastUtil.toast(TGB1TestActivity.this, "请先开启设备");
                 }
             }
         });
@@ -395,6 +402,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
                 tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
                     @Override
                     public void cancelImgCallBack(Msg msg) {
+                        cancelRegisterBtnBehind.setClickable(true);
                         Integer result = msg.getResult();
                         LogUtils.d("取消注册的：" + result);
                         toast(msg.getTip());
@@ -558,7 +566,8 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
                             finger6Size, TGB2Constant.MONI_EXTER_6_PATH);
                     //将指静脉数据存到数据库
 //                    FingerDataUtil.getInstance().insertOrReplaceFinger(fingerData);
-                    isCancelVerify = false;
+                    if (isCheck)
+                        isCancelVerify = false;
                 } else if (result == -3) {
                     tgapi.cancelRegisterGetImg(new CancelImgCallBack() {
                         @Override
@@ -600,7 +609,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
             showTip(msg.getTip());
             dismissDialog();
             //后比
-            TGB2API.getTGAPI().startDevService(this, new OnStartDevStatusServiceListener() {
+            tgapi.startDevService(this, new OnStartDevStatusServiceListener() {
                 @Override
                 public void startDevServiceStatus(Boolean aBoolean) {
                     if (aBoolean) {
@@ -731,7 +740,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
             LogUtils.d("  是否验证：" + isCancelVerify);
             if (!isCancelVerify) {
                 tgapi.setSound(false);
-                TGB2API.getTGAPI().featureCompare1_N(finger6Data, finger6Size, new Verify1_NCallBack() {
+                tgapi.featureCompare1_N(finger6Data, finger6Size, new Verify1_NCallBack() {
                     @Override
                     public void verify1_NCallBack(Msg msg) {
                         Integer result = msg.getResult();

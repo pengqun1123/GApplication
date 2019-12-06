@@ -324,7 +324,7 @@ public class TGB2API {
                 this.isLink = false;
                 this.devOpen = false;
                 if (TGB2API.this.devOpenCallBack != null && devStatusCallBack != null
-                        /*&& exeResult == 0 */&& (currentTime - lastTime) > MIN_CLICK_DELAY_TIME) {
+                        /*&& exeResult == 0 */ && (currentTime - lastTime) > MIN_CLICK_DELAY_TIME) {
                     lastTime = currentTime;
                     openDev(TGB2API.this.workType, TGB2API.this.templModelType, TGB2API.this.sound,
                             TGB2API.this.devOpenCallBack, devStatusCallBack);
@@ -357,14 +357,16 @@ public class TGB2API {
         this.mContext = context;
         this.inputStream = inputStream;
         //检测设备是否已经root，通信节点初始化，初始化算法
-        Boolean devIsRoot = checkDevIsRoot();
-        if (devIsRoot) {
-            writeCMD();
-            InitLicense(fvInitCallBack);
-        } else {
-            writeCMD();
-            fvInitCallBack.fvInitResult(new Msg(-2, context.getString(R.string.device_no_root)));
-        }
+//        Boolean devIsRoot = checkDevIsRoot();
+        int i = writeCMD();
+//        if (i == 0) {
+        createAimDirs();
+        InitLicense(fvInitCallBack);
+//        } else {
+//            if (fvInitCallBack != null) {
+//                fvInitCallBack.fvInitResult(new Msg(-2, "hid权限获取失败"));
+//            }
+//        }
     }
 
     /**
@@ -1412,7 +1414,7 @@ public class TGB2API {
      * -10:登记失败
      */
     private Msg tgDevRegister(@NonNull byte[] templData, @NonNull Integer templSize) {
-        Msg msg = null;
+        Msg msg = new Msg(-10, "登记失败", (byte[]) null);
         if (continueVerify)
             return null;
         //首先检查主机中已注册的模板文件名是否已存在
@@ -1425,16 +1427,24 @@ public class TGB2API {
             if (res == 1) {
                 if (templModelType == TGB2Constant.TEMPL_MODEL_3) {
                     registerResult = registerFinger(TGB2Constant.TEMPL_MODEL_3 - 1);
-                    Integer result = registerResult.getResult();
-                    byte[] registerFinger = registerResult.getRegisterFinger();
-                    String s = resTip(result);
-                    msg = new Msg(result, s, registerFinger);
+                    if (registerResult != null) {
+                        Integer result = registerResult.getResult();
+                        byte[] registerFinger = registerResult.getRegisterFinger();
+                        String s = resTip(result);
+                        msg = new Msg(result, s, registerFinger);
+                    } else {
+                        msg = new Msg(-10, "登记失败", (byte[]) null);
+                    }
                 } else if (templModelType == TGB2Constant.TEMPL_MODEL_6) {
                     registerResult = registerFinger(TGB2Constant.TEMPL_MODEL_6 - 1);
-                    Integer result = registerResult.getResult();
-                    byte[] registerFinger = registerResult.getRegisterFinger();
-                    String s = resTip(result);
-                    msg = new Msg(result, s, registerFinger);
+                    if (registerResult != null) {
+                        Integer result = registerResult.getResult();
+                        byte[] registerFinger = registerResult.getRegisterFinger();
+                        String s = resTip(result);
+                        msg = new Msg(result, s, registerFinger);
+                    } else {
+                        msg = new Msg(-10, "登记失败", (byte[]) null);
+                    }
                 }
                 templIndex = 0;
                 aimByte = null;
@@ -1445,16 +1455,24 @@ public class TGB2API {
         } else {
             if (templModelType == TGB2Constant.TEMPL_MODEL_3) {
                 registerResult = registerFinger(TGB2Constant.TEMPL_MODEL_3);
-                Integer result = registerResult.getResult();
-                byte[] registerFinger = registerResult.getRegisterFinger();
-                String s = resTip(result);
-                msg = new Msg(result, s, registerFinger);
+                if (registerResult != null) {
+                    Integer result = registerResult.getResult();
+                    byte[] registerFinger = registerResult.getRegisterFinger();
+                    String s = resTip(result);
+                    msg = new Msg(result, s, registerFinger);
+                } else {
+                    msg = new Msg(-10, "登记失败", (byte[]) null);
+                }
             } else if (templModelType == TGB2Constant.TEMPL_MODEL_6) {
                 registerResult = registerFinger(TGB2Constant.TEMPL_MODEL_6);
-                Integer result = registerResult.getResult();
-                byte[] registerFinger = registerResult.getRegisterFinger();
-                String s = resTip(result);
-                msg = new Msg(result, s, registerFinger);
+                if (registerResult != null) {
+                    Integer result = registerResult.getResult();
+                    byte[] registerFinger = registerResult.getRegisterFinger();
+                    String s = resTip(result);
+                    msg = new Msg(result, s, registerFinger);
+                } else {
+                    msg = new Msg(-10, "登记失败", (byte[]) null);
+                }
             }
             templIndex = 0;
             aimByte = null;
@@ -1747,10 +1765,12 @@ public class TGB2API {
 
     //特征融合完成登记的方法
     private RegisterResult registerFinger(int templTypeSize) {
-        RegisterResult registerResult = null;
+        RegisterResult registerResult = new RegisterResult(-7, null);
         for (int i = 0; i < templTypeSize; i++) {
             //取消注册的终止跳出符
             if (isCancelRegister) {
+                //操作取消
+                registerResult = new RegisterResult(-5, null);
                 break;
             }
             if (templIndex == 0 && TGB2API.this.isLink) {
@@ -2304,7 +2324,7 @@ public class TGB2API {
     /**
      * 修改系统USB权限
      */
-    private void writeCMD() {
+    private int writeCMD() {
         String command1 = "chmod -R 777 /dev/*";
         String command = "chmod -R 777 /dev/bus/usb/*";
         String command2 = "chmod -R 777 /dev/hidraw0 \nchmod -R 777 /dev/hidraw1" +
@@ -2317,10 +2337,13 @@ public class TGB2API {
 //            process = runtime.exec(new String[]{"su", "-c", command2});
 //            int i1 = process.waitFor();
             LogUtils.i("TGB2API    CDM写入su1111命令:" + i);
+            return i;
         } catch (IOException e) {
             e.printStackTrace();
+            return -1;
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return -1;
         }
     }
 

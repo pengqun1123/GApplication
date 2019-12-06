@@ -29,17 +29,7 @@
             android:windowSoftInputMode="stateHidden">
 
         </activity>
-        <activity android:name=".BTestActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden">
-
-        </activity>
         <activity android:name="com.sd.tgfinger.activity.TestActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden">
-
-        </activity>
-        <activity android:name="com.sd.tgfinger.activity.TGB1TestActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -47,6 +37,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.sd.tgfinger.activity.TGB1TestActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden">
+
         </activity>
 
         <service android:name="com.sd.tgfinger.utils.FingerService"

@@ -51,6 +51,8 @@ import com.sd.tgfinger.pojos.RegisterResult;
 import com.sd.tgfinger.pojos.VerifyNBean;
 import com.sd.tgfinger.pojos.VerifyResult;
 import com.sd.tgfinger.tgApi.bigFeature.TGB2API;
+import com.sd.tgfinger.tgApi.bigFeature.TGB2Constant;
+import com.sd.tgfinger.tgApi.tgb1.TGB1API;
 import com.sd.tgfinger.tgexecutor.TgExecutor;
 import com.sd.tgfinger.utils.AudioProvider;
 import com.sd.tgfinger.utils.DevRootUtil;
@@ -66,6 +68,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.Executor;
 
 /**
@@ -275,10 +278,14 @@ public class TGBApi {
         }
     });
 
+    private static final int MIN_CLICK_DELAY_TIME = 2000;
+    private long lastTime = 0;
+
     private void sendDevStatusToView(Message msg) {
         Bundle data = msg.getData();
         if (data != null) {
             int devServiceArg = data.getInt(Constant.STATUS);
+            int exeResult = data.getInt(TGB2Constant.EXE_CMD);
             LogUtils.d("接收到的设备状态：" + devServiceArg);
             if (devServiceArg == 0) {
                 if (devStatusCallBack != null)
@@ -288,10 +295,15 @@ public class TGBApi {
                     LogUtils.d("设备连接已断开。。。");
                     devStatusCallBack.devStatus(new Msg(-2, "设备已断开,重新连接中"));
                 }
+                long currentTime = Calendar.getInstance().getTimeInMillis();
                 this.isLink = false;
                 this.devOpen = false;
-                openDev(TGBApi.this.activity,TGBApi.this.workType,TGBApi.this.templModelType,
-                        TGBApi.this.sound, TGBApi.this.devOpenCallBack,devStatusCallBack);
+                if (TGBApi.this.devOpenCallBack != null && devStatusCallBack != null
+                        /*&& exeResult == 0 */ && (currentTime - lastTime) > MIN_CLICK_DELAY_TIME) {
+                    lastTime = currentTime;
+                    openDev(TGBApi.this.activity, TGBApi.this.workType, TGBApi.this.templModelType,
+                            TGBApi.this.sound, TGBApi.this.devOpenCallBack, devStatusCallBack);
+                }
             }
         }
     }
@@ -678,107 +690,107 @@ public class TGBApi {
     /**
      * 获取模板对应的算法的版本
      */
-    public void getTemplVersion(@NonNull final Activity activity,
-                                @NonNull final byte[] fingerData,
-                                final FVVersionCallBack fvVersionCallBack) {
-        this.activity = activity;
-        if (executor != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    tgGetFVVersion(fingerData, new MsgCallBack() {
-                        @Override
-                        public void msgCallBack(final Msg msg) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    fvVersionCallBack.fvVersionCallBack(msg);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    }
+//    public void getTemplVersion(@NonNull final Activity activity,
+//                                @NonNull final byte[] fingerData,
+//                                final FVVersionCallBack fvVersionCallBack) {
+//        this.activity = activity;
+//        if (executor != null) {
+//            executor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    tgGetFVVersion(fingerData, new MsgCallBack() {
+//                        @Override
+//                        public void msgCallBack(final Msg msg) {
+//                            activity.runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    fvVersionCallBack.fvVersionCallBack(msg);
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//    }
 
     /**
      * 获取模板的SN序列号
      */
-    public void getTemplSN(@NonNull final Activity activity, @NonNull final byte[] fingerData,
-                           final SnCallBack snCallBack) {
-        this.activity = activity;
-        if (executor != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    tgGetTemplSN(fingerData, new MsgCallBack() {
-                        @Override
-                        public void msgCallBack(final Msg msg) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    snCallBack.snCallBack(msg);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    }
+//    public void getTemplSN(@NonNull final Activity activity, @NonNull final byte[] fingerData,
+//                           final SnCallBack snCallBack) {
+//        this.activity = activity;
+//        if (executor != null) {
+//            executor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    tgGetTemplSN(fingerData, new MsgCallBack() {
+//                        @Override
+//                        public void msgCallBack(final Msg msg) {
+//                            activity.runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    snCallBack.snCallBack(msg);
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//    }
 
     /**
      * 获取模板的FW固件号
      */
-    public void getTemplFW(@NonNull final Activity activity, final byte[] fingerData,
-                           final FwCallBack fwCallBack) {
-        this.activity = activity;
-        if (executor != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    tgGetTemplFW(fingerData, new MsgCallBack() {
-                        @Override
-                        public void msgCallBack(final Msg msg) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    fwCallBack.fwCallBack(msg);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    }
+//    public void getTemplFW(@NonNull final Activity activity, final byte[] fingerData,
+//                           final FwCallBack fwCallBack) {
+//        this.activity = activity;
+//        if (executor != null) {
+//            executor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    tgGetTemplFW(fingerData, new MsgCallBack() {
+//                        @Override
+//                        public void msgCallBack(final Msg msg) {
+//                            activity.runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    fwCallBack.fwCallBack(msg);
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//    }
 
     /**
      * 获取模板对应的时间
      */
-    public void getTemplTime(@NonNull final Activity activity, @NonNull final byte[] fingerData,
-                             final FingerTimeCallBcak fingerTimeCallBcak) {
-        this.activity = activity;
-        if (executor != null) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    tgGetTemplTime(fingerData, new MsgCallBack() {
-                        @Override
-                        public void msgCallBack(final Msg msg) {
-                            activity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    fingerTimeCallBcak.fingerTimeCallBack(msg);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    }
+//    public void getTemplTime(@NonNull final Activity activity, @NonNull final byte[] fingerData,
+//                             final FingerTimeCallBcak fingerTimeCallBcak) {
+//        this.activity = activity;
+//        if (executor != null) {
+//            executor.execute(new Runnable() {
+//                @Override
+//                public void run() {
+//                    tgGetTemplTime(fingerData, new MsgCallBack() {
+//                        @Override
+//                        public void msgCallBack(final Msg msg) {
+//                            activity.runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    fingerTimeCallBcak.fingerTimeCallBack(msg);
+//                                }
+//                            });
+//                        }
+//                    });
+//                }
+//            });
+//        }
+//    }
 
 
     /*  内部接口  */
@@ -809,68 +821,68 @@ public class TGBApi {
     /******************************单次1:N与连续1:N接口请勿同时使用********************************/
 
     //获取模板生成的时间
-    private void tgGetTemplTime(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[Constant.TIME_SIZE];
-        int tgGetSNFromTmplRes = getTGFV().TGGetTimeFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String time = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, time));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
-    }
+//    private void tgGetTemplTime(byte[] templData, MsgCallBack msgCallBack) {
+//        byte[] snData = new byte[Constant.TIME_SIZE];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetTimeFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String time = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, time));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
+//    }
 
     //获取模板的FW固件号
-    private void tgGetTemplFW(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[17];
-        int tgGetSNFromTmplRes = getTGFV().TGGetFWFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String fw = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, fw));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
-    }
+//    private void tgGetTemplFW(byte[] templData, MsgCallBack msgCallBack) {
+//        byte[] snData = new byte[17];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetFWFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String fw = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, fw));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
+//    }
 
     //获取模板的SN号
-    private void tgGetTemplSN(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[17];
-        int tgGetSNFromTmplRes = getTGFV().TGGetSNFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String sn = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, sn));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
-    }
+//    private void tgGetTemplSN(byte[] templData, MsgCallBack msgCallBack) {
+//        byte[] snData = new byte[17];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetSNFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String sn = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, sn));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
+//    }
 
     //获取模板算法的版本
-    private void tgGetFVVersion(byte[] templData, MsgCallBack msgCallBack) {
-        byte[] snData = new byte[5];
-        int tgGetSNFromTmplRes = getTGFV().TGGetAPIVerFromTmpl(templData, snData);
-        if (tgGetSNFromTmplRes == 0) {
-            try {
-                String snVersion = new String(snData, "UTF-8");
-                msgCallBack.msgCallBack(new Msg(1, snVersion));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else if (tgGetSNFromTmplRes == -1) {
-            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
-        }
-    }
+//    private void tgGetFVVersion(byte[] templData, MsgCallBack msgCallBack) {
+//        byte[] snData = new byte[5];
+//        int tgGetSNFromTmplRes = getTGFV().TGGetAPIVerFromTmpl(templData, snData);
+//        if (tgGetSNFromTmplRes == 0) {
+//            try {
+//                String snVersion = new String(snData, "UTF-8");
+//                msgCallBack.msgCallBack(new Msg(1, snVersion));
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (tgGetSNFromTmplRes == -1) {
+//            msgCallBack.msgCallBack(new Msg(-1, "获取失败，参数错误，Output数据无效"));
+//        }
+//    }
 
     private void tgAloneFinger1N(byte[] fingerTemplData, int fingerSize, Boolean isSound, final VerifyMsg verifyMsg) {
         //3特征模式的话
@@ -1629,32 +1641,32 @@ public class TGBApi {
     }
 
     //所有模板全部解析，执行
-    public byte[] resolveAllTempl(byte[] fingerTemplData, int fingerSize) {
-        byte[] matchData = comparableTemplData(fingerSize);
-        for (int i = 0; i < fingerSize; i++) {
-            //将模板一一解析
-            byte[] finger = null;
-            if (templModelType == Constant.TEMPL_MODEL_3) {
-                finger = new byte[Constant.PERFECT_FEATURE_3];
-            } else if (templModelType == Constant.TEMPL_MODEL_6) {
-                finger = new byte[Constant.PERFECT_FEATURE_6];
-            }
-            int fingerLength = 0;
-            if (templModelType == Constant.TEMPL_MODEL_3) {
-                fingerLength = Constant.PERFECT_FEATURE_3;
-            } else if (templModelType == Constant.TEMPL_MODEL_6) {
-                fingerLength = Constant.PERFECT_FEATURE_6;
-            }
-            System.arraycopy(fingerTemplData, fingerLength * i, finger, 0, fingerLength);
-            byte[] waitTempDatas = resolveTempl(finger);
-            if (waitTempDatas != null) {
-                int i1 = waitTempDatas.length * i;
-                System.arraycopy(waitTempDatas, 0,
-                        matchData, i1, waitTempDatas.length);
-            }
-        }
-        return matchData;
-    }
+//    public byte[] resolveAllTempl(byte[] fingerTemplData, int fingerSize) {
+//        byte[] matchData = comparableTemplData(fingerSize);
+//        for (int i = 0; i < fingerSize; i++) {
+//            //将模板一一解析
+//            byte[] finger = null;
+//            if (templModelType == Constant.TEMPL_MODEL_3) {
+//                finger = new byte[Constant.PERFECT_FEATURE_3];
+//            } else if (templModelType == Constant.TEMPL_MODEL_6) {
+//                finger = new byte[Constant.PERFECT_FEATURE_6];
+//            }
+//            int fingerLength = 0;
+//            if (templModelType == Constant.TEMPL_MODEL_3) {
+//                fingerLength = Constant.PERFECT_FEATURE_3;
+//            } else if (templModelType == Constant.TEMPL_MODEL_6) {
+//                fingerLength = Constant.PERFECT_FEATURE_6;
+//            }
+//            System.arraycopy(fingerTemplData, fingerLength * i, finger, 0, fingerLength);
+//            byte[] waitTempDatas = resolveTempl(finger);
+//            if (waitTempDatas != null) {
+//                int i1 = waitTempDatas.length * i;
+//                System.arraycopy(waitTempDatas, 0,
+//                        matchData, i1, waitTempDatas.length);
+//            }
+//        }
+//        return matchData;
+//    }
 
     //1:N验证抽取类
     private VerifyNBean tgTempl1_N(byte[] fingerFeature, byte[] fingerTemplData,
@@ -1794,31 +1806,31 @@ public class TGBApi {
     }
 
     //解析模板 ==>大特征解析模板专用
-    private byte[] resolveTempl(byte[] oldMatchTemplData) {
-        /**
-         *      （1） 1：模板解析成功， Output数据有效
-         *      （2）-1：模板解析失败，因参数不合法，Output数据无效
-         *      -2:待解析的模板数据为null
-         */
-        //将模板解析为比对模板，实际上就是去掉前208位
-        if (oldMatchTemplData != null) {
-            byte[] matchTemplData = null;
-            if (templModelType == Constant.TEMPL_MODEL_3) {
-                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_3];
-            } else if (templModelType == Constant.TEMPL_MODEL_6) {
-                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_6];
-            }
-            int tgTmplToMatchTmplRes = getTGFV().TGTmplToMatchTmpl(oldMatchTemplData
-                    , matchTemplData);
-            if (tgTmplToMatchTmplRes == 0) {
-                return matchTemplData;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
+//    private byte[] resolveTempl(byte[] oldMatchTemplData) {
+//        /**
+//         *      （1） 1：模板解析成功， Output数据有效
+//         *      （2）-1：模板解析失败，因参数不合法，Output数据无效
+//         *      -2:待解析的模板数据为null
+//         */
+//        //将模板解析为比对模板，实际上就是去掉前208位
+//        if (oldMatchTemplData != null) {
+//            byte[] matchTemplData = null;
+//            if (templModelType == Constant.TEMPL_MODEL_3) {
+//                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_3];
+//            } else if (templModelType == Constant.TEMPL_MODEL_6) {
+//                matchTemplData = new byte[Constant.WAIT_COMPARE_FEATURE_6];
+//            }
+//            int tgTmplToMatchTmplRes = getTGFV().TGTmplToMatchTmpl(oldMatchTemplData
+//                    , matchTemplData);
+//            if (tgTmplToMatchTmplRes == 0) {
+//                return matchTemplData;
+//            } else {
+//                return null;
+//            }
+//        } else {
+//            return null;
+//        }
+//    }
 
     //获取完整模板的大小
     private byte[] perfectTemplData() {
