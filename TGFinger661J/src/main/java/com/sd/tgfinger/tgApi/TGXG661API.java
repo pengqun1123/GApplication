@@ -7,7 +7,7 @@ import com.sun.jna.ptr.IntByReference;
 /**
  * Created By pq
  * on 2019/3/19
- * 通信库
+ * 通信库V_19
  */
 public interface TGXG661API extends Library {
 

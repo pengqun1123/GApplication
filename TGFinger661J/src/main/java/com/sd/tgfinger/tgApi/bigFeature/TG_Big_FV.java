@@ -6,6 +6,7 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * 大特征算法
+ * 
  */
 public interface TG_Big_FV extends Library {
 

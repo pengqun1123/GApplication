@@ -35,6 +35,7 @@ import com.sd.tgfinger.CallBack.ReadDataCallBack;
 import com.sd.tgfinger.CallBack.RegisterCallBack;
 import com.sd.tgfinger.CallBack.Verify1_1CallBack;
 import com.sd.tgfinger.CallBack.Verify1_NCallBack;
+import com.sd.tgfinger.CallBack.VerifyFeatureCallBack;
 import com.sd.tgfinger.gapplication.R;
 import com.sd.tgfinger.pojos.Msg;
 import com.sd.tgfinger.tgApi.bigFeature.TGB2API;
@@ -48,6 +49,7 @@ import com.sd.tgfinger.utils.ToastUtil;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -107,7 +109,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
         String sdkVersion = tgapi.getSDKVersion();
         SDKVersion.setText(sdkVersion);
 
-//        tgapi.setSoundPlay(this);
+        tgapi.setSoundPlay(this);
         //保持屏幕常亮
         if (tgapi != null)
             tgapi.keepScreenLight(this);
@@ -119,7 +121,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
         if (i == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, perms, 0x11);
         } else {
-            initFv();
+            openDev();
         }
     }
 
@@ -130,7 +132,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
         if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, permissions, 0x11);
         } else {
-            initFv();
+            openDev();
         }
     }
 
@@ -141,9 +143,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
             public void fvInitResult(Msg msg) {
                 if (msg.getResult() == 1) {
                     showTip("初始化成功");
-                    openDev();
 //                    fvVersion();
-
                 }
             }
         });
@@ -155,6 +155,16 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
             @Override
             public void devFwCallBack(String fw) {
                 devFw.setText(MessageFormat.format("固件号:{0}", fw));
+                //后比
+                tgapi.startDevService(TGB1TestActivity.this
+                        , new OnStartDevStatusServiceListener() {
+                            @Override
+                            public void startDevServiceStatus(Boolean aBoolean) {
+                                if (aBoolean) {
+                                    isRegisterService = true;
+                                }
+                            }
+                        });
             }
         });
     }
@@ -171,6 +181,7 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
                     for (int i1 = 0; i1 < fvVersion.length; i1++) {
                         sb.append(fvVersion[i1]);
                     }
+                    LogUtils.d("算法版本：" + sb.toString());
                     FvVersion.setText(MessageFormat.format("算法版本:{0}", sb.toString()));
                 }
             }
@@ -420,6 +431,18 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
             case R.id.ver1_1Btn:
                 //验证
                 verify();
+//                tgapi.getAP(this)
+//                        .play_inputDownGently();
+//                tgapi.verifyFeature(3, new VerifyFeatureCallBack() {
+//                    @Override
+//                    public void verifyFeatureCallBack(int code, String tip, byte[] feature) {
+//                        if (code == 1) {
+//                            LogUtils.d(tip + "data:" + Arrays.toString(feature));
+//                        } else {
+//                            LogUtils.d("code:" + code + "  tip:" + tip);
+//                        }
+//                    }
+//                });
                 break;
 
         }
@@ -604,19 +627,12 @@ public class TGB1TestActivity extends AppCompatActivity implements DevOpenCallBa
         Integer result = msg.getResult();
         LogUtils.d("设备状态：" + result);
         if (result == 1) {
+            initFv();
             getDevFw();
             toast("设备打开成功");
             showTip(msg.getTip());
             dismissDialog();
-            //后比
-            tgapi.startDevService(this, new OnStartDevStatusServiceListener() {
-                @Override
-                public void startDevServiceStatus(Boolean aBoolean) {
-                    if (aBoolean) {
-                        isRegisterService = true;
-                    }
-                }
-            });
+
         }
     }
 

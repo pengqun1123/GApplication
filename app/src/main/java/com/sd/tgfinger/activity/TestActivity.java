@@ -36,6 +36,7 @@ import com.sd.tgfinger.CallBack.RegisterCallBack;
 import com.sd.tgfinger.CallBack.Verify1_1CallBack;
 import com.sd.tgfinger.CallBack.Verify1_NCallBack;
 import com.sd.tgfinger.gapplication.R;
+import com.sd.tgfinger.pojos.FusionFeatureBean;
 import com.sd.tgfinger.pojos.Msg;
 import com.sd.tgfinger.tgApi.Constant;
 import com.sd.tgfinger.tgApi.tgb1.TGB1API;
@@ -294,6 +295,25 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         et = findViewById(R.id.templIDBehind);
         switchVoice = findViewById(R.id.switchVoice);
         cbVerify = findViewById(R.id.cbVerify);
+
+        findViewById(R.id.refuse).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                byte[] aimByte = new byte[Constant.FEATURE_SIZE * 6];
+                for (int i = 0; i < 6; i++) {
+                    byte[] feature = FileUtil.readBytes(Constant.BEHIND_TEMPL_6_PATH + "/F_" + i);
+                    int length = i * Constant.FEATURE_SIZE;
+                    System.arraycopy(feature, 0, aimByte, length, feature.length);
+                }
+                FusionFeatureBean fusionFeatureBean = tgapi.fusionFeature(aimByte, 6);
+                if (fusionFeatureBean != null) {
+                    int fusionResult = fusionFeatureBean.getFusionResult();
+                    LogUtils.d("特征融合的结果:" + fusionResult);
+
+                }
+            }
+        });
 
         tgapi.setVolume(this, 1);
         getCurrentVoice();
@@ -606,6 +626,7 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         LogUtils.d("设备状态：" + result);
         if (result == 1) {
             getDevFw();
+            tgapi.isSaveImgData(true);
             toast("设备打开成功");
             showTip(msg.getTip());
             connectStatusTv.setText("设备连接成功");
@@ -619,6 +640,8 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
                     }
                 }
             });
+        } else {
+            toast("设备打开失败");
         }
     }
 
@@ -650,9 +673,14 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         }
     }
 
+    /**
+     * 存储数据
+     * @param saveData  待存储的数据
+     * @param savePath  存储的路径
+     */
     private void saveData(byte[] saveData, String savePath) {
         long timeMillis = System.currentTimeMillis();
-        String path = savePath + File.separator + String.valueOf(timeMillis);
+        String path = savePath + File.separator + timeMillis;
         tgapi.saveDataToHost(saveData, path, new DataSaveCallBack() {
             @Override
             public void dataSaveCallBack(Msg msg) {

@@ -129,7 +129,7 @@ public class ImgExechangeBMP {
         System.arraycopy(header, 0, imgDatas, 0, header.length);
         System.arraycopy(patte, 0, imgDatas, 54, patte.length);
         System.arraycopy(imgData, 0, imgDatas, 1078, imgData.length);
-        boolean imgSave = com.sd.tgfinger.utils.FileUtil.writeFile(imgDatas, imgSavePath);
+        boolean imgSave = FileUtil.writeFile(imgDatas, imgSavePath);
         Log.i("===BMP","   BMP存储路径："+imgSavePath);
         return imgDatas;
     }

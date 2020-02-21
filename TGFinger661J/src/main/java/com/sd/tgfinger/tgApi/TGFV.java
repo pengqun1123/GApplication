@@ -7,7 +7,7 @@ import com.sun.jna.ptr.IntByReference;
 /**
  * Created By pq
  * on 2019/3/27
- * 小特征算法
+ * 小特征算法V_3.0.0.9
  */
 public interface TGFV extends Library {
 

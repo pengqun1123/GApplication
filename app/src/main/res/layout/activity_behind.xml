@@ -225,7 +225,8 @@
             android:gravity="center"
             android:padding="5dp"
             android:text="静音"
-            android:textSize="15sp" />
+            android:textSize="15sp"
+            android:visibility="gone" />
 
         <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/cbVerify"
@@ -316,12 +317,20 @@
             android:visibility="gone" />
 
         <Button
+            android:id="@+id/refuse"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="特征融合"
+            android:visibility="visible" />
+
+        <Button
             android:id="@+id/ver1_NBtn"
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:layout_weight="1"
-            android:visibility="visible"
-            android:text="1:N验证" />
+            android:text="1:N验证"
+            android:visibility="visible" />
 
         <CheckBox
             android:id="@+id/autoUpdateTempl"

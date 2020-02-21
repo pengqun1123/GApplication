@@ -45,7 +45,6 @@ import com.sd.tgfinger.CallBack.Verify1_NCallBack;
 import com.sd.tgfinger.CallBack.VerifyGetFingerImgListener;
 import com.sd.tgfinger.CallBack.VerifyMsg;
 import com.sd.tgfinger.R;
-import com.sd.tgfinger.tgApi.TGBApi;
 import com.sd.tgfinger.tgApi.TGFV;
 import com.sd.tgfinger.tgApi.TGXG661API;
 import com.sd.tgfinger.pojos.FingerFeatureBean;
@@ -56,8 +55,6 @@ import com.sd.tgfinger.pojos.RegisterResult;
 import com.sd.tgfinger.pojos.VerifyNBean;
 import com.sd.tgfinger.pojos.VerifyResult;
 import com.sd.tgfinger.tgApi.Constant;
-import com.sd.tgfinger.tgApi.bigFeature.TGB2API;
-import com.sd.tgfinger.tgApi.bigFeature.TGB2Constant;
 import com.sd.tgfinger.tgexecutor.TgExecutor;
 import com.sd.tgfinger.utils.AudioProvider;
 import com.sd.tgfinger.utils.DevRootUtil;
@@ -79,6 +76,9 @@ import java.util.concurrent.Executor;
 /**
  * 小特征专用类
  * 使用Handler来切换线程
+ *
+ * 算法版本：3.0.0.9
+ * 通信库版本：v19
  */
 public class TGB1API {
 
@@ -138,8 +138,8 @@ public class TGB1API {
     private boolean sound = false;
     //默认是6特征模式
     private boolean isType6 = true;
-    //是否对外发送图片
-    private boolean sendImg = false;
+    //是否存储图片数据
+    private boolean isSaveImg = false;
     private byte[] aimByte = null;
     private int templIndex = 0;
 
@@ -150,13 +150,20 @@ public class TGB1API {
     private DevStatusCallBack devStatusCallBack;
     private DevOpenCallBack devOpenCallBack;
     //SDK的当前版本号
-    private static final String SDK_VERSION = "1.4.5_191130_Beta";
+    private static final String SDK_VERSION = "1.4.6_20200116_Beta";
 
     /**
      * 获取SDK的版本
      */
     public String getSDKVersion() {
         return SDK_VERSION;
+    }
+
+    /**
+     * 是否存储图片数据
+     */
+    private void isSaveImgData(boolean isSave) {
+        this.isSaveImg = isSave;
     }
 
     /*设备音量相关的调节*/
@@ -309,7 +316,7 @@ public class TGB1API {
         Bundle data = msg.getData();
         if (data != null) {
             int devServiceArg = data.getInt(Constant.STATUS);
-            int exeResult = data.getInt(TGB2Constant.EXE_CMD);
+            //int exeResult = data.getInt(TGB2Constant.EXE_CMD);
             LogUtils.d("接收到的设备状态：" + devServiceArg);
             if (devServiceArg == 0) {
                 if (devStatusCallBack != null)
@@ -359,8 +366,8 @@ public class TGB1API {
 //        Boolean devIsRoot = checkDevIsRoot();
         int i = writeCMD();
 //        if (i == 0) {
-            createAimDirs();
-            InitLicense(fvInitCallBack);
+        createAimDirs();
+        InitLicense(fvInitCallBack);
 //        } else {
 //            if (fvInitCallBack != null) {
 //                fvInitCallBack.fvInitResult(new Msg(-2, "hid权限获取失败"));
@@ -619,6 +626,24 @@ public class TGB1API {
                 }
             });
         }
+    }
+
+    /**
+     * 存储采集的图片数据到指定路径
+     */
+    private void saveImgToPath(byte[] imgData, String label) {
+        long millis = System.currentTimeMillis();
+        String path = Constant.IMG_PATH + File.separator + label + "_" + millis;
+        saveDataToHost(imgData, path, new DataSaveCallBack() {
+            @Override
+            public void dataSaveCallBack(Msg msg) {
+                if (msg.getResult() == 1) {
+                    LogUtils.d("图片数据保存成功");
+                } else {
+                    LogUtils.d("图片数据保存失败");
+                }
+            }
+        });
     }
 
     /**
@@ -882,19 +907,25 @@ public class TGB1API {
 //        }
     }
 
+    /**
+     * 注：中科虹霸的需要注销验证的语音提示
+     * @param fingerTemplData  指静脉模板数据
+     * @param fingerSize       模板的数量
+     * @param isSound          是否播放声音
+     * @param verifyMsg        验证的结果回调
+     */
     private void tgAloneFinger1N(byte[] fingerTemplData, int fingerSize, Boolean isSound, final VerifyMsg verifyMsg) {
         //3特征模式的话
         if (!TGB1API.this.isLink) return;
         if (!TGB1API.this.isType6) return;
-        if (isSound && TGB1API.this.isLink) {
-            getAP(mContext).play_inputDownGently();
-        }
+//        if (isSound && TGB1API.this.isLink) {
+//            getAP(mContext).play_inputDownGently();
+//        }
         FingerImgBean fingerImgBean = tgDevGetFingerImg(0x21);
         int imgResultCode = fingerImgBean.getImgResultCode();
         int res;
         if (imgResultCode >= 0) {
             byte[] imgData = fingerImgBean.getImgData();
-            //int imgDataLength = fingerImgBean.getImgDataLength();
             //提取图片的特征
             FingerFeatureBean fingerFeatureBean = extractImgFeatureVerify(imgData);
             int featureResult = fingerFeatureBean.getFeatureResult();
@@ -907,7 +938,6 @@ public class TGB1API {
                         , new MultipleVerifyCallBack() {
                             @Override
                             public void verifyResultCallBack(VerifyResult verifyResult) {
-                                LogUtils.d("返回的数据：" + verifyResult);
                                 Integer result = verifyResult.getResult();
                                 if (result == 1) {
                                     //验证成功
@@ -1210,6 +1240,8 @@ public class TGB1API {
     /**
      * 分流比对的实体
      *
+     * //中科虹霸需要注销验证的语音提示
+     *
      * @param index 返回可更新的模板下标
      */
     private void shuntVerifyMethod(@NonNull byte[] fingerFeatureData, @NonNull byte[] fingerTemplData
@@ -1230,9 +1262,9 @@ public class TGB1API {
             //可更新的模板数据
             byte[] updateFingerData = verifyNBean.getUpdateFingerData();
             verifyResult = new VerifyResult(res, score, (fingerIndex - 1), updateFingerData);
-            if (TGB1API.this.sound && TGB1API.this.isLink) {
-                getAP(mContext).play_verifySuccess();
-            }
+//            if (TGB1API.this.sound && TGB1API.this.isLink) {
+//                getAP(mContext).play_verifySuccess();
+//            }
             //存在相同的模板
             TGB1API.this.equalData = true;
             callBack.verifyResultCallBack(verifyResult);
@@ -1243,18 +1275,18 @@ public class TGB1API {
             //验证的分数
             int score = verifyNBean.getVerifyScore();
             verifyResult = new VerifyResult(res, score, null, null);
-            if (!TGB1API.this.equalData && TGB1API.this.sound
-                    && TGB1API.this.n == cellDataCount && TGB1API.this.isLink) {
-                getAP(mContext).play_verifyFail();
-            }
+//            if (!TGB1API.this.equalData && TGB1API.this.sound
+//                    && TGB1API.this.n == cellDataCount && TGB1API.this.isLink) {
+//                getAP(mContext).play_verifyFail();
+//            }
             callBack.verifyResultCallBack(verifyResult);
         } else if (res1N == -1) {
             //特征比对（1：N）失败，因参数不合法，Output数据无效
             res = -1;
             verifyResult = new VerifyResult(res, null, null, null);
-            if (!TGB1API.this.equalData && TGB1API.this.sound && TGB1API.this.isLink) {
-                getAP(mContext).play_verifyFail();
-            }
+//            if (!TGB1API.this.equalData && TGB1API.this.sound && TGB1API.this.isLink) {
+//                getAP(mContext).play_verifyFail();
+//            }
             callBack.verifyResultCallBack(verifyResult);
         }
     }
@@ -1294,7 +1326,7 @@ public class TGB1API {
     }
 
     //存入文件到主机
-    private Msg tgSaveFileToHost() {
+    public Msg tgSaveFileToHost() {
         Msg msg = null;
         if (TGB1API.this.saveData != null && TGB1API.this.saveData.length > 0
                 && !TextUtils.isEmpty(TGB1API.this.savePath)) {
@@ -1525,10 +1557,6 @@ public class TGB1API {
                         //拼接缓存
                         templIndex = 0;
                         jointTempl(fingerFeatureDataRegister);
-                        //存储图片
-//                        if (sImg) {
-//                            tgSaveImg()
-//                        }
                     }
                 } else if (res1N == -1) {
                     //特征比对（1：N）失败，因参数不合法，Output数据无效
@@ -1561,7 +1589,7 @@ public class TGB1API {
     //抓取图片
     private FingerImgBean tgDevGetFingerImg(int soundType) {
         byte[] imgData;
-        if (sendImg) {
+        if (isSaveImg) {
             imgData = new byte[Constant.IMG_SIZE + Constant.T_SIZE];
             imgData[0] = ((byte) 0xfe);
         } else {
@@ -1692,6 +1720,10 @@ public class TGB1API {
                 aimByte = new byte[Constant.FEATURE_SIZE * templModelType];
             }
         }
+        //存储特征
+//        boolean writeFile = FileUtil.writeFile(newFeature,
+//                Constant.BEHIND_TEMPL_6_PATH + "/F_" + templIndex);
+//        LogUtils.d("存储注册特征：" + writeFile);
         int length = templIndex * Constant.FEATURE_SIZE;
         System.arraycopy(newFeature, 0, aimByte, length, newFeature.length);
         templIndex++;
@@ -1717,7 +1749,10 @@ public class TGB1API {
             int imgResultCode = fingerImgBean.getImgResultCode();
             if (imgResultCode >= 0) {
                 byte[] imgData = fingerImgBean.getImgData();
-                //int imgDataLength = fingerImgBean.getImgDataLength();
+                //存储采集的图片数据---register
+                if (isSaveImg) {
+                    saveImgToPath(imgData,"R");
+                }
                 FingerFeatureBean fingerFeatureBeanRegister = extractImgFeature(imgData);
                 int result = fingerFeatureBeanRegister.getFeatureResult();
                 if (result == 1) {
@@ -1726,6 +1761,9 @@ public class TGB1API {
                     int size = templModelType == Constant.TEMPL_MODEL_6 ? 6 : 3;
                     if (templIndex == size) {
                         //特征融合
+//                        boolean writeFileTeml = FileUtil.writeFile(jointTempl
+//                                , Constant.BEHIND_TEMPL_6_PATH + "/M_" + System.currentTimeMillis());
+//                        LogUtils.d("存储注册融合前的6特征：" + writeFileTeml);
                         FusionFeatureBean fusionFeatureBean = fusionFeature(jointTempl, size);
                         int fusionResult = fusionFeatureBean.getFusionResult();
                         if (fusionResult == 1) {
@@ -1795,7 +1833,7 @@ public class TGB1API {
     }
 
     //特征融合
-    private FusionFeatureBean fusionFeature(byte[] features, int featureSize) {
+    public FusionFeatureBean fusionFeature(byte[] features, int featureSize) {
         byte[] fusionTempl = perfectTemplData();
         int fusionRes = getTGFV().TGFeaturesFusionTmpl(features,
                 featureSize, fusionTempl);
@@ -2191,8 +2229,8 @@ public class TGB1API {
 
     //创建需要的文件夹
     private void createAimDirs() {
-//        createDirPath(Constant.BEHIND_TEMPL_3_PATH);
-//        createDirPath(Constant.BEHIND_TEMPL_6_PATH);
+        createDirPath(Constant.BEHIND_TEMPL_3_PATH);
+        createDirPath(Constant.BEHIND_TEMPL_6_PATH);
         createDirPath(Constant.LOG_DIR);
         createDirPath(Constant.LICENSE_DIR);
         createDirPath(Constant.IMG_PATH);

@@ -41,6 +41,7 @@ import com.sd.tgfinger.CallBack.RegisterCallBack;
 import com.sd.tgfinger.CallBack.SnCallBack;
 import com.sd.tgfinger.CallBack.Verify1_1CallBack;
 import com.sd.tgfinger.CallBack.Verify1_NCallBack;
+import com.sd.tgfinger.CallBack.VerifyFeatureCallBack;
 import com.sd.tgfinger.CallBack.VerifyGetFingerImgListener;
 import com.sd.tgfinger.CallBack.VerifyMsg;
 import com.sd.tgfinger.R;
@@ -74,6 +75,9 @@ import java.util.concurrent.Executor;
 
 /**
  * 大特征专用类
+ * 通信库版本 v19
+ *
+ * 算法版本 v2.0.0.8
  */
 public class TGB2API {
 
@@ -358,7 +362,7 @@ public class TGB2API {
         this.inputStream = inputStream;
         //检测设备是否已经root，通信节点初始化，初始化算法
 //        Boolean devIsRoot = checkDevIsRoot();
-        int i = writeCMD();
+//        int i = writeCMD();
 //        if (i == 0) {
         createAimDirs();
         InitLicense(fvInitCallBack);
@@ -408,8 +412,8 @@ public class TGB2API {
                 @Override
                 public void run() {
 //                    createAimDirs();
-//                    writeCMD();
-                    LogUtils.d("执行重新打开设备，嗨呀:" + Thread.currentThread().getName());
+                    int i = writeCMD();
+                    LogUtils.d("执行重新打开设备，嗨呀:" + i);
                     final Msg msg = tgOpenDev();
                     myHandler.post(new Runnable() {
                         @Override
@@ -1623,6 +1627,84 @@ public class TGB2API {
         return res;
     }
 
+    /**
+     * 抓图返回验证特征
+     * （1） 0：特征提取成功,Output数据有效
+     * （2） 1: 特征提取失败,因证书路径错误,Output数据无效
+     * （3） 2: 特征提取失败,因证书内容无效,Output数据无效
+     * （4） 3: 特征提取失败,因证书内容过期,Output数据无效
+     * （5） 4：特征提取失败,因"图像"数据无效,Output数据无效
+     * （6） 5：特征提取失败,因"图像"质量较差,Output数据无效
+     * （7）-1: 特征提取失败,因参数不合法,Output数据无效
+     */
+    public void verifyFeature(final int playType, @NonNull final VerifyFeatureCallBack callBack) {
+        if (executor != null) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    final Msg imgFeature = getImgFeature(playType);
+                    myHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Integer result = imgFeature.getResult();
+                            if (result == 1) {
+                                callBack.verifyFeatureCallBack(1,
+                                        imgFeature.getTip(), imgFeature.getFingerData());
+                            } else {
+                                callBack.verifyFeatureCallBack(imgFeature.getResult(),
+                                        imgFeature.getTip(), null);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+    }
+
+    /**
+     * 获取图像的特征
+     */
+    private Msg getImgFeature(int playType) {
+        if (playType == 1) {
+            getAP(mContext).play_inputDownGently();
+        } else if (playType == 2) {
+            getAP(mContext).play_input_again();
+        }
+        FingerImgBean fingerImgBean = tgDevGetFingerImg(0x21);
+        int imgResultCode = fingerImgBean.getImgResultCode();
+        if (imgResultCode == 1) {
+            byte[] imgData = fingerImgBean.getImgData();
+            FingerFeatureBean fingerFeatureBean = extractImgFeatureVerify(imgData);
+            int featureResult = fingerFeatureBean.getFeatureResult();
+            if (featureResult == 1) {
+                byte[] fingerFeatureData = fingerFeatureBean.getFingerFeatureData();
+                return new Msg(1, "验证特征提取成功", fingerFeatureData);
+            } else if (featureResult == 2) {
+                return new Msg(2, "因证书路径错误,Output数据无效");
+            } else if (featureResult == 3) {
+                return new Msg(3, "因证书内容无效,Output数据无效");
+            } else if (featureResult == 4) {
+                return new Msg(4, "因图像数据无效,Output数据无效");
+            } else if (featureResult == 5) {
+                return new Msg(5, "因图像质量较差,Output数据无效");
+            } else if (featureResult == -6) {
+                return new Msg(-6, "因参数不合法,Output数据无效");
+            }
+        } else if (imgResultCode == -1) {
+            return new Msg(-1, "抓图超时");
+        } else if (imgResultCode == -2) {
+            return new Msg(-2, "设备断开");
+        } else if (imgResultCode == -3) {
+            return new Msg(-3, "操作取消");
+        } else if (imgResultCode == -4) {
+            return new Msg(-4, "入参错误");
+        } else if (imgResultCode == -5) {
+            return new Msg(-5, "未知错误");
+        }
+        return new Msg(-5, "未知错误");
+    }
+
     //抓取图片
     private FingerImgBean tgDevGetFingerImg(int soundType) {
         byte[] imgData;
@@ -1703,7 +1785,13 @@ public class TGB2API {
         }
     }
 
-    //所有模板全部解析，执行
+    /**
+     * 所有模板全部解析，执行
+     *
+     * @param fingerTemplData 待解析的模板
+     * @param fingerSize      模板数量
+     * @return
+     */
     public byte[] resolveAllTempl(byte[] fingerTemplData, int fingerSize) {
         byte[] matchData = comparableTemplData(fingerSize);
         for (int i = 0; i < fingerSize; i++) {
@@ -1731,9 +1819,16 @@ public class TGB2API {
         return matchData;
     }
 
-    //1:N验证抽取类
-    private VerifyNBean tgTempl1_N(byte[] fingerFeature, byte[] fingerTemplData,
-                                   int fingerSize) {
+    /**
+     * 1:N验证抽取类
+     *
+     * @param fingerFeature   待比对的特征
+     * @param fingerTemplData 待比对的模板
+     * @param fingerSize      模板数量
+     * @return
+     */
+    public VerifyNBean tgTempl1_N(byte[] fingerFeature, byte[] fingerTemplData,
+                                  int fingerSize) {
         IntByReference intB1 = new IntByReference();
         IntByReference intB2 = new IntByReference();
         byte[] uuId = new byte[TGB2Constant.UUID_SIZE];
@@ -1881,7 +1976,12 @@ public class TGB2API {
         return new FusionFeatureBean(fusionRes, fusionTempl);
     }
 
-    //解析模板 ==>大特征解析模板专用
+    /**
+     * 解析模板 ==>大特征解析模板专用
+     *
+     * @param oldMatchTemplData
+     * @return
+     */
     private byte[] resolveTempl(byte[] oldMatchTemplData) {
         /**
          *      （1） 1：模板解析成功， Output数据有效
