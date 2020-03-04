@@ -626,7 +626,7 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         LogUtils.d("设备状态：" + result);
         if (result == 1) {
             getDevFw();
-            tgapi.isSaveImgData(true);
+//            tgapi.isSaveImgData(true);
             toast("设备打开成功");
             showTip(msg.getTip());
             connectStatusTv.setText("设备连接成功");

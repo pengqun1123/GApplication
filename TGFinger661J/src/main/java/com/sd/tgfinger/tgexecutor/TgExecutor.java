@@ -27,7 +27,7 @@ public class TgExecutor {
             return new Thread(r, "TgThread #" + mCount.getAndIncrement());
         }
     };
-
+    //阻塞队列   capacity阻塞队列的容量
     public static final BlockingQueue<Runnable> sPoolWorkQueue =
             new LinkedBlockingQueue<Runnable>(128);
 
