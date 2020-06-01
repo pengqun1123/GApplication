@@ -371,7 +371,6 @@ public class AudioProvider implements SoundPool.OnLoadCompleteListener {
         }
     }
 
-
     // 请再放一次
     public void play_inputAgain() {
         releaseAndCreatePool();

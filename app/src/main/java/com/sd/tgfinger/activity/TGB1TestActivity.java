@@ -35,7 +35,6 @@ import com.sd.tgfinger.CallBack.ReadDataCallBack;
 import com.sd.tgfinger.CallBack.RegisterCallBack;
 import com.sd.tgfinger.CallBack.Verify1_1CallBack;
 import com.sd.tgfinger.CallBack.Verify1_NCallBack;
-import com.sd.tgfinger.CallBack.VerifyFeatureCallBack;
 import com.sd.tgfinger.gapplication.R;
 import com.sd.tgfinger.pojos.Msg;
 import com.sd.tgfinger.tgApi.bigFeature.TGB2API;
@@ -49,7 +48,6 @@ import com.sd.tgfinger.utils.ToastUtil;
 
 import java.io.File;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;

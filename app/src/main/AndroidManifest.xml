@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.sd.tgfinger.gapplication">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-feature android:name="android.hardware.usb.host" />
 
     <application
         android:name="com.sd.tgfinger.GApplication"
@@ -19,32 +21,41 @@
         <activity android:name="com.sd.tgfinger.gapplication.Main3Activity" />
         <activity
             android:name="com.sd.tgfinger.gapplication.FrontActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden" >
+            android:screenOrientation="sensor"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
         <activity
             android:name="com.sd.tgfinger.gapplication.Main4Activity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="sensor"
             android:windowSoftInputMode="stateHidden">
 
         </activity>
-        <activity android:name="com.sd.tgfinger.activity.TestActivity"
-            android:screenOrientation="portrait"
+        <activity
+            android:name="com.sd.tgfinger.activity.TestActivity"
+            android:screenOrientation="sensor"
+            android:windowSoftInputMode="stateHidden">
+
+        </activity>
+        <activity
+            android:name="com.sd.tgfinger.activity.TGB1TestActivity"
+            android:screenOrientation="sensor"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name="com.sd.tgfinger.activity.TGB1TestActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden">
 
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"/>
+            </intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter"/>
         </activity>
 
-        <service android:name="com.sd.tgfinger.utils.FingerService"
+        <service
+            android:name="com.sd.tgfinger.utils.FingerService"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedService">

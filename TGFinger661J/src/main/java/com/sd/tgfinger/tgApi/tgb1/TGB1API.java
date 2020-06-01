@@ -76,8 +76,8 @@ import java.util.concurrent.Executor;
 /**
  * 小特征专用类
  * 使用Handler来切换线程
- *
- * 算法版本：3.0.0.9
+ * <p>
+ * 算法版本：3.0.1.5
  * 通信库版本：v19
  */
 public class TGB1API {
@@ -364,7 +364,7 @@ public class TGB1API {
         this.inputStream = inputStream;
         //检测设备是否已经root，通信节点初始化，初始化算法
 //        Boolean devIsRoot = checkDevIsRoot();
-        int i = writeCMD();
+//        int i = writeCMD();
 //        if (i == 0) {
         createAimDirs();
         InitLicense(fvInitCallBack);
@@ -909,10 +909,11 @@ public class TGB1API {
 
     /**
      * 注：中科虹霸的需要注销验证的语音提示
-     * @param fingerTemplData  指静脉模板数据
-     * @param fingerSize       模板的数量
-     * @param isSound          是否播放声音
-     * @param verifyMsg        验证的结果回调
+     *
+     * @param fingerTemplData 指静脉模板数据
+     * @param fingerSize      模板的数量
+     * @param isSound         是否播放声音
+     * @param verifyMsg       验证的结果回调
      */
     private void tgAloneFinger1N(byte[] fingerTemplData, int fingerSize, Boolean isSound, final VerifyMsg verifyMsg) {
         //3特征模式的话
@@ -1239,7 +1240,7 @@ public class TGB1API {
 
     /**
      * 分流比对的实体
-     *
+     * <p>
      * //中科虹霸需要注销验证的语音提示
      *
      * @param index 返回可更新的模板下标
@@ -1751,7 +1752,7 @@ public class TGB1API {
                 byte[] imgData = fingerImgBean.getImgData();
                 //存储采集的图片数据---register
                 if (isSaveImg) {
-                    saveImgToPath(imgData,"R");
+                    saveImgToPath(imgData, "R");
                 }
                 FingerFeatureBean fingerFeatureBeanRegister = extractImgFeature(imgData);
                 int result = fingerFeatureBeanRegister.getFeatureResult();

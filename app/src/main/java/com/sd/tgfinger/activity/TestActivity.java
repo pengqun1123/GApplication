@@ -46,6 +46,7 @@ import com.sd.tgfinger.utils.LogUtils;
 import com.sd.tgfinger.utils.ToastUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Timer;
@@ -94,7 +95,6 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
     private Timer timer;
     private MyTask myTask;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +120,9 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
         if (i == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, perms, 0x11);
         } else {
-            initFv();
+//            initFv();
+
+
         }
     }
 
@@ -675,8 +677,9 @@ public class TestActivity extends AppCompatActivity implements DevOpenCallBack, 
 
     /**
      * 存储数据
-     * @param saveData  待存储的数据
-     * @param savePath  存储的路径
+     *
+     * @param saveData 待存储的数据
+     * @param savePath 存储的路径
      */
     private void saveData(byte[] saveData, String savePath) {
         long timeMillis = System.currentTimeMillis();
